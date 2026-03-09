@@ -36,69 +36,48 @@
                 <!-- 查询控制区 -->
                 <Border Style="{StaticResource CardBorderStyle}" Margin="24,24,24,12">
                     <StackPanel>
+                        <!-- 校区选择 -->
+                        <TextBlock Text="选择校区" FontSize="14" FontWeight="SemiBold" 
+                                  Foreground="#2C3E50" Margin="0,0,0,12"/>
+                        
+                        <WrapPanel Orientation="Horizontal" Margin="0,0,0,20">
+                            <Button x:Name="EastCampusButton" 
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Padding="20,10" FontSize="13"
+                                    Click="OnCampusClick" Tag="1"
+                                    Margin="0,0,10,10">
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Width="16" Height="16" Data="{StaticResource SchoolIcon}"
+                                              Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
+                                              VerticalAlignment="Center"/>
+                                        <TextBlock Text="东校区" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+
+                            <Button x:Name="WestCampusButton" 
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Padding="20,10" FontSize="13"
+                                    Click="OnCampusClick" Tag="2"
+                                    Margin="0,0,10,10">
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Width="16" Height="16" Data="{StaticResource SchoolIcon}"
+                                              Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
+                                              VerticalAlignment="Center"/>
+                                        <TextBlock Text="西校区" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+                        </WrapPanel>
+
+                        <!-- 教学楼选择 -->
                         <TextBlock Text="选择教学楼" FontSize="14" FontWeight="SemiBold" 
                                   Foreground="#2C3E50" Margin="0,0,0,12"/>
 
-                        <WrapPanel Orientation="Horizontal">
-                            <Button x:Name="Building1Button" 
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Padding="20,10" FontSize="13"
-                                    Click="OnBuildingClick" Tag="1"
-                                    Margin="0,0,10,10">
-                                <Button.Content>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Path Width="16" Height="16" Data="{StaticResource SchoolIcon}"
-                                              Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
-                                              VerticalAlignment="Center"/>
-                                        <TextBlock Text="第一教学楼" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button.Content>
-                            </Button>
-
-                            <Button x:Name="Building2Button" 
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Padding="20,10" FontSize="13"
-                                    Click="OnBuildingClick" Tag="2"
-                                    Margin="0,0,10,10">
-                                <Button.Content>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Path Width="16" Height="16" Data="{StaticResource SchoolIcon}"
-                                              Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
-                                              VerticalAlignment="Center"/>
-                                        <TextBlock Text="第二教学楼" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button.Content>
-                            </Button>
-
-                            <Button x:Name="Building3Button" 
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Padding="20,10" FontSize="13"
-                                    Click="OnBuildingClick" Tag="3"
-                                    Margin="0,0,10,10">
-                                <Button.Content>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Path Width="16" Height="16" Data="{StaticResource SchoolIcon}"
-                                              Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
-                                              VerticalAlignment="Center"/>
-                                        <TextBlock Text="第三教学楼" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button.Content>
-                            </Button>
-
-                            <Button x:Name="Building4Button" 
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Padding="20,10" FontSize="13"
-                                    Click="OnBuildingClick" Tag="4"
-                                    Margin="0,0,10,10">
-                                <Button.Content>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Path Width="16" Height="16" Data="{StaticResource SchoolIcon}"
-                                              Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
-                                              VerticalAlignment="Center"/>
-                                        <TextBlock Text="第四教学楼" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button.Content>
-                            </Button>
+                        <WrapPanel x:Name="BuildingButtonsPanel" Orientation="Horizontal">
+                            <!-- 教学楼按钮将在这里动态生成 -->
                         </WrapPanel>
 
                         <TextBlock x:Name="StatusText" Text="" 

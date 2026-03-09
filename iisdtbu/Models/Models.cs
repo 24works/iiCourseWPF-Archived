@@ -44,6 +44,15 @@ namespace iisdtbu.Models
     }
 
     /// <summary>
+    /// 教学楼信息模型
+    /// </summary>
+    public class BuildingInfo
+    {
+        public string 名称 { get; set; } = string.Empty;
+        public string ID { get; set; } = string.Empty;
+    }
+
+    /// <summary>
     /// 空教室信息模型
     /// </summary>
     public class SpareClassroom

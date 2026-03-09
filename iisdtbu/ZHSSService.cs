@@ -290,6 +290,47 @@ namespace iisdtbu
         }
 
         /// <summary>
+        /// 获取教学楼列表
+        /// </summary>
+        /// <param name="campusId">校区ID，1为东校区，2为西校区</param>
+        public async Task<List<BuildingInfo>> GetBuildingsAsync(string campusId = "1")
+        {
+            var result = new List<BuildingInfo>();
+            try
+            {
+                var data = new { xq = campusId };
+                var json = JsonConvert.SerializeObject(data);
+                var content = new StringContent(json, Encoding.UTF8, new MediaTypeHeaderValue("application/json"));
+
+                var response = await _client.PostAsync("http://wmh.sdtbu.edu.cn:7011/tp_wp/wp/kxclassroom/getbuild", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                // 检查响应是否为JSON格式
+                if (string.IsNullOrWhiteSpace(responseContent) || responseContent.TrimStart().StartsWith("<"))
+                {
+                    Log("获取教学楼列表失败：服务器返回了非JSON数据，可能是未登录");
+                    return result;
+                }
+
+                var jsonDoc = JArray.Parse(responseContent);
+
+                foreach (var item in jsonDoc)
+                {
+                    result.Add(new BuildingInfo
+                    {
+                        名称 = item["BUILD"]?.ToString() ?? "",
+                        ID = item["BUILD_ID"]?.ToString() ?? ""
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"获取教学楼列表失败: {ex.Message}");
+            }
+            return result;
+        }
+
+        /// <summary>
         /// 获取空教室
         /// </summary>
         public async Task<List<SpareClassroom>> GetSpareClassroomAsync(int buildingId)
@@ -298,9 +339,10 @@ namespace iisdtbu
             try
             {
                 var tasks = new List<Task<HttpResponseMessage>>();
-                for (int i = 1; i <= 11; i++)
+                // 根据API，课时范围是1-10
+                for (int i = 1; i <= 10; i++)
                 {
-                    var data = new { build = buildingId, time = i };
+                    var data = new { build = buildingId.ToString(), time = i.ToString() };
                     var json = JsonConvert.SerializeObject(data);
                     var content = new StringContent(json, Encoding.UTF8, new MediaTypeHeaderValue("application/json"));
                     tasks.Add(_client.PostAsync("http://wmh.sdtbu.edu.cn:7011/tp_wp/wp/kxclassroom/getclassroom", content));
@@ -310,20 +352,28 @@ namespace iisdtbu
                 foreach (var response in responses)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
+                    // 检查响应是否为JSON格式
+                    if (string.IsNullOrWhiteSpace(responseContent) || responseContent.TrimStart().StartsWith("<"))
+                    {
+                        Log("获取空教室失败：服务器返回了非JSON数据，可能是未登录");
+                        continue;
+                    }
+
                     var jsonDoc = JArray.Parse(responseContent);
                     foreach (var item in jsonDoc)
                     {
                         result.Add(new SpareClassroom
                         {
-                            教室名称 = item["jsmc"]?.ToString() ?? "",
-                            教学楼 = item["jzwmc"]?.ToString() ?? "",
-                            节次 = item["jc"]?.ToString() ?? ""
+                            教室名称 = item["KXJS"]?.ToString() ?? "",
+                            教学楼 = buildingId.ToString(),
+                            节次 = item["SKJC"]?.ToString() ?? ""
                         });
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Log($"获取空教室异常: {ex.Message}");
             }
             return result;
         }

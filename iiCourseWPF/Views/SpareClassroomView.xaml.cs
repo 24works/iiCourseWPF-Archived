@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using iisdtbu;
 using iisdtbu.Models;
 
@@ -17,6 +18,9 @@ namespace iiCourseWPF.Views
     {
         private ZHSSService? _service;
         private List<SpareClassroom> _classrooms = new();
+        private List<BuildingInfo> _buildings = new();
+        private Button? _currentCampusButton;
+        private Button? _currentBuildingButton;
 
         public SpareClassroomView()
         {
@@ -32,6 +36,114 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
+        /// 校区按钮点击事件
+        /// </summary>
+        private async void OnCampusClick(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string tag)
+            {
+                // 更新校区按钮状态
+                UpdateCampusButtonStates(button);
+                _currentCampusButton = button;
+
+                // 加载对应校区的教学楼
+                await LoadBuildingsAsync(tag);
+            }
+        }
+
+        /// <summary>
+        /// 加载教学楼列表
+        /// </summary>
+        private async Task LoadBuildingsAsync(string campusId)
+        {
+            if (_service == null)
+            {
+                ShowStatus("服务未初始化");
+                return;
+            }
+
+            try
+            {
+                SetLoadingState(true);
+                ShowStatus("正在加载教学楼列表...");
+
+                // 清空现有教学楼按钮
+                BuildingButtonsPanel.Children.Clear();
+                _currentBuildingButton = null;
+
+                // 获取教学楼列表
+                _buildings = await _service.GetBuildingsAsync(campusId);
+
+                if (_buildings.Any())
+                {
+                    // 动态创建教学楼按钮
+                    foreach (var building in _buildings)
+                    {
+                        var button = CreateBuildingButton(building);
+                        BuildingButtonsPanel.Children.Add(button);
+                    }
+                    ShowStatus($"已加载 {_buildings.Count} 个教学楼");
+                }
+                else
+                {
+                    ShowStatus("该校区暂无教学楼数据");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowStatus($"加载教学楼失败: {ex.Message}");
+            }
+            finally
+            {
+                SetLoadingState(false);
+            }
+        }
+
+        /// <summary>
+        /// 创建教学楼按钮
+        /// </summary>
+        private Button CreateBuildingButton(BuildingInfo building)
+        {
+            var button = new Button
+            {
+                Style = FindResource("SecondaryButtonStyle") as Style,
+                Padding = new Thickness(20, 10, 20, 10),
+                FontSize = 13,
+                Tag = building.ID,
+                Margin = new Thickness(0, 0, 10, 10)
+            };
+
+            var content = new StackPanel { Orientation = Orientation.Horizontal };
+
+            // 图标
+            var icon = new Path
+            {
+                Width = 16,
+                Height = 16,
+                Data = FindResource("SchoolIcon") as Geometry,
+                Fill = new SolidColorBrush(Color.FromRgb(255, 107, 53)),
+                Stretch = Stretch.Uniform,
+                Margin = new Thickness(0, 0, 8, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            // 文字
+            var text = new TextBlock
+            {
+                Text = building.名称,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            content.Children.Add(icon);
+            content.Children.Add(text);
+            button.Content = content;
+
+            button.Click += OnBuildingClick;
+
+            return button;
+        }
+
+        /// <summary>
         /// 教学楼按钮点击事件
         /// </summary>
         private async void OnBuildingClick(object sender, RoutedEventArgs e)
@@ -40,8 +152,9 @@ namespace iiCourseWPF.Views
             {
                 if (int.TryParse(tag, out int buildingId))
                 {
+                    _currentBuildingButton = button;
                     await LoadSpareClassroomsAsync(buildingId);
-                    UpdateButtonStates(button);
+                    UpdateBuildingButtonStates(button);
                 }
             }
         }
@@ -60,7 +173,7 @@ namespace iiCourseWPF.Views
             try
             {
                 SetLoadingState(true);
-                ShowStatus($"正在查询第{buildingId}教学楼的空教室...");
+                ShowStatus("正在查询空教室...");
 
                 _classrooms = await _service.GetSpareClassroomAsync(buildingId);
 
@@ -153,7 +266,7 @@ namespace iiCourseWPF.Views
             var periods = classrooms
                 .Select(c => c.节次)
                 .Distinct()
-                .OrderBy(p => p)
+                .OrderBy(p => int.TryParse(p, out var n) ? n : 0)
                 .ToList();
 
             var periodsText = new TextBlock
@@ -215,15 +328,31 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 更新按钮状态
+        /// 更新校区按钮状态
         /// </summary>
-        private void UpdateButtonStates(Button activeButton)
+        private void UpdateCampusButtonStates(Button activeButton)
         {
-            // 重置所有按钮
-            ResetButtonStyle(Building1Button);
-            ResetButtonStyle(Building2Button);
-            ResetButtonStyle(Building3Button);
-            ResetButtonStyle(Building4Button);
+            // 重置所有校区按钮
+            ResetButtonStyle(EastCampusButton);
+            ResetButtonStyle(WestCampusButton);
+
+            // 设置激活按钮
+            SetActiveButtonStyle(activeButton);
+        }
+
+        /// <summary>
+        /// 更新教学楼按钮状态
+        /// </summary>
+        private void UpdateBuildingButtonStates(Button activeButton)
+        {
+            // 重置所有教学楼按钮
+            foreach (var child in BuildingButtonsPanel.Children)
+            {
+                if (child is Button button)
+                {
+                    ResetButtonStyle(button);
+                }
+            }
 
             // 设置激活按钮
             SetActiveButtonStyle(activeButton);
@@ -260,10 +389,16 @@ namespace iiCourseWPF.Views
         /// </summary>
         private void SetLoadingState(bool isLoading)
         {
-            Building1Button.IsEnabled = !isLoading;
-            Building2Button.IsEnabled = !isLoading;
-            Building3Button.IsEnabled = !isLoading;
-            Building4Button.IsEnabled = !isLoading;
+            EastCampusButton.IsEnabled = !isLoading;
+            WestCampusButton.IsEnabled = !isLoading;
+
+            foreach (var child in BuildingButtonsPanel.Children)
+            {
+                if (child is Button button)
+                {
+                    button.IsEnabled = !isLoading;
+                }
+            }
         }
     }
 }

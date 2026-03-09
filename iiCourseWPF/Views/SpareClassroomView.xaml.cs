@@ -23,23 +23,8 @@ namespace iiCourseWPF.Views
         private Button? _currentCampusButton;
         private Button? _currentBuildingButton;
         private string? _selectedPeriod; // 当前选中的课时筛选
-
-        // 课时名称映射
-        private readonly Dictionary<string, string> _periodNames = new()
-        {
-            ["1"] = "第1节 (08:00-08:45)",
-            ["2"] = "第2节 (08:50-09:35)",
-            ["3"] = "第3节 (09:55-10:40)",
-            ["4"] = "第4节 (10:45-11:30)",
-            ["5"] = "第5节 (13:30-14:15)",
-            ["6"] = "第6节 (14:20-15:05)",
-            ["7"] = "第7节 (15:25-16:10)",
-            ["8"] = "第8节 (16:15-17:00)",
-            ["9"] = "第9节 (18:30-19:15)",
-            ["10"] = "第10节 (19:20-20:05)",
-            ["11"] = "第11节 (20:10-20:55)",
-            ["12"] = "第12节 (21:00-21:45)"
-        };
+        private string? _currentCampusId; // 当前选中的校区ID
+        private string? _currentBuildingName; // 当前选中的教学楼名称
 
         public SpareClassroomView()
         {
@@ -64,6 +49,7 @@ namespace iiCourseWPF.Views
                 // 更新校区按钮状态
                 UpdateCampusButtonStates(button);
                 _currentCampusButton = button;
+                _currentCampusId = tag;
 
                 // 加载对应校区的教学楼
                 await LoadBuildingsAsync(tag);
@@ -173,6 +159,8 @@ namespace iiCourseWPF.Views
                 {
                     _currentBuildingButton = button;
                     _selectedPeriod = null; // 重置课时筛选
+                    // 获取教学楼名称用于时间计算
+                    _currentBuildingName = ((button.Content as StackPanel)?.Children[1] as TextBlock)?.Text;
                     await LoadSpareClassroomsAsync(buildingId);
                     UpdateBuildingButtonStates(button);
                 }
@@ -396,7 +384,8 @@ namespace iiCourseWPF.Views
                 Margin = new Thickness(0, 0, 12, 0)
             };
 
-            string periodDisplay = _periodNames.TryGetValue(period, out var name) ? name : $"第{period}节";
+            // 使用 ClassTime 获取课时显示文本
+            string periodDisplay = GetPeriodDisplayText(period);
             var periodText = new TextBlock
             {
                 Text = periodDisplay,
@@ -496,6 +485,24 @@ namespace iiCourseWPF.Views
 
             border.Child = text;
             return border;
+        }
+
+        /// <summary>
+        /// 获取课时显示文本，根据当前教学楼自动判断时间类型
+        /// </summary>
+        private string GetPeriodDisplayText(string period)
+        {
+            if (!int.TryParse(period, out int periodNumber))
+                return $"第{period}节";
+
+            // 根据教学楼名称和校区获取时间显示
+            if (!string.IsNullOrEmpty(_currentBuildingName))
+            {
+                return ClassTime.GetPeriodDisplayText(_currentBuildingName, periodNumber);
+            }
+
+            // 默认使用 TypeA 的时间
+            return ClassTime.GetPeriodDisplayText(periodNumber);
         }
 
         /// <summary>

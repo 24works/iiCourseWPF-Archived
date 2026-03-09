@@ -23,7 +23,7 @@ namespace iiCourseWPF
             InitializeComponent();
             InitializeService();
             InitializeEventHandlers();
-            ShowLoginView();
+            _ = ShowLoginView();
         }
 
         /// <summary>
@@ -91,7 +91,8 @@ namespace iiCourseWPF
         /// </summary>
         private async Task HandleMenuClick(string menuTag)
         {
-            if (!_isLoggedIn && menuTag != "Settings")
+            // 隐私政策页面不需要登录即可访问
+            if (!_isLoggedIn && menuTag != "Settings" && menuTag != "Privacy")
             {
                 MessageBox.Show(
                     "请先登录后再使用此功能。",
@@ -206,6 +207,7 @@ namespace iiCourseWPF
                 "CardInfo" => CardInfoView,
                 "Evaluation" => EvaluationView,
                 "Settings" => SettingsView,
+                "Privacy" => PrivacyView,
                 _ => null
             };
 
@@ -228,6 +230,7 @@ namespace iiCourseWPF
             CardInfoView.Visibility = Visibility.Collapsed;
             EvaluationView.Visibility = Visibility.Collapsed;
             SettingsView.Visibility = Visibility.Collapsed;
+            PrivacyView.Visibility = Visibility.Collapsed;
         }
 
         /// <summary>

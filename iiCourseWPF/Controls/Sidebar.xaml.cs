@@ -29,6 +29,7 @@ namespace iiCourseWPF.Controls
             BtnCardInfo.Style = Resources["MenuButtonStyle"] as Style;
             BtnEvaluation.Style = Resources["MenuButtonStyle"] as Style;
             BtnSettings.Style = Resources["MenuButtonStyle"] as Style;
+            BtnPrivacy.Style = Resources["MenuButtonStyle"] as Style;
 
             // 设置当前按钮为激活状态
             Button? activeButton = menuTag switch
@@ -40,6 +41,7 @@ namespace iiCourseWPF.Controls
                 "CardInfo" => BtnCardInfo,
                 "Evaluation" => BtnEvaluation,
                 "Settings" => BtnSettings,
+                "Privacy" => BtnPrivacy,
                 _ => null
             };
 

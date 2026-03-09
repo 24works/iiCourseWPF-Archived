@@ -193,6 +193,14 @@
                             <TextBlock Text="设置" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
+
+                    <Button x:Name="BtnPrivacy" Style="{StaticResource MenuButtonStyle}" 
+                            Click="OnMenuClick" Tag="Privacy">
+                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                            <Path Style="{StaticResource MenuIconStyle}" Data="{StaticResource PrivacyIcon}"/>
+                            <TextBlock Text="隐私政策" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </ScrollViewer>
 

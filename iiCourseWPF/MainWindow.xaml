@@ -79,6 +79,13 @@
                         <TranslateTransform Y="20"/>
                     </views:SettingsView.RenderTransform>
                 </views:SettingsView>
+                
+                <!-- 隐私政策视图 -->
+                <views:PrivacyView x:Name="PrivacyView" Visibility="Collapsed" Opacity="0">
+                    <views:PrivacyView.RenderTransform>
+                        <TranslateTransform Y="20"/>
+                    </views:PrivacyView.RenderTransform>
+                </views:PrivacyView>
             </Grid>
         </Border>
     </Grid>

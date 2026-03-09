@@ -25,9 +25,9 @@
                                   Foreground="#2C3E50" Margin="0,0,0,16"/>
 
                         <StackPanel Margin="0,0,0,12">
-                            <TextBlock Text="应用名称" FontSize="12" 
+                            <TextBlock Text="应用名称" FontSize="12"
                                       Foreground="#7F8C8D" Margin="0,0,0,4"/>
-                            <TextBlock Text="智慧山商" FontSize="15" 
+                            <TextBlock Text="iiCourse" FontSize="15"
                                       Foreground="#2C3E50" FontWeight="SemiBold"/>
                         </StackPanel>
 
@@ -39,9 +39,9 @@
                         </StackPanel>
 
                         <StackPanel>
-                            <TextBlock Text="开发者" FontSize="12" 
+                            <TextBlock Text="开发者" FontSize="12"
                                       Foreground="#7F8C8D" Margin="0,0,0,4"/>
-                            <TextBlock Text="iiCourseWPF Team" FontSize="15" 
+                            <TextBlock Text="AiScReam (iicemeta)" FontSize="15"
                                       Foreground="#2C3E50" FontWeight="SemiBold"/>
                         </StackPanel>
                     </StackPanel>

@@ -1,4 +1,4 @@
-namespace iisdtbu.Models
+namespace iiCourse.Core.Models
 {
     /// <summary>
     /// 上课时间表配置

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using iisdtbu;
+using iiCourse.Core;
 using Newtonsoft.Json.Linq;
 
 namespace iiCourseWPF.Views

@@ -4,12 +4,12 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using HtmlAgilityPack;
-using iisdtbu.Models;
+using iiCourse.Core.Models;
 
-namespace iisdtbu
+namespace iiCourse.Core
 {
     /// <summary>
-    /// 智慧山商服务类
+    /// iiCourse 核心服务类 - 提供教务系统相关功能
     /// </summary>
     public class ZHSSService : IDisposable
     {
@@ -54,7 +54,7 @@ namespace iisdtbu
         }
 
         /// <summary>
-        /// 登录智慧山商
+        /// 登录教务系统
         /// </summary>
         public async Task<(bool success, string message)> LoginAsync(string username, string password)
         {

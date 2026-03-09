@@ -61,7 +61,7 @@
             <StackPanel Margin="48,40">
                 <!-- 标题区域 -->
                 <StackPanel Margin="0,0,0,32">
-                    <TextBlock Text="登录智慧山商" FontSize="26" FontWeight="Bold" 
+                    <TextBlock Text="登录 iiCourse" FontSize="26" FontWeight="Bold"
                               Foreground="#2C3E50" TextAlignment="Center"/>
                     <TextBlock Text="请输入您的学号和密码" FontSize="13" 
                               Foreground="#7F8C8D" TextAlignment="Center" Margin="0,8,0,0"/>

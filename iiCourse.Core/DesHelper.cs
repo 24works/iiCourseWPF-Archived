@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace iisdtbu
+namespace iiCourse.Core
 {
     /// <summary>
     /// DES 加密辅助类

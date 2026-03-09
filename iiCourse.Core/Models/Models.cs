@@ -1,4 +1,4 @@
-namespace iisdtbu.Models
+namespace iiCourse.Core.Models
 {
     /// <summary>
     /// 用户信息模型

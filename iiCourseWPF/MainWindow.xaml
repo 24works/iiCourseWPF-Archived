@@ -1,4 +1,4 @@
-﻿<Window x:Class="iiCourseWPF.MainWindow"
+<Window x:Class="iiCourseWPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,7 +7,7 @@
         xmlns:controls="clr-namespace:iiCourseWPF.Controls"
         xmlns:views="clr-namespace:iiCourseWPF.Views"
         mc:Ignorable="d"
-        Title="智慧山商 - 学生信息系统" 
+        Title="iiCourse" 
         Height="700" Width="1200" 
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BackgroundColor}">

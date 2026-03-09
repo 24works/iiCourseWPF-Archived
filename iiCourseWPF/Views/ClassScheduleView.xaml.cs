@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using iisdtbu;
-using iisdtbu.Models;
+using iiCourse.Core;
+using iiCourse.Core.Models;
 
 namespace iiCourseWPF.Views
 {

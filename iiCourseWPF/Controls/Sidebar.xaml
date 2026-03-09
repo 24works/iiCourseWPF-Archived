@@ -128,10 +128,8 @@
                     </LinearGradientBrush>
                 </Border.Background>
                 <StackPanel>
-                    <TextBlock Text="智慧山商" FontSize="22" FontWeight="Bold" 
+                    <TextBlock Text="iiCourse" FontSize="22" FontWeight="Bold"
                               Foreground="White" TextAlignment="Center"/>
-                    <TextBlock Text="学生信息系统" FontSize="11" 
-                              Foreground="#D9FFFFFF" TextAlignment="Center" Margin="0,6,0,0"/>
                 </StackPanel>
             </Border>
 

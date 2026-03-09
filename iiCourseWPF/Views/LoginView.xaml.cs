@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using iisdtbu;
+using iiCourse.Core;
 using iiCourseWPF.Services;
 
 namespace iiCourseWPF.Views

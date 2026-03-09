@@ -7,8 +7,8 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using iisdtbu;
-using iisdtbu.Models;
+using iiCourse.Core;
+using iiCourse.Core.Models;
 
 namespace iiCourseWPF.Views
 {

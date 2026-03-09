@@ -1,4 +1,4 @@
-# iisdtbu - 山东工商学院智慧山商 API 服务库
+# iiCourse.Core - 山东工商学院智慧山商 API 服务库
 
 一个用于访问山东工商学院（SDTBU）智慧山商系统的 .NET 类库，提供了登录认证、成绩查询、课表获取、空教室查询、一卡通信息查询以及学生评教等功能。
 
@@ -13,12 +13,13 @@
 ## 项目结构
 
 ```
-iisdtbu/
-├── iisdtbu.csproj          # 项目配置文件
-├── ZHSSService.cs          # 智慧山商服务核心类
+iiCourse.Core/
+├── iiCourse.Core.csproj    # 项目配置文件
+├── ZHSSService.cs          # 核心服务类
 ├── DesHelper.cs            # DES 加密辅助类
 └── Models/
-    └── Models.cs           # 数据模型定义
+    ├── Models.cs           # 数据模型定义
+    └── ClassTime.cs        # 课程时间配置
 ```
 
 ## 功能特性
@@ -175,7 +176,7 @@ DES 加密辅助类，用于智慧山商登录时的密码加密。
 ### 基本使用
 
 ```csharp
-using iisdtbu;
+using iiCourse.Core;
 
 // 创建服务实例
 using var service = new ZHSSService

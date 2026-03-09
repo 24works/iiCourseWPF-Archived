@@ -51,6 +51,8 @@ namespace iiCourseWPF.Views
 
                 if (_classes.Any())
                 {
+                    // 确保 UI 布局完成后再显示课程
+                    await EnsureLayoutUpdatedAsync();
                     DisplaySchedule();
                     ShowStatus($"共加载 {_classes.Count} 门课程");
                 }
@@ -74,6 +76,21 @@ namespace iiCourseWPF.Views
             {
                 SetLoadingState(false);
             }
+        }
+
+        /// <summary>
+        /// 确保 UI 布局更新完成
+        /// </summary>
+        private async Task EnsureLayoutUpdatedAsync()
+        {
+            // 强制立即更新布局
+            UpdateLayout();
+
+            // 使用 Task.Yield 让出当前线程，等待 UI 线程完成布局
+            await Task.Yield();
+
+            // 再次确保布局更新
+            await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Loaded);
         }
 
         /// <summary>

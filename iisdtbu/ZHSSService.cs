@@ -114,20 +114,22 @@ namespace iisdtbu
                     { "_eventId", "submit" }
                 };
 
-                Log("步骤4: 发送登录请求...");
-                var loginUrl = "https://cas.sdtbu.edu.cn/cas/login?service=https://zhss.sdtbu.edu.cn/tp_up/";
+                Log("步骤4: 发送登录请求到WMH系统...");
+                // 使用 wmh 系统作为主要的 service，这样后续访问 wmh 下的所有端点都不需要二次认证
+                var loginUrl = "https://cas.sdtbu.edu.cn/cas/login?service=http://wmh.sdtbu.edu.cn:7011/tp_wp/wp/wxH6/wpHome";
                 var postResponse = await _client.PostAsync(loginUrl, new FormUrlEncodedContent(loginData));
                 var postContent = await postResponse.Content.ReadAsStringAsync();
                 Log($"POST响应状态: {postResponse.StatusCode}");
                 Log($"POST响应长度: {postContent.Length}");
 
-                Log("步骤5: 访问tp_up...");
-                var tpResponse = await _client.GetAsync("https://zhss.sdtbu.edu.cn/tp_up/");
-                Log($"tp_up响应状态: {tpResponse.StatusCode}");
+                Log("步骤5: 访问WMH首页...");
+                var wmhResponse = await _client.GetAsync("http://wmh.sdtbu.edu.cn:7011/tp_wp/wp/wxH6/wpHome");
+                Log($"WMH首页响应状态: {wmhResponse.StatusCode}");
 
-                Log("步骤6: 访问成绩系统...");
-                var scoreResponse = await _client.GetAsync("https://cas.sdtbu.edu.cn/cas/login?service=http://wmh.sdtbu.edu.cn:7011/tp_wp/wp/score");
-                Log($"成绩系统响应状态: {scoreResponse.StatusCode}");
+                Log("步骤6: 访问zhss验证用户信息...");
+                // 访问 zhss 系统获取用户信息（这个系统可能仍需要单独认证）
+                var zhssResponse = await _client.GetAsync("https://cas.sdtbu.edu.cn/cas/login?service=https://zhss.sdtbu.edu.cn/tp_up/");
+                Log($"zhss响应状态: {zhssResponse.StatusCode}");
 
                 Log("步骤7: 验证登录状态...");
                 var verifyResult2 = await VerifyLoginAsync(username);
@@ -336,6 +338,14 @@ namespace iisdtbu
                 var content = new StringContent("{}", Encoding.UTF8, new MediaTypeHeaderValue("application/json"));
                 var infoResponse = await _client.PostAsync("http://wmh.sdtbu.edu.cn:7011/tp_wp/wp/wxH6/wpHome/getLearnweekbyDate", content);
                 var infoResult = await infoResponse.Content.ReadAsStringAsync();
+
+                // 检查响应是否为 JSON（以 HTML 开头表示可能是错误页面或未登录）
+                if (string.IsNullOrWhiteSpace(infoResult) || infoResult.TrimStart().StartsWith("<"))
+                {
+                    Log("获取课程信息失败：服务器返回了 HTML 页面，可能是未登录或会话过期");
+                    throw new InvalidOperationException("获取课程信息失败，请重新登录");
+                }
+
                 var infoDoc = JObject.Parse(infoResult);
 
                 // 检测假期状态
@@ -355,6 +365,14 @@ namespace iisdtbu
 
                 var classResponse = await _client.PostAsync("http://wmh.sdtbu.edu.cn:7011/tp_wp/wp/wxH6/wpHome/getWeekClassbyUserId", classContent);
                 var classResult = await classResponse.Content.ReadAsStringAsync();
+
+                // 检查响应是否为 JSON
+                if (string.IsNullOrWhiteSpace(classResult) || classResult.TrimStart().StartsWith("<"))
+                {
+                    Log("获取课程详情失败：服务器返回了 HTML 页面");
+                    throw new InvalidOperationException("获取课程详情失败");
+                }
+
                 var classDoc = JArray.Parse(classResult);
 
                 var result = new List<ClassInfo>();
@@ -382,8 +400,13 @@ namespace iisdtbu
                 }
                 return result;
             }
-            catch
+            catch (InvalidOperationException)
             {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Log($"获取课程信息异常: {ex.Message}");
                 return new List<ClassInfo>();
             }
         }

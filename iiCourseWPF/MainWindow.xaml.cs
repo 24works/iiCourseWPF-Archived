@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -63,7 +63,7 @@ namespace iiCourseWPF
                     Sidebar.UpdateLoginStatus(true, username);
 
                     // 显示用户信息视图
-                    ShowView("UserInfo");
+                    await ShowView("UserInfo");
 
                     // 加载用户信息
                     UserInfoView.SetUsername(username);
@@ -98,11 +98,11 @@ namespace iiCourseWPF
                     "未登录",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
-                ShowLoginView();
+                await ShowLoginView();
                 return;
             }
 
-            ShowView(menuTag);
+            await ShowView(menuTag);
 
             // 根据视图类型加载数据
             switch (menuTag)
@@ -136,7 +136,7 @@ namespace iiCourseWPF
         /// <summary>
         /// 显示登录视图
         /// </summary>
-        private async void ShowLoginView()
+        private async Task ShowLoginView()
         {
             await ShowViewAsync(LoginView);
             Sidebar.SetActiveMenu("UserInfo");
@@ -195,7 +195,7 @@ namespace iiCourseWPF
         /// <summary>
         /// 显示指定视图
         /// </summary>
-        private void ShowView(string viewTag)
+        private async Task ShowView(string viewTag)
         {
             UserControl? targetView = viewTag switch
             {
@@ -211,7 +211,7 @@ namespace iiCourseWPF
 
             if (targetView != null)
             {
-                _ = ShowViewAsync(targetView);
+                await ShowViewAsync(targetView);
             }
         }
 

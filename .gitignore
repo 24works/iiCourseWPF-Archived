@@ -1,0 +1,52 @@
+# Visual Studio 文件
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build 结果
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# WPF 临时文件
+*_wpftmp.csproj
+
+# Visual Studio 缓存文件
+*.[Pp]ublish.xml
+*.pubxml
+*.publishproj
+
+# NuGet 包
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Rider
+.idea/
+*.sln.iml
+
+# VS Code
+.vscode/
+
+# 用户配置文件 (包含敏感信息)
+*.csproj.user
+
+# Windows 系统文件
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# 日志文件
+*.log
+
+# 开发文档
+docs/

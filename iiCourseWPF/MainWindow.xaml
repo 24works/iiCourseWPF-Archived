@@ -1,0 +1,84 @@
+﻿<Window x:Class="iiCourseWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:iiCourseWPF"
+        xmlns:controls="clr-namespace:iiCourseWPF.Controls"
+        xmlns:views="clr-namespace:iiCourseWPF.Views"
+        mc:Ignorable="d"
+        Title="智慧山商 - 学生信息系统" 
+        Height="700" Width="1200" 
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundColor}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 侧边栏 -->
+        <controls:Sidebar x:Name="Sidebar" Grid.Column="0"/>
+
+        <!-- 内容区域 -->
+        <Border Grid.Column="1" Background="{StaticResource BackgroundColor}">
+            <Grid x:Name="ContentGrid">
+                <!-- 登录视图 -->
+                <views:LoginView x:Name="LoginView" Visibility="Collapsed" Opacity="0">
+                    <views:LoginView.RenderTransform>
+                        <TranslateTransform Y="20"/>
+                    </views:LoginView.RenderTransform>
+                </views:LoginView>
+                
+                <!-- 用户信息视图 -->
+                <views:UserInfoView x:Name="UserInfoView" Visibility="Collapsed" Opacity="0">
+                    <views:UserInfoView.RenderTransform>
+                        <TranslateTransform Y="20"/>
+                    </views:UserInfoView.RenderTransform>
+                </views:UserInfoView>
+                
+                <!-- 课程表视图 -->
+                <views:ClassScheduleView x:Name="ClassScheduleView" Visibility="Collapsed" Opacity="0">
+                    <views:ClassScheduleView.RenderTransform>
+                        <TranslateTransform Y="20"/>
+                    </views:ClassScheduleView.RenderTransform>
+                </views:ClassScheduleView>
+                
+                <!-- 成绩查询视图 -->
+                <views:ScoreView x:Name="ScoreView" Visibility="Collapsed" Opacity="0">
+                    <views:ScoreView.RenderTransform>
+                        <TranslateTransform Y="20"/>
+                    </views:ScoreView.RenderTransform>
+                </views:ScoreView>
+                
+                <!-- 空教室查询视图 -->
+                <views:SpareClassroomView x:Name="SpareClassroomView" Visibility="Collapsed" Opacity="0">
+                    <views:SpareClassroomView.RenderTransform>
+                        <TranslateTransform Y="20"/>
+                    </views:SpareClassroomView.RenderTransform>
+                </views:SpareClassroomView>
+                
+                <!-- 一卡通信息视图 -->
+                <views:CardInfoView x:Name="CardInfoView" Visibility="Collapsed" Opacity="0">
+                    <views:CardInfoView.RenderTransform>
+                        <TranslateTransform Y="20"/>
+                    </views:CardInfoView.RenderTransform>
+                </views:CardInfoView>
+                
+                <!-- 评教视图 -->
+                <views:EvaluationView x:Name="EvaluationView" Visibility="Collapsed" Opacity="0">
+                    <views:EvaluationView.RenderTransform>
+                        <TranslateTransform Y="20"/>
+                    </views:EvaluationView.RenderTransform>
+                </views:EvaluationView>
+                
+                <!-- 设置视图 -->
+                <views:SettingsView x:Name="SettingsView" Visibility="Collapsed" Opacity="0">
+                    <views:SettingsView.RenderTransform>
+                        <TranslateTransform Y="20"/>
+                    </views:SettingsView.RenderTransform>
+                </views:SettingsView>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -10,7 +10,7 @@
         <Style x:Key="PeriodTagStyle" TargetType="Border">
             <Setter Property="Background" Value="#E8F5E9"/>
             <Setter Property="CornerRadius" Value="4"/>
-            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Padding" Value="6,3"/>
             <Setter Property="Margin" Value="2"/>
         </Style>
         
@@ -19,10 +19,10 @@
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#E0E0E0"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="Margin" Value="3"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="MinWidth" Value="60"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="MinWidth" Value="52"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -54,11 +54,11 @@
 
     <Grid Background="#FFF8F0">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel MaxWidth="1200" HorizontalAlignment="Stretch">
+            <StackPanel>
                 <!-- 头部标题 -->
                 <Border Style="{StaticResource PageHeaderStyle}">
                     <StackPanel>
-                        <TextBlock Text="空教室查询" FontSize="26" FontWeight="Bold" 
+                        <TextBlock Text="空教室查询" FontSize="24" FontWeight="Bold" 
                                   Foreground="White" Margin="0,0,0,6"/>
                         <TextBlock Text="按课时查找空闲教室" FontSize="13" 
                                   Foreground="#D9FFFFFF"/>
@@ -69,18 +69,18 @@
                 <Border Style="{StaticResource CardBorderStyle}" Margin="16,16,16,8">
                     <StackPanel>
                         <!-- 校区选择 -->
-                        <TextBlock Text="选择校区" FontSize="14" FontWeight="SemiBold" 
+                        <TextBlock Text="选择校区" FontSize="13" FontWeight="SemiBold" 
                                   Foreground="#2C3E50" Margin="0,0,0,10"/>
                         
-                        <WrapPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <WrapPanel Orientation="Horizontal" Margin="0,0,0,14">
                             <Button x:Name="EastCampusButton" 
                                     Style="{StaticResource SecondaryButtonStyle}"
-                                    Padding="16,8" FontSize="13"
+                                    Padding="14,8" FontSize="12"
                                     Click="OnCampusClick" Tag="1"
                                     Margin="0,0,8,8">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
-                                        <Path Width="14" Height="14" Data="{StaticResource SchoolIcon}"
+                                        <Path Width="12" Height="12" Data="{StaticResource SchoolIcon}"
                                               Fill="#FF6B35" Stretch="Uniform" Margin="0,0,6,0"
                                               VerticalAlignment="Center"/>
                                         <TextBlock Text="东校区" VerticalAlignment="Center"/>
@@ -90,12 +90,12 @@
 
                             <Button x:Name="WestCampusButton" 
                                     Style="{StaticResource SecondaryButtonStyle}"
-                                    Padding="16,8" FontSize="13"
+                                    Padding="14,8" FontSize="12"
                                     Click="OnCampusClick" Tag="2"
                                     Margin="0,0,8,8">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
-                                        <Path Width="14" Height="14" Data="{StaticResource SchoolIcon}"
+                                        <Path Width="12" Height="12" Data="{StaticResource SchoolIcon}"
                                               Fill="#FF6B35" Stretch="Uniform" Margin="0,0,6,0"
                                               VerticalAlignment="Center"/>
                                         <TextBlock Text="西校区" VerticalAlignment="Center"/>
@@ -105,7 +105,7 @@
                         </WrapPanel>
 
                         <!-- 教学楼选择 -->
-                        <TextBlock Text="选择教学楼" FontSize="14" FontWeight="SemiBold" 
+                        <TextBlock Text="选择教学楼" FontSize="13" FontWeight="SemiBold" 
                                   Foreground="#2C3E50" Margin="0,0,0,10"/>
 
                         <WrapPanel x:Name="BuildingButtonsPanel" Orientation="Horizontal">
@@ -113,8 +113,8 @@
                         </WrapPanel>
 
                         <TextBlock x:Name="StatusText" Text="" 
-                                  FontSize="13" Foreground="#7F8C8D" 
-                                  Margin="0,12,0,0"/>
+                                  FontSize="12" Foreground="#7F8C8D" 
+                                  Margin="0,10,0,0"/>
                     </StackPanel>
                 </Border>
 
@@ -129,16 +129,15 @@
                         </Grid.RowDefinitions>
                         
                         <TextBlock Grid.Row="0" Text="快速筛选：你什么时候有空？" 
-                                  FontSize="14" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,8"/>
+                                  FontSize="13" FontWeight="SemiBold" 
+                                  Foreground="#2C3E50" Margin="0,0,0,6"/>
                         <TextBlock Grid.Row="1" Text="点击你空闲的课时，查看该时段所有空教室" 
                                   FontSize="11" Foreground="#7F8C8D" Margin="0,0,0,10"/>
                         
-                        <!-- 使用UniformGrid实现响应式布局 -->
-                        <UniformGrid x:Name="PeriodFilterButtons" Grid.Row="2" 
-                                    Columns="6" HorizontalAlignment="Stretch">
+                        <!-- 使用WrapPanel实现响应式布局 -->
+                        <WrapPanel x:Name="PeriodFilterButtons" Grid.Row="2" Orientation="Horizontal">
                             <!-- 课时筛选按钮动态生成 -->
-                        </UniformGrid>
+                        </WrapPanel>
                     </Grid>
                 </Border>
 
@@ -150,20 +149,20 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="空闲教室列表" FontSize="16" FontWeight="SemiBold" 
+                            <TextBlock Text="空闲教室列表" FontSize="15" FontWeight="SemiBold" 
                                       Foreground="#2C3E50" VerticalAlignment="Center"/>
                             <TextBlock x:Name="ResultCountText" Grid.Column="1" Text="" 
-                                      FontSize="13" Foreground="#7F8C8D" VerticalAlignment="Center"/>
+                                      FontSize="12" Foreground="#7F8C8D" VerticalAlignment="Center"/>
                         </Grid>
 
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="500" 
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="450" 
                                      HorizontalScrollBarVisibility="Disabled">
                             <StackPanel x:Name="ClassroomByPeriodPanel">
                                 <!-- 按课时分组的内容将在这里动态生成 -->
                                 <Border Style="{StaticResource PeriodRowStyle}" Background="#FFF8F0">
                                     <StackPanel>
-                                        <Path Width="36" Height="36" Data="{StaticResource RoomIcon}"
-                                              Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,0,12"
+                                        <Path Width="32" Height="32" Data="{StaticResource RoomIcon}"
+                                              Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,0,10"
                                               HorizontalAlignment="Center"/>
                                         <TextBlock Text="请选择教学楼查询" 
                                                   FontSize="12" Foreground="#7F8C8D" 

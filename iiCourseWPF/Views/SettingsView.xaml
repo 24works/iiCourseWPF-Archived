@@ -6,12 +6,12 @@
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="600">
     <Grid Background="#FFF8F0">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <!-- 头部标题 -->
                 <Border Style="{StaticResource PageHeaderStyle}">
                     <StackPanel>
-                        <TextBlock Text="设置" FontSize="26" FontWeight="Bold" 
+                        <TextBlock Text="设置" FontSize="24" FontWeight="Bold" 
                                   Foreground="White" Margin="0,0,0,6"/>
                         <TextBlock Text="应用程序设置和偏好" FontSize="13" 
                                   Foreground="#D9FFFFFF"/>
@@ -19,143 +19,143 @@
                 </Border>
 
                 <!-- 关于信息 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24">
+                <Border Style="{StaticResource CardBorderStyle}" Margin="20,20,20,0">
                     <StackPanel>
-                        <TextBlock Text="关于" FontSize="18" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,16"/>
+                        <TextBlock Text="关于" FontSize="16" FontWeight="SemiBold" 
+                                  Foreground="#2C3E50" Margin="0,0,0,14"/>
 
-                        <StackPanel Margin="0,0,0,12">
-                            <TextBlock Text="应用名称" FontSize="12"
-                                      Foreground="#7F8C8D" Margin="0,0,0,4"/>
-                            <TextBlock Text="iiCourse" FontSize="15"
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="应用名称" FontSize="11"
+                                      Foreground="#7F8C8D" Margin="0,0,0,3"/>
+                            <TextBlock Text="iiCourse" FontSize="14"
                                       Foreground="#2C3E50" FontWeight="SemiBold"/>
                         </StackPanel>
 
-                        <StackPanel Margin="0,0,0,12">
-                            <TextBlock Text="版本" FontSize="12" 
-                                      Foreground="#7F8C8D" Margin="0,0,0,4"/>
-                            <TextBlock Text="1.0.0" FontSize="15" 
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="版本" FontSize="11" 
+                                      Foreground="#7F8C8D" Margin="0,0,0,3"/>
+                            <TextBlock Text="1.0.0" FontSize="14" 
                                       Foreground="#2C3E50" FontWeight="SemiBold"/>
                         </StackPanel>
 
                         <StackPanel>
-                            <TextBlock Text="开发者" FontSize="12"
-                                      Foreground="#7F8C8D" Margin="0,0,0,4"/>
-                            <TextBlock Text="AiScReam (iicemeta)" FontSize="15"
+                            <TextBlock Text="开发者" FontSize="11"
+                                      Foreground="#7F8C8D" Margin="0,0,0,3"/>
+                            <TextBlock Text="AiScReam (iicemeta)" FontSize="14"
                                       Foreground="#2C3E50" FontWeight="SemiBold"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
                 <!-- 功能说明 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,0,24,0">
+                <Border Style="{StaticResource CardBorderStyle}" Margin="20,16,20,0">
                     <StackPanel>
-                        <TextBlock Text="功能说明" FontSize="18" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,16"/>
+                        <TextBlock Text="功能说明" FontSize="16" FontWeight="SemiBold" 
+                                  Foreground="#2C3E50" Margin="0,0,0,14"/>
 
-                        <StackPanel Margin="0,0,0,14">
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                <Path Width="18" Height="18" Data="{StaticResource UserIcon}"
-                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,10,0"
+                        <StackPanel Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <Path Width="16" Height="16" Data="{StaticResource UserIcon}"
+                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
                                       VerticalAlignment="Center"/>
-                                <TextBlock Text="用户信息" FontSize="14" 
+                                <TextBlock Text="用户信息" FontSize="13" 
                                           Foreground="#2C3E50" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Text="查看您的个人信息，包括学号、姓名、性别和学院。" 
-                                      FontSize="12" Foreground="#7F8C8D" 
-                                      TextWrapping="Wrap" Margin="28,0,0,0"/>
+                                      FontSize="11" Foreground="#7F8C8D" 
+                                      TextWrapping="Wrap" Margin="24,0,0,0"/>
                         </StackPanel>
 
-                        <StackPanel Margin="0,0,0,14">
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                <Path Width="18" Height="18" Data="{StaticResource CalendarIcon}"
-                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,10,0"
+                        <StackPanel Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <Path Width="16" Height="16" Data="{StaticResource CalendarIcon}"
+                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
                                       VerticalAlignment="Center"/>
-                                <TextBlock Text="课程表" FontSize="14" 
+                                <TextBlock Text="课程表" FontSize="13" 
                                           Foreground="#2C3E50" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Text="查看当前学期的课程安排，包括上课时间、地点和教师信息。" 
-                                      FontSize="12" Foreground="#7F8C8D" 
-                                      TextWrapping="Wrap" Margin="28,0,0,0"/>
+                                      FontSize="11" Foreground="#7F8C8D" 
+                                      TextWrapping="Wrap" Margin="24,0,0,0"/>
                         </StackPanel>
 
-                        <StackPanel Margin="0,0,0,14">
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                <Path Width="18" Height="18" Data="{StaticResource ChartIcon}"
-                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,10,0"
+                        <StackPanel Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <Path Width="16" Height="16" Data="{StaticResource ChartIcon}"
+                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
                                       VerticalAlignment="Center"/>
-                                <TextBlock Text="成绩查询" FontSize="14" 
+                                <TextBlock Text="成绩查询" FontSize="13" 
                                           Foreground="#2C3E50" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Text="查询您的考试成绩，包括课程成绩、学分和绩点信息。" 
-                                      FontSize="12" Foreground="#7F8C8D" 
-                                      TextWrapping="Wrap" Margin="28,0,0,0"/>
+                                      FontSize="11" Foreground="#7F8C8D" 
+                                      TextWrapping="Wrap" Margin="24,0,0,0"/>
                         </StackPanel>
 
-                        <StackPanel Margin="0,0,0,14">
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                <Path Width="18" Height="18" Data="{StaticResource SchoolIcon}"
-                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,10,0"
+                        <StackPanel Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <Path Width="16" Height="16" Data="{StaticResource SchoolIcon}"
+                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
                                       VerticalAlignment="Center"/>
-                                <TextBlock Text="空教室查询" FontSize="14" 
+                                <TextBlock Text="空教室查询" FontSize="13" 
                                           Foreground="#2C3E50" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Text="查找各教学楼的空闲教室，方便自习和活动安排。" 
-                                      FontSize="12" Foreground="#7F8C8D" 
-                                      TextWrapping="Wrap" Margin="28,0,0,0"/>
+                                      FontSize="11" Foreground="#7F8C8D" 
+                                      TextWrapping="Wrap" Margin="24,0,0,0"/>
                         </StackPanel>
 
-                        <StackPanel Margin="0,0,0,14">
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                <Path Width="18" Height="18" Data="{StaticResource CardIcon}"
-                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,10,0"
+                        <StackPanel Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <Path Width="16" Height="16" Data="{StaticResource CardIcon}"
+                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
                                       VerticalAlignment="Center"/>
-                                <TextBlock Text="一卡通信息" FontSize="14" 
+                                <TextBlock Text="一卡通信息" FontSize="13" 
                                           Foreground="#2C3E50" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Text="查看校园卡余额和最近消费记录。" 
-                                      FontSize="12" Foreground="#7F8C8D" 
-                                      TextWrapping="Wrap" Margin="28,0,0,0"/>
+                                      FontSize="11" Foreground="#7F8C8D" 
+                                      TextWrapping="Wrap" Margin="24,0,0,0"/>
                         </StackPanel>
 
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                <Path Width="18" Height="18" Data="{StaticResource StarIcon}"
-                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,10,0"
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <Path Width="16" Height="16" Data="{StaticResource StarIcon}"
+                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
                                       VerticalAlignment="Center"/>
-                                <TextBlock Text="学生评教" FontSize="14" 
+                                <TextBlock Text="学生评教" FontSize="13" 
                                           Foreground="#2C3E50" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Text="查看评教任务并完成课程教学评价。" 
-                                      FontSize="12" Foreground="#7F8C8D" 
-                                      TextWrapping="Wrap" Margin="28,0,0,0"/>
+                                      FontSize="11" Foreground="#7F8C8D" 
+                                      TextWrapping="Wrap" Margin="24,0,0,0"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
                 <!-- 免责声明 -->
-                <Border Background="#FFF8F0" CornerRadius="8" Margin="24,24,24,24" Padding="20,16"
+                <Border Background="#FFF8F0" CornerRadius="8" Margin="20,16,20,20" Padding="16,14"
                         BorderBrush="#FFE8D6" BorderThickness="1">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <Path Width="18" Height="18" Data="{StaticResource WarningIcon}"
-                                  Fill="#F39C12" Stretch="Uniform" Margin="0,0,10,0"
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Path Width="16" Height="16" Data="{StaticResource WarningIcon}"
+                                  Fill="#F39C12" Stretch="Uniform" Margin="0,0,8,0"
                                   VerticalAlignment="Center"/>
-                            <TextBlock Text="免责声明" FontSize="14" FontWeight="SemiBold" 
+                            <TextBlock Text="免责声明" FontSize="13" FontWeight="SemiBold" 
                                       Foreground="#F39C12" VerticalAlignment="Center"/>
                         </StackPanel>
 
                         <TextBlock Text="本应用仅供学习和研究使用，请勿用于非法用途。" 
-                                  FontSize="12" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                  FontSize="11" Foreground="#555555" 
+                                  TextWrapping="Wrap" Margin="0,0,0,4"/>
                         <TextBlock Text="使用时请遵守学校相关规章制度。" 
-                                  FontSize="12" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                  FontSize="11" Foreground="#555555" 
+                                  TextWrapping="Wrap" Margin="0,0,0,4"/>
                         <TextBlock Text="自动评教功能请谨慎使用，建议手动完成评教以保证评价质量。" 
-                                  FontSize="12" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                  FontSize="11" Foreground="#555555" 
+                                  TextWrapping="Wrap" Margin="0,0,0,4"/>
                         <TextBlock Text="网络请求可能因学校系统更新而失效，请及时关注接口变化。" 
-                                  FontSize="12" Foreground="#555555" 
+                                  FontSize="11" Foreground="#555555" 
                                   TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>

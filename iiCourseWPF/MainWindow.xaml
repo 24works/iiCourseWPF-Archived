@@ -8,13 +8,14 @@
         xmlns:views="clr-namespace:iiCourseWPF.Views"
         mc:Ignorable="d"
         Title="iiCourse" 
+        MinHeight="600" MinWidth="900"
         Height="700" Width="1200" 
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BackgroundColor}"
         Icon="Resources/iiCourse.ico">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="Auto" MinWidth="200" MaxWidth="280"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 

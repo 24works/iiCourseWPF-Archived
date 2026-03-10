@@ -21,12 +21,12 @@
     </UserControl.Resources>
 
     <Grid Background="#FFF8F0">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <!-- 头部标题 -->
                 <Border Style="{StaticResource PageHeaderStyle}">
                     <StackPanel>
-                        <TextBlock Text="学生评教" FontSize="26" FontWeight="Bold" 
+                        <TextBlock Text="学生评教" FontSize="24" FontWeight="Bold" 
                                   Foreground="White" Margin="0,0,0,6"/>
                         <TextBlock Text="完成课程教学评价" FontSize="13" 
                                   Foreground="#D9FFFFFF"/>
@@ -34,21 +34,21 @@
                 </Border>
 
                 <!-- 操作区 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,24,24,12">
+                <Border Style="{StaticResource CardBorderStyle}" Margin="20,20,20,10">
                     <StackPanel>
-                        <TextBlock Text="评教操作" FontSize="16" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,16"/>
+                        <TextBlock Text="评教操作" FontSize="15" FontWeight="SemiBold" 
+                                  Foreground="#2C3E50" Margin="0,0,0,14"/>
 
-                        <StackPanel Orientation="Horizontal">
+                        <WrapPanel Orientation="Horizontal">
                             <Button x:Name="LoadReviewsButton" 
                                     Style="{StaticResource PrimaryButtonStyle}"
-                                    Padding="20,10" FontSize="13"
+                                    Padding="16,10" FontSize="13"
                                     Click="OnLoadReviewsClick"
-                                    Margin="0,0,12,0">
+                                    Margin="0,0,10,8">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
-                                        <Path Width="16" Height="16" Data="{StaticResource RefreshIcon}"
-                                              Fill="White" Stretch="Uniform" Margin="0,0,8,0"
+                                        <Path Width="14" Height="14" Data="{StaticResource RefreshIcon}"
+                                              Fill="White" Stretch="Uniform" Margin="0,0,6,0"
                                               VerticalAlignment="Center"/>
                                         <TextBlock Text="加载评教列表" VerticalAlignment="Center"/>
                                     </StackPanel>
@@ -57,41 +57,42 @@
 
                             <Button x:Name="FinishAllButton" 
                                     Style="{StaticResource SecondaryButtonStyle}"
-                                    Padding="20,10" FontSize="13"
-                                    Click="OnFinishAllClick">
+                                    Padding="16,10" FontSize="13"
+                                    Click="OnFinishAllClick"
+                                    Margin="0,0,0,8">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
-                                        <Path Width="16" Height="16" Data="{StaticResource CheckIcon}"
-                                              Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
+                                        <Path Width="14" Height="14" Data="{StaticResource CheckIcon}"
+                                              Fill="#FF6B35" Stretch="Uniform" Margin="0,0,6,0"
                                               VerticalAlignment="Center"/>
                                         <TextBlock Text="一键完成评教" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button.Content>
                             </Button>
-                        </StackPanel>
+                        </WrapPanel>
 
                         <TextBlock x:Name="StatusText" Text="" 
-                                  FontSize="13" Foreground="#7F8C8D" 
-                                  Margin="0,16,0,0"/>
+                                  FontSize="12" Foreground="#7F8C8D" 
+                                  Margin="0,12,0,0"/>
                     </StackPanel>
                 </Border>
 
                 <!-- 评教列表 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,12,24,12">
+                <Border Style="{StaticResource CardBorderStyle}" Margin="20,10,20,10">
                     <StackPanel>
-                        <TextBlock Text="评教任务" FontSize="16" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,16"/>
+                        <TextBlock Text="评教任务" FontSize="15" FontWeight="SemiBold" 
+                                  Foreground="#2C3E50" Margin="0,0,0,14"/>
 
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="380" HorizontalScrollBarVisibility="Disabled">
                             <StackPanel x:Name="ReviewPanel">
                                 <!-- 评教数据将在这里动态生成 -->
                                 <Border Style="{StaticResource RowStyle}">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Path Width="20" Height="20" Data="{StaticResource InfoIcon}"
-                                              Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,10,0"
+                                        <Path Width="18" Height="18" Data="{StaticResource InfoIcon}"
+                                              Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,8,0"
                                               VerticalAlignment="Center"/>
                                         <TextBlock Text="点击加载按钮查看评教任务" 
-                                                  FontSize="13" Foreground="#7F8C8D" 
+                                                  FontSize="12" Foreground="#7F8C8D" 
                                                   TextAlignment="Center" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
@@ -101,21 +102,21 @@
                 </Border>
 
                 <!-- 提示信息 -->
-                <Border Background="#FFF8F0" CornerRadius="8" Margin="24,0,24,24" Padding="20,16" 
+                <Border Background="#FFF8F0" CornerRadius="8" Margin="20,10,20,20" Padding="16,14" 
                         BorderBrush="#FFE8D6" BorderThickness="1">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <Path Width="18" Height="18" Data="{StaticResource WarningIcon}"
-                                  Fill="#F39C12" Stretch="Uniform" Margin="0,0,10,0"
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Path Width="16" Height="16" Data="{StaticResource WarningIcon}"
+                                  Fill="#F39C12" Stretch="Uniform" Margin="0,0,8,0"
                                   VerticalAlignment="Center"/>
-                            <TextBlock Text="注意事项" FontSize="14" FontWeight="SemiBold" 
+                            <TextBlock Text="注意事项" FontSize="13" FontWeight="SemiBold" 
                                       Foreground="#F39C12" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="• 请认真对待评教，客观公正地评价教师教学" FontSize="12" 
-                                  Foreground="#555555" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                        <TextBlock Text="• 一键评教功能会自动填写评教内容，建议手动检查" FontSize="12" 
-                                  Foreground="#555555" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                        <TextBlock Text="• 评教完成后将无法修改，请谨慎操作" FontSize="12" 
+                        <TextBlock Text="• 请认真对待评教，客观公正地评价教师教学" FontSize="11" 
+                                  Foreground="#555555" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                        <TextBlock Text="• 一键评教功能会自动填写评教内容，建议手动检查" FontSize="11" 
+                                  Foreground="#555555" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                        <TextBlock Text="• 评教完成后将无法修改，请谨慎操作" FontSize="11" 
                                   Foreground="#555555" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>

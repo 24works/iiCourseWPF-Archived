@@ -54,7 +54,7 @@ namespace iiCourseWPF.Views
                 {
                     Content = $"第{i}周",
                     Style = Resources["WeekButtonStyle"] as Style,
-                    Margin = new Thickness(0, 0, 6, 6),
+                    Margin = new Thickness(0, 0, 8, 8),
                     Tag = i
                 };
                 button.Click += OnWeekButtonClick;

@@ -9,7 +9,7 @@
         <!-- 表头样式 -->
         <Style x:Key="HeaderStyle" TargetType="Border">
             <Setter Property="Background" Value="#FF6B35"/>
-            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Padding" Value="10,8"/>
             <Setter Property="CornerRadius" Value="6,6,0,0"/>
         </Style>
 
@@ -18,7 +18,7 @@
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#F0F0F0"/>
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="Padding" Value="12,12"/>
+            <Setter Property="Padding" Value="10,10"/>
         </Style>
 
         <!-- 交替行样式 -->
@@ -28,12 +28,12 @@
     </UserControl.Resources>
 
     <Grid Background="#FFF8F0">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <!-- 头部标题 -->
                 <Border Style="{StaticResource PageHeaderStyle}">
                     <StackPanel>
-                        <TextBlock Text="成绩查询" FontSize="26" FontWeight="Bold" 
+                        <TextBlock Text="成绩查询" FontSize="24" FontWeight="Bold" 
                                   Foreground="White" Margin="0,0,0,6"/>
                         <TextBlock Text="查看您的考试成绩" FontSize="13" 
                                   Foreground="#D9FFFFFF"/>
@@ -41,7 +41,7 @@
                 </Border>
 
                 <!-- 成绩列表 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24">
+                <Border Style="{StaticResource CardBorderStyle}" Margin="20,20,20,0">
                     <Grid Margin="0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -49,15 +49,15 @@
                         </Grid.RowDefinitions>
 
                         <!-- 操作栏 -->
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
                             <Button x:Name="RefreshButton" 
                                     Style="{StaticResource PrimaryButtonStyle}"
-                                    Padding="20,10" FontSize="13"
+                                    Padding="16,10" FontSize="13"
                                     Click="OnRefreshClick">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
-                                        <Path Width="16" Height="16" Data="{StaticResource RefreshIcon}"
-                                              Fill="White" Stretch="Uniform" Margin="0,0,8,0"
+                                        <Path Width="14" Height="14" Data="{StaticResource RefreshIcon}"
+                                              Fill="White" Stretch="Uniform" Margin="0,0,6,0"
                                               VerticalAlignment="Center"/>
                                         <TextBlock Text="刷新成绩" VerticalAlignment="Center"/>
                                     </StackPanel>
@@ -66,36 +66,36 @@
 
                             <TextBlock x:Name="StatusText" Text="" 
                                       FontSize="13" Foreground="#7F8C8D" 
-                                      VerticalAlignment="Center" Margin="16,0,0,0"/>
+                                      VerticalAlignment="Center" Margin="12,0,0,0"/>
                         </StackPanel>
 
                         <!-- 成绩表格 -->
                         <Border Grid.Row="1" BorderBrush="#E8E8E8" BorderThickness="1" 
                                 CornerRadius="8" Background="White">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                                 <StackPanel x:Name="ScorePanel">
                                     <!-- 表头 -->
                                     <Border Style="{StaticResource HeaderStyle}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="2*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="2*" MinWidth="120"/>
+                                                <ColumnDefinition Width="*" MinWidth="50"/>
+                                                <ColumnDefinition Width="*" MinWidth="50"/>
+                                                <ColumnDefinition Width="*" MinWidth="50"/>
+                                                <ColumnDefinition Width="*" MinWidth="60"/>
+                                                <ColumnDefinition Width="*" MinWidth="80"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="课程名称" FontSize="12" FontWeight="SemiBold" 
+                                            <TextBlock Grid.Column="0" Text="课程名称" FontSize="11" FontWeight="SemiBold" 
                                                       Foreground="White" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="学分" FontSize="12" FontWeight="SemiBold" 
+                                            <TextBlock Grid.Column="1" Text="学分" FontSize="11" FontWeight="SemiBold" 
                                                       Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="2" Text="成绩" FontSize="12" FontWeight="SemiBold" 
+                                            <TextBlock Grid.Column="2" Text="成绩" FontSize="11" FontWeight="SemiBold" 
                                                       Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="3" Text="绩点" FontSize="12" FontWeight="SemiBold" 
+                                            <TextBlock Grid.Column="3" Text="绩点" FontSize="11" FontWeight="SemiBold" 
                                                       Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="4" Text="性质" FontSize="12" FontWeight="SemiBold" 
+                                            <TextBlock Grid.Column="4" Text="性质" FontSize="11" FontWeight="SemiBold" 
                                                       Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="5" Text="学期" FontSize="12" FontWeight="SemiBold" 
+                                            <TextBlock Grid.Column="5" Text="学期" FontSize="11" FontWeight="SemiBold" 
                                                       Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
                                         </Grid>
                                     </Border>
@@ -103,11 +103,11 @@
                                     <!-- 成绩数据将在这里动态生成 -->
                                     <Border Style="{StaticResource RowStyle}">
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Path Width="20" Height="20" Data="{StaticResource InfoIcon}"
-                                                  Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,10,0"
+                                            <Path Width="18" Height="18" Data="{StaticResource InfoIcon}"
+                                                  Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,8,0"
                                                   VerticalAlignment="Center"/>
                                             <TextBlock Text="点击刷新按钮加载成绩数据" 
-                                                      FontSize="13" Foreground="#7F8C8D" 
+                                                      FontSize="12" Foreground="#7F8C8D" 
                                                       TextAlignment="Center" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Border>
@@ -116,6 +116,9 @@
                         </Border>
                     </Grid>
                 </Border>
+
+                <!-- 底部间距 -->
+                <Border Height="20"/>
             </StackPanel>
         </ScrollViewer>
     </Grid>

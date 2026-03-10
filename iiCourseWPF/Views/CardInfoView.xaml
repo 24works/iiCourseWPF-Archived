@@ -6,12 +6,12 @@
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="600">
     <Grid Background="#FFF8F0">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <!-- 头部标题 -->
                 <Border Style="{StaticResource PageHeaderStyle}">
                     <StackPanel>
-                        <TextBlock Text="一卡通信息" FontSize="26" FontWeight="Bold" 
+                        <TextBlock Text="一卡通信息" FontSize="24" FontWeight="Bold" 
                                   Foreground="White" Margin="0,0,0,6"/>
                         <TextBlock Text="查看您的校园卡余额和消费记录" FontSize="13" 
                                   Foreground="#D9FFFFFF"/>
@@ -19,7 +19,7 @@
                 </Border>
 
                 <!-- 一卡通卡片 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24">
+                <Border Style="{StaticResource CardBorderStyle}" Margin="20,20,20,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -27,31 +27,31 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- 卡片图标 -->
-                        <Border Grid.Column="0" Width="100" Height="100" 
-                                CornerRadius="16" 
-                                Margin="0,0,28,0" VerticalAlignment="Top">
+                        <Border Grid.Column="0" Width="80" Height="80" 
+                                CornerRadius="12" 
+                                Margin="0,0,20,0" VerticalAlignment="Top">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                     <GradientStop Color="#FF6B35" Offset="0"/>
                                     <GradientStop Color="#FFD23F" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
-                            <Path Width="48" Height="48" Data="{StaticResource CardIcon}"
+                            <Path Width="40" Height="40" Data="{StaticResource CardIcon}"
                                   Fill="White" Stretch="Uniform"
                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
 
                         <!-- 信息区域 -->
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="校园一卡通" FontSize="22" FontWeight="Bold" 
-                                      Foreground="#FF6B35" Margin="0,0,0,24"/>
+                            <TextBlock Text="校园一卡通" FontSize="18" FontWeight="Bold" 
+                                      Foreground="#FF6B35" Margin="0,0,0,18"/>
 
                             <!-- 余额 -->
-                            <StackPanel Margin="0,0,0,24">
+                            <StackPanel Margin="0,0,0,18">
                                 <TextBlock Text="当前余额" Style="{StaticResource InfoLabelStyle}"/>
                                 <TextBlock x:Name="BalanceText" Text="--" 
                                           Style="{StaticResource InfoValueStyle}" 
-                                          FontSize="32" Foreground="#27AE60"/>
+                                          FontSize="28" Foreground="#27AE60"/>
                             </StackPanel>
 
                             <!-- 上次消费时间 -->
@@ -59,22 +59,22 @@
                                 <TextBlock Text="上次消费时间" Style="{StaticResource InfoLabelStyle}"/>
                                 <TextBlock x:Name="LastConsumeText" Text="--" 
                                           Style="{StaticResource InfoValueStyle}" 
-                                          FontSize="15" Foreground="#7F8C8D"/>
+                                          FontSize="14" Foreground="#7F8C8D"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
                 </Border>
 
                 <!-- 操作按钮 -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,24">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
                     <Button x:Name="RefreshButton" 
                             Style="{StaticResource PrimaryButtonStyle}"
-                            Padding="24,12" FontSize="14"
+                            Padding="20,10" FontSize="13"
                             Click="OnRefreshClick">
                         <Button.Content>
                             <StackPanel Orientation="Horizontal">
-                                <Path Width="16" Height="16" Data="{StaticResource RefreshIcon}"
-                                      Fill="White" Stretch="Uniform" Margin="0,0,10,0"
+                                <Path Width="14" Height="14" Data="{StaticResource RefreshIcon}"
+                                      Fill="White" Stretch="Uniform" Margin="0,0,8,0"
                                       VerticalAlignment="Center"/>
                                 <TextBlock Text="刷新信息" VerticalAlignment="Center"/>
                             </StackPanel>
@@ -82,25 +82,25 @@
                     </Button>
 
                     <TextBlock x:Name="StatusText" Text="" 
-                              FontSize="13" Foreground="#7F8C8D" 
-                              VerticalAlignment="Center" Margin="16,0,0,0"/>
+                              FontSize="12" Foreground="#7F8C8D" 
+                              VerticalAlignment="Center" Margin="12,0,0,0"/>
                 </StackPanel>
 
                 <!-- 提示信息 -->
-                <Border Background="#E8F5E9" CornerRadius="8" Margin="24,0,24,24" Padding="20,16">
+                <Border Background="#E8F5E9" CornerRadius="8" Margin="20,16,20,20" Padding="16,14">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <Path Width="18" Height="18" Data="{StaticResource LightbulbIcon}"
-                                  Fill="#27AE60" Stretch="Uniform" Margin="0,0,10,0"
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Path Width="16" Height="16" Data="{StaticResource LightbulbIcon}"
+                                  Fill="#27AE60" Stretch="Uniform" Margin="0,0,8,0"
                                   VerticalAlignment="Center"/>
-                            <TextBlock Text="使用提示" FontSize="14" FontWeight="SemiBold" 
+                            <TextBlock Text="使用提示" FontSize="13" FontWeight="SemiBold" 
                                       Foreground="#27AE60" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="• 余额信息实时更新，请定期查询" FontSize="12" 
-                                  Foreground="#555555" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                        <TextBlock Text="• 如有余额异常，请及时联系校园卡管理中心" FontSize="12" 
-                                  Foreground="#555555" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                        <TextBlock Text="• 校园卡可在食堂、超市、图书馆等场所使用" FontSize="12" 
+                        <TextBlock Text="• 余额信息实时更新，请定期查询" FontSize="11" 
+                                  Foreground="#555555" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                        <TextBlock Text="• 如有余额异常，请及时联系校园卡管理中心" FontSize="11" 
+                                  Foreground="#555555" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                        <TextBlock Text="• 校园卡可在食堂、超市、图书馆等场所使用" FontSize="11" 
                                   Foreground="#555555" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>

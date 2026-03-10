@@ -466,6 +466,231 @@ namespace iiCourse.Core
             return item[propertyName]?.ToString() ?? "";
         }
 
+        #region 自定义查询课程表API
+
+        /// <summary>
+        /// 获取学年年份列表
+        /// </summary>
+        public async Task<List<SchoolYearInfo>> GetSchoolYearsAsync()
+        {
+            var result = new List<SchoolYearInfo>();
+            try
+            {
+                var data = new { mapping = "getSchoolYear" };
+                var json = JsonConvert.SerializeObject(data);
+                var content = new StringContent(json, Encoding.UTF8, new MediaTypeHeaderValue("application/json"));
+
+                var response = await _client.PostAsync("https://zhss.sdtbu.edu.cn/tp_up/up/widgets/getSchoolYear", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                // 检查响应是否为JSON格式
+                if (string.IsNullOrWhiteSpace(responseContent) || responseContent.TrimStart().StartsWith("<"))
+                {
+                    Log("获取学年年份失败：服务器返回了非JSON数据");
+                    return result;
+                }
+
+                var jsonDoc = JArray.Parse(responseContent);
+                foreach (var item in jsonDoc)
+                {
+                    result.Add(new SchoolYearInfo
+                    {
+                        SCHOOL_YEAR = item["SCHOOL_YEAR"]?.ToString() ?? ""
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"获取学年年份异常: {ex.Message}");
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 获取学生所有课程（自定义查询用）
+        /// </summary>
+        public async Task<List<UserClassInfo>> GetUserClassesAsync(string schoolYear, string semester, string learnWeek)
+        {
+            var result = new List<UserClassInfo>();
+            try
+            {
+                var data = new { schoolYear, semester, learnWeek };
+                var json = JsonConvert.SerializeObject(data);
+                var content = new StringContent(json, Encoding.UTF8, new MediaTypeHeaderValue("application/json"));
+
+                var response = await _client.PostAsync("https://zhss.sdtbu.edu.cn/tp_up/up/widgets/getClassbyUserInfo", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                // 检查响应是否为JSON格式
+                if (string.IsNullOrWhiteSpace(responseContent) || responseContent.TrimStart().StartsWith("<"))
+                {
+                    Log("获取学生课程失败：服务器返回了非JSON数据");
+                    return result;
+                }
+
+                var jsonDoc = JArray.Parse(responseContent);
+                foreach (var item in jsonDoc)
+                {
+                    result.Add(new UserClassInfo
+                    {
+                        SKZC = item["SKZC"]?.ToString() ?? "",
+                        JSGH = item["JSGH"]?.ToString() ?? "",
+                        KKXND = item["KKXND"]?.ToString() ?? "",
+                        JXDD = item["JXDD"]?.ToString() ?? "",
+                        KCMC = item["KCMC"]?.ToString() ?? "",
+                        XH = item["XH"]?.ToString() ?? "",
+                        KKXQM = item["KKXQM"]?.ToString() ?? "",
+                        KCH = item["KCH"]?.ToString() ?? "",
+                        CXJC = item["CXJC"]?.Value<int>() ?? 1,
+                        JXBMC = item["JXBMC"]?.ToString() ?? "",
+                        JXBH = item["JXBH"]?.ToString() ?? "",
+                        SKXQ = item["SKXQ"]?.Value<int>() ?? 1,
+                        SKJC = item["SKJC"]?.Value<int>() ?? 1,
+                        QSZ = item["QSZ"]?.ToString() ?? "",
+                        ZZZ = item["ZZZ"]?.ToString() ?? "",
+                        JSXM = item["JSXM"]?.ToString() ?? ""
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"获取学生课程异常: {ex.Message}");
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 获取指定周的日期信息
+        /// </summary>
+        public async Task<WeekDateInfo?> GetWeekDatesAsync(string schoolYear, string semester, string learnWeek)
+        {
+            try
+            {
+                var data = new { SCHOOL_YEAR = schoolYear, SEMESTER = semester, learnWeek };
+                var json = JsonConvert.SerializeObject(data);
+                var content = new StringContent(json, Encoding.UTF8, new MediaTypeHeaderValue("application/json"));
+
+                var response = await _client.PostAsync("https://zhss.sdtbu.edu.cn/tp_up/up/widgets/getDatebyLearnweek", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                // 检查响应是否为JSON格式
+                if (string.IsNullOrWhiteSpace(responseContent) || responseContent.TrimStart().StartsWith("<"))
+                {
+                    Log("获取周日期失败：服务器返回了非JSON数据");
+                    return null;
+                }
+
+                var jsonDoc = JObject.Parse(responseContent);
+                return new WeekDateInfo
+                {
+                    date1 = jsonDoc["date1"]?.ToString() ?? "",
+                    date2 = jsonDoc["date2"]?.ToString() ?? "",
+                    date3 = jsonDoc["date3"]?.ToString() ?? "",
+                    date4 = jsonDoc["date4"]?.ToString() ?? "",
+                    date5 = jsonDoc["date5"]?.ToString() ?? "",
+                    date6 = jsonDoc["date6"]?.ToString() ?? "",
+                    date7 = jsonDoc["date7"]?.ToString() ?? ""
+                };
+            }
+            catch (Exception ex)
+            {
+                Log($"获取周日期异常: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 获取选定时间的课程列表
+        /// </summary>
+        public async Task<List<SelectedTimeClassInfo>> GetClassesByTimeAsync(string schoolYear, string semester, string learnWeek, List<UserClassInfo> classList)
+        {
+            var result = new List<SelectedTimeClassInfo>();
+            try
+            {
+                // 构建请求对象，classList 直接作为对象数组传递
+                var data = new
+                {
+                    schoolYear,
+                    semester,
+                    learnWeek,
+                    classList
+                };
+                var json = JsonConvert.SerializeObject(data);
+                var content = new StringContent(json, Encoding.UTF8, new MediaTypeHeaderValue("application/json"));
+
+                var response = await _client.PostAsync("https://zhss.sdtbu.edu.cn/tp_up/up/widgets/getClassbyTime", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                // 检查响应是否为JSON格式
+                if (string.IsNullOrWhiteSpace(responseContent) || responseContent.TrimStart().StartsWith("<"))
+                {
+                    Log("获取选定时间课程失败：服务器返回了非JSON数据");
+                    return result;
+                }
+
+                var jsonDoc = JArray.Parse(responseContent);
+                foreach (var item in jsonDoc)
+                {
+                    result.Add(new SelectedTimeClassInfo
+                    {
+                        SKZC = item["SKZC"]?.ToString() ?? "",
+                        JSGH = item["JSGH"]?.ToString() ?? "",
+                        KKXND = item["KKXND"]?.ToString() ?? "",
+                        JXDD = item["JXDD"]?.ToString() ?? "",
+                        KCMC = item["KCMC"]?.ToString() ?? "",
+                        XH = item["XH"]?.ToString() ?? "",
+                        KKXQM = item["KKXQM"]?.ToString() ?? "",
+                        KCH = item["KCH"]?.ToString() ?? "",
+                        CXJC = item["CXJC"]?.Value<int>() ?? 1,
+                        JXBMC = item["JXBMC"]?.ToString() ?? "",
+                        JXBH = item["JXBH"]?.ToString() ?? "",
+                        SKXQ = item["SKXQ"]?.Value<int>() ?? 1,
+                        SKJC = item["SKJC"]?.Value<int>() ?? 1,
+                        QSZ = item["QSZ"]?.ToString() ?? "",
+                        ZZZ = item["ZZZ"]?.ToString() ?? "",
+                        JSXM = item["JSXM"]?.ToString() ?? "",
+                        SKZ = item["SKZ"]?.ToString() ?? "",
+                        colorNum = item["colorNum"]?.ToString() ?? ""
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"获取选定时间课程异常: {ex.Message}");
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 自定义查询课程表（整合所有步骤）
+        /// </summary>
+        public async Task<(List<SelectedTimeClassInfo> classes, WeekDateInfo? dates, string message)> QueryCustomScheduleAsync(CustomQueryParams parameters)
+        {
+            try
+            {
+                // 步骤1：获取学生所有课程
+                var userClasses = await GetUserClassesAsync(parameters.SchoolYear, parameters.Semester, parameters.LearnWeek);
+                if (!userClasses.Any())
+                {
+                    return (new List<SelectedTimeClassInfo>(), null, "未找到课程信息");
+                }
+
+                // 步骤2：获取周日期信息
+                var weekDates = await GetWeekDatesAsync(parameters.SchoolYear, parameters.Semester, parameters.LearnWeek);
+
+                // 步骤3：获取选定时间的课程列表
+                var classes = await GetClassesByTimeAsync(parameters.SchoolYear, parameters.Semester, parameters.LearnWeek, userClasses);
+
+                return (classes, weekDates, $"成功加载 {classes.Count} 门课程");
+            }
+            catch (Exception ex)
+            {
+                return (new List<SelectedTimeClassInfo>(), null, $"查询失败: {ex.Message}");
+            }
+        }
+
+        #endregion
+
         /// <summary>
         /// 获取学生评教列表
         /// </summary>

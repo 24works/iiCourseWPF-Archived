@@ -117,6 +117,7 @@ namespace iiCourseWPF
                     break;
 
                 case "ClassSchedule":
+                    await ClassScheduleView.LoadSchoolYearsAsync();
                     await ClassScheduleView.LoadClassScheduleAsync();
                     break;
 

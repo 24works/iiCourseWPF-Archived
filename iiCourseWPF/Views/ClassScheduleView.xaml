@@ -4,12 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="700" d:DesignWidth="900">
     <UserControl.Resources>
         <!-- 表头样式 -->
         <Style x:Key="HeaderStyle" TargetType="Border">
             <Setter Property="Background" Value="#FF6B35"/>
-            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Padding" Value="8,10"/>
             <Setter Property="CornerRadius" Value="6,6,0,0"/>
         </Style>
 
@@ -18,7 +18,8 @@
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#F0F0F0"/>
             <Setter Property="BorderThickness" Value="0,0,1,1"/>
-            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="MinHeight" Value="60"/>
         </Style>
 
         <!-- 课程单元格样式 -->
@@ -26,148 +27,399 @@
             <Setter Property="Background" Value="#FFF5EB"/>
             <Setter Property="BorderBrush" Value="#FFE8D6"/>
         </Style>
+
+        <!-- 周选择按钮样式 -->
+        <Style x:Key="WeekButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="Width" Value="48"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFF0E6"/>
+                    <Setter Property="BorderBrush" Value="#FF6B35"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#FF6B35"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 周选择按钮选中样式 -->
+        <Style x:Key="WeekButtonSelectedStyle" TargetType="Button" BasedOn="{StaticResource WeekButtonStyle}">
+            <Setter Property="Background" Value="#FF6B35"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF6B35"/>
+        </Style>
+
+        <!-- 统一ComboBox样式 - 与整体UI风格一致 -->
+        <Style x:Key="CustomComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FFE8D6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <!-- 主边框 -->
+                            <Border x:Name="Border" 
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="30"/>
+                                    </Grid.ColumnDefinitions>
+                                    <!-- 内容显示 -->
+                                    <ContentPresenter x:Name="ContentSite"
+                                                      Grid.Column="0"
+                                                      Content="{TemplateBinding SelectionBoxItem}"
+                                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                      ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                                      Margin="{TemplateBinding Padding}"
+                                                      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Left"
+                                                      IsHitTestVisible="False"/>
+                                    <!-- 箭头图标 -->
+                                    <Path x:Name="Arrow"
+                                          Grid.Column="1"
+                                          Data="M0,0 L4,4 L8,0"
+                                          Stroke="#FF6B35"
+                                          StrokeThickness="2"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            
+                            <!-- 透明ToggleButton覆盖整个区域，点击任意位置触发下拉 -->
+                            <ToggleButton x:Name="ToggleButton"
+                                          Focusable="False"
+                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          ClickMode="Press"
+                                          Background="Transparent"
+                                          BorderThickness="0">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="Border" Background="Transparent"/>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            
+                            <!-- 下拉框Popup -->
+                            <Popup x:Name="Popup"
+                                   Placement="Bottom"
+                                   IsOpen="{Binding Path=IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Slide">
+                                <Grid x:Name="DropDown"
+                                      SnapsToDevicePixels="True"
+                                      MinWidth="{Binding ActualWidth, ElementName=Border}">
+                                    <Border x:Name="DropDownBorder"
+                                            Background="White"
+                                            BorderBrush="#FFE8D6"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Margin="0,4,0,0">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="#FF6B35" Opacity="0.15" BlurRadius="12" ShadowDepth="2"/>
+                                        </Border.Effect>
+                                        <ScrollViewer x:Name="DropDownScrollViewer"
+                                                      MaxHeight="200"
+                                                      VerticalScrollBarVisibility="Auto"
+                                                      HorizontalScrollBarVisibility="Disabled">
+                                            <ItemsPresenter x:Name="ItemsPresenter"
+                                                            KeyboardNavigation.DirectionalNavigation="Contained"
+                                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#FF6B35"/>
+                                <Setter TargetName="Border" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="#FF6B35" Opacity="0.1" BlurRadius="8" ShadowDepth="0"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsDropDownOpen" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#FF6B35"/>
+                                <Setter TargetName="Arrow" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="180" CenterX="4" CenterY="2"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ComboBoxItem样式 -->
+        <Style x:Key="CustomComboBoxItemStyle" TargetType="ComboBoxItem">
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Border" 
+                                Background="Transparent"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#FFF5EB"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#FFE8D6"/>
+                                <Setter Property="Foreground" Value="#FF6B35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <Grid Background="#FFF8F0">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- 头部标题 -->
+        <Border Grid.Row="0" Style="{StaticResource PageHeaderStyle}">
             <StackPanel>
-                <!-- 头部标题 -->
-                <Border Style="{StaticResource PageHeaderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="课程表" FontSize="26" FontWeight="Bold" 
-                                  Foreground="White" Margin="0,0,0,6"/>
-                        <TextBlock Text="查看您的课程安排" FontSize="13" 
-                                  Foreground="#D9FFFFFF"/>
-                    </StackPanel>
-                </Border>
+                <TextBlock Text="课程表" FontSize="24" FontWeight="Bold" 
+                          Foreground="White" Margin="0,0,0,4"/>
+                <TextBlock Text="查看您的课程安排" FontSize="13" 
+                          Foreground="#D9FFFFFF"/>
+            </StackPanel>
+        </Border>
 
+        <!-- 主内容区 -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="20">
                 <!-- 课程表网格 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24">
-                    <Grid Margin="0">
+                <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16">
+                    <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
                         <!-- 操作栏 -->
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
                             <Button x:Name="RefreshButton" 
                                     Style="{StaticResource PrimaryButtonStyle}"
-                                    Padding="20,10" FontSize="13"
+                                    Padding="16,10" FontSize="13"
                                     Click="OnRefreshClick">
                                 <StackPanel Orientation="Horizontal">
-                                    <Path Width="16" Height="16" Data="{StaticResource RefreshIcon}"
-                                          Fill="White" Stretch="Uniform" Margin="0,0,8,0"
+                                    <Path Width="14" Height="14" Data="{StaticResource RefreshIcon}"
+                                          Fill="White" Stretch="Uniform" Margin="0,0,6,0"
                                           VerticalAlignment="Center"/>
-                                    <TextBlock Text="刷新课程表" VerticalAlignment="Center"/>
+                                    <TextBlock Text="刷新当前周" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
 
                             <TextBlock x:Name="StatusText" Text="" 
                                       FontSize="13" Foreground="#7F8C8D" 
-                                      VerticalAlignment="Center" Margin="16,0,0,0"/>
+                                      VerticalAlignment="Center" Margin="12,0,0,0"/>
+                            
+                            <TextBlock x:Name="DateRangeText" Text="" 
+                                      FontSize="13" Foreground="#FF6B35" FontWeight="SemiBold"
+                                      VerticalAlignment="Center" Margin="12,0,0,0"/>
                         </StackPanel>
 
-                        <!-- 课程表 -->
-                        <Border Grid.Row="1" BorderBrush="#E8E8E8" BorderThickness="1" 
-                                CornerRadius="8" Background="White">
+                        <!-- 课程表 - 响应式布局 -->
+                        <Border Grid.Row="1" BorderBrush="#E8E8E8" BorderThickness="1"
+                                CornerRadius="8" Background="White"
+                                HorizontalAlignment="Stretch">
                             <Grid x:Name="ScheduleGrid">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="56"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
                                 </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="40"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
 
-                                <!-- 表头 -->
-                                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource HeaderStyle}">
-                                    <TextBlock Text="节次" FontSize="11" FontWeight="SemiBold" 
-                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource HeaderStyle}">
-                                    <TextBlock Text="周一" FontSize="11" FontWeight="SemiBold" 
-                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource HeaderStyle}">
-                                    <TextBlock Text="周二" FontSize="11" FontWeight="SemiBold" 
-                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource HeaderStyle}">
-                                    <TextBlock Text="周三" FontSize="11" FontWeight="SemiBold" 
-                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource HeaderStyle}">
-                                    <TextBlock Text="周四" FontSize="11" FontWeight="SemiBold" 
-                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="0" Grid.Column="5" Style="{StaticResource HeaderStyle}">
-                                    <TextBlock Text="周五" FontSize="11" FontWeight="SemiBold" 
-                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="0" Grid.Column="6" Style="{StaticResource HeaderStyle}">
-                                    <TextBlock Text="周六" FontSize="11" FontWeight="SemiBold" 
-                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="0" Grid.Column="7" Style="{StaticResource HeaderStyle}">
-                                    <TextBlock Text="周日" FontSize="11" FontWeight="SemiBold" 
-                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
+                                    <!-- 表头 -->
+                                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource HeaderStyle}">
+                                        <TextBlock Text="节次" FontSize="11" FontWeight="SemiBold" 
+                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource HeaderStyle}">
+                                        <TextBlock x:Name="MondayHeader" Text="周一" FontSize="11" FontWeight="SemiBold" 
+                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource HeaderStyle}">
+                                        <TextBlock x:Name="TuesdayHeader" Text="周二" FontSize="11" FontWeight="SemiBold" 
+                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource HeaderStyle}">
+                                        <TextBlock x:Name="WednesdayHeader" Text="周三" FontSize="11" FontWeight="SemiBold" 
+                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource HeaderStyle}">
+                                        <TextBlock x:Name="ThursdayHeader" Text="周四" FontSize="11" FontWeight="SemiBold" 
+                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="0" Grid.Column="5" Style="{StaticResource HeaderStyle}">
+                                        <TextBlock x:Name="FridayHeader" Text="周五" FontSize="11" FontWeight="SemiBold" 
+                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="0" Grid.Column="6" Style="{StaticResource HeaderStyle}">
+                                        <TextBlock x:Name="SaturdayHeader" Text="周六" FontSize="11" FontWeight="SemiBold" 
+                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="0" Grid.Column="7" Style="{StaticResource HeaderStyle}">
+                                        <TextBlock x:Name="SundayHeader" Text="周日" FontSize="11" FontWeight="SemiBold" 
+                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
 
-                                <!-- 节次标签 -->
-                                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                    <TextBlock Text="1" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                </Border>
-                                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                    <TextBlock Text="2" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                </Border>
-                                <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                    <TextBlock Text="3" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                </Border>
-                                <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                    <TextBlock Text="4" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                </Border>
-                                <Border Grid.Row="5" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                    <TextBlock Text="5" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                </Border>
-                                <Border Grid.Row="6" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                    <TextBlock Text="6" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                </Border>
-                                <Border Grid.Row="7" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                    <TextBlock Text="7" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                </Border>
-                                <Border Grid.Row="8" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                    <TextBlock Text="8" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                </Border>
-                                <Border Grid.Row="9" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                    <TextBlock Text="9" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                </Border>
-                                <Border Grid.Row="10" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                    <TextBlock Text="10" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                </Border>
-                                <Border Grid.Row="11" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                    <TextBlock Text="11" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                </Border>
-                            </Grid>
+                                    <!-- 节次标签 -->
+                                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                        <TextBlock Text="1" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                    </Border>
+                                    <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                        <TextBlock Text="2" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                    </Border>
+                                    <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                        <TextBlock Text="3" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                    </Border>
+                                    <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                        <TextBlock Text="4" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                    </Border>
+                                    <Border Grid.Row="5" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                        <TextBlock Text="5" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                    </Border>
+                                    <Border Grid.Row="6" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                        <TextBlock Text="6" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                    </Border>
+                                    <Border Grid.Row="7" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                        <TextBlock Text="7" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                    </Border>
+                                    <Border Grid.Row="8" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                        <TextBlock Text="8" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                    </Border>
+                                    <Border Grid.Row="9" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                        <TextBlock Text="9" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                    </Border>
+                                    <Border Grid.Row="10" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                        <TextBlock Text="10" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                    </Border>
+                                    <Border Grid.Row="11" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                        <TextBlock Text="11" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                    </Border>
+                                </Grid>
                         </Border>
                     </Grid>
+                </Border>
+
+                <!-- 自定义查询面板 -->
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="自定义查询" FontSize="16" FontWeight="SemiBold"
+                                  Foreground="#333" Margin="0,0,0,16"/>
+
+                        <!-- 查询条件行 - 响应式布局 -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" MinWidth="120"/>
+                                <ColumnDefinition Width="*" MinWidth="120"/>
+                                <ColumnDefinition Width="Auto" MinWidth="80"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- 学年选择 -->
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                <TextBlock Text="学年" FontSize="12" Foreground="#666" Margin="0,0,0,6"/>
+                                <ComboBox x:Name="YearComboBox"
+                                         Style="{StaticResource CustomComboBoxStyle}"
+                                         ItemContainerStyle="{StaticResource CustomComboBoxItemStyle}"
+                                         SelectionChanged="OnQueryParamChanged"/>
+                            </StackPanel>
+
+                            <!-- 学期选择 -->
+                            <StackPanel Grid.Column="1" Margin="8,0,8,0">
+                                <TextBlock Text="学期" FontSize="12" Foreground="#666" Margin="0,0,0,6"/>
+                                <ComboBox x:Name="SemesterComboBox"
+                                         Style="{StaticResource CustomComboBoxStyle}"
+                                         ItemContainerStyle="{StaticResource CustomComboBoxItemStyle}"
+                                         SelectionChanged="OnQueryParamChanged">
+                                    <ComboBoxItem Content="请选择" Tag="" Style="{StaticResource CustomComboBoxItemStyle}"/>
+                                    <ComboBoxItem Content="第一学期" Tag="1" Style="{StaticResource CustomComboBoxItemStyle}"/>
+                                    <ComboBoxItem Content="第二学期" Tag="2" Style="{StaticResource CustomComboBoxItemStyle}"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- 查询按钮 -->
+                            <Button Grid.Column="2" x:Name="QueryButton"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Padding="16,8" FontSize="13" Margin="8,22,0,0"
+                                    Click="OnQueryClick">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="14" Height="14" Data="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"
+                                          Fill="White" Stretch="Uniform" Margin="0,0,6,0"
+                                          VerticalAlignment="Center"/>
+                                    <TextBlock Text="查询" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <!-- 周次选择 -->
+                        <TextBlock Text="选择周次" FontSize="12" Foreground="#666" Margin="0,16,0,10"/>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                            <WrapPanel x:Name="WeekButtonsPanel" Orientation="Horizontal">
+                                <!-- 动态生成周次按钮 -->
+                            </WrapPanel>
+                        </ScrollViewer>
+                    </StackPanel>
                 </Border>
             </StackPanel>
         </ScrollViewer>

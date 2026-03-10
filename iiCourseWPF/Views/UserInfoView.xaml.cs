@@ -9,7 +9,7 @@ using iiCourse.Core.Models;
 namespace iiCourseWPF.Views
 {
     /// <summary>
-    /// 用户信息视图
+    /// User info view
     /// </summary>
     public partial class UserInfoView : UserControl
     {
@@ -22,7 +22,7 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 设置服务实例
+        /// Set service instance
         /// </summary>
         public void SetService(iiCoreService service)
         {
@@ -30,7 +30,7 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 设置用户名
+        /// Set username
         /// </summary>
         public void SetUsername(string username)
         {
@@ -38,13 +38,13 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 加载用户信息
+        /// Load user info
         /// </summary>
         public async Task LoadUserInfoAsync()
         {
             if (_service == null || string.IsNullOrEmpty(_username))
             {
-                ShowError("服务未初始化或用户名未设置");
+                ShowError("Service not initialized or username not set");
                 return;
             }
 
@@ -60,12 +60,12 @@ namespace iiCourseWPF.Views
                 }
                 else
                 {
-                    ShowError("获取用户信息失败");
+                    ShowError("Failed to get user info");
                 }
             }
             catch (Exception ex)
             {
-                ShowError($"加载用户信息时发生错误: {ex.Message}");
+                ShowError($"Error loading user info: {ex.Message}");
             }
             finally
             {
@@ -74,22 +74,22 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 显示用户信息
+        /// Display user info
         /// </summary>
         private void DisplayUserInfo(UserInfo userInfo)
         {
-            NameText.Text = userInfo.姓名;
-            CollegeText.Text = userInfo.学院;
-            StudentIdText.Text = userInfo.学号;
-            NameDetailText.Text = userInfo.姓名;
-            GenderText.Text = userInfo.性别;
-            CollegeDetailText.Text = userInfo.学院;
-            LoginStatusText.Text = "已登录";
+            NameText.Text = userInfo.Name;
+            CollegeText.Text = userInfo.College;
+            StudentIdText.Text = userInfo.StudentId;
+            NameDetailText.Text = userInfo.Name;
+            GenderText.Text = userInfo.Gender;
+            CollegeDetailText.Text = userInfo.College;
+            LoginStatusText.Text = "Logged In";
             LoginStatusText.Foreground = new SolidColorBrush(Color.FromRgb(78, 205, 196));
         }
 
         /// <summary>
-        /// 显示错误信息
+        /// Show error message
         /// </summary>
         private void ShowError(string message)
         {
@@ -99,21 +99,21 @@ namespace iiCourseWPF.Views
             NameDetailText.Text = "--";
             GenderText.Text = "--";
             CollegeDetailText.Text = "--";
-            LoginStatusText.Text = "加载失败";
+            LoginStatusText.Text = "Load Failed";
             LoginStatusText.Foreground = System.Windows.Media.Brushes.Red;
         }
 
         /// <summary>
-        /// 设置加载状态
+        /// Set loading state
         /// </summary>
         private void SetLoadingState(bool isLoading)
         {
             RefreshButton.IsEnabled = !isLoading;
-            RefreshButton.Content = isLoading ? "加载中..." : "刷新信息";
+            RefreshButton.Content = isLoading ? "Loading..." : "Refresh";
         }
 
         /// <summary>
-        /// 刷新按钮点击事件
+        /// Refresh button click event
         /// </summary>
         private async void OnRefreshClick(object sender, RoutedEventArgs e)
         {

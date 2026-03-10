@@ -9,7 +9,7 @@ using iiCourse.Core.Models;
 namespace iiCourse.Core
 {
     /// <summary>
-    /// iiCourse 核心服务类 - 提供教务系统相关功能
+    /// iiCourse Core Service - Provides educational system related functionality
     /// </summary>
     public class iiCoreService : IDisposable
     {
@@ -20,7 +20,7 @@ namespace iiCourse.Core
         private UserInfo? _userInfo;
 
         /// <summary>
-        /// 日志回调
+        /// Log callback
         /// </summary>
         public Action<string>? LogCallback { get; set; }
 
@@ -54,55 +54,55 @@ namespace iiCourse.Core
         }
 
         /// <summary>
-        /// 登录教务系统
+        /// Login to educational system
         /// </summary>
         public async Task<(bool success, string message)> LoginAsync(string username, string password)
         {
             try
             {
-                Log("开始登录流程...");
-                Log($"用户名: {username}");
-                Log($"密码长度: {password.Length}");
+                Log("Starting login process...");
+                Log($"Username: {username}");
+                Log($"Password length: {password.Length}");
 
-                Log("步骤1: 访问登录页面...");
+                Log("Step 1: Access login page...");
                 var response = await _client.GetAsync("https://cas.sdtbu.edu.cn/cas/login");
                 var content = await response.Content.ReadAsStringAsync();
-                Log($"登录页面响应状态: {response.StatusCode}");
-                Log($"响应长度: {content.Length}");
+                Log($"Login page response status: {response.StatusCode}");
+                Log($"Response length: {content.Length}");
 
                 var currentUrl = response.RequestMessage?.RequestUri?.ToString() ?? "";
-                Log($"当前URL: {currentUrl}");
+                Log($"Current URL: {currentUrl}");
 
                 if (currentUrl == "https://zhss.sdtbu.edu.cn/tp_up/view?m=up")
                 {
-                    Log("检测到已登录状态，验证用户信息...");
+                    Log("Detected logged-in state, verifying user info...");
                     var verifyResult = await VerifyLoginAsync(username);
                     if (verifyResult)
                     {
-                        Log("验证成功，已登录");
+                        Log("Verification successful, already logged in");
                         _loginStatus = true;
-                        return (true, "已经登录");
+                        return (true, "Already logged in");
                     }
                 }
 
-                Log("步骤2: 解析页面获取LT值...");
+                Log("Step 2: Parse page to get LT value...");
                 var doc = new HtmlDocument();
                 doc.LoadHtml(content);
                 var ltNode = doc.DocumentNode.SelectSingleNode("//input[@id='lt']");
                 if (ltNode == null)
                 {
-                    Log("错误: 无法找到LT元素");
-                    Log($"页面内容预览: {content.Substring(0, Math.Min(500, content.Length))}...");
-                    return (false, "无法获取LT值");
+                    Log("Error: Cannot find LT element");
+                    Log($"Page content preview: {content.Substring(0, Math.Min(500, content.Length))}...");
+                    return (false, "Cannot get LT value");
                 }
                 var lt = ltNode.GetAttributeValue("value", "");
-                Log($"获取到LT值: {lt}");
+                Log($"Got LT value: {lt}");
 
-                Log("步骤3: 生成RSA加密...");
+                Log("Step 3: Generate RSA encryption...");
                 var combinedData = $"{username}{password}{lt}";
-                Log($"组合数据: {combinedData}");
+                Log($"Combined data: {combinedData}");
                 var rsa = DesHelper.StrEnc(combinedData, "1", "2", "3");
-                Log($"RSA加密结果: {rsa}");
+                Log($"RSA encryption result: {rsa}");
 
                 var loginData = new Dictionary<string, string>
                 {
@@ -114,53 +114,51 @@ namespace iiCourse.Core
                     { "_eventId", "submit" }
                 };
 
-                Log("步骤4: 发送登录请求到WMH系统...");
-                // 使用 wmh 系统作为主要的 service，这样后续访问 wmh 下的所有端点都不需要二次认证
+                Log("Step 4: Send login request to WMH system...");
                 var loginUrl = "https://cas.sdtbu.edu.cn/cas/login?service=http://wmh.sdtbu.edu.cn:7011/tp_wp/wp/wxH6/wpHome";
                 var postResponse = await _client.PostAsync(loginUrl, new FormUrlEncodedContent(loginData));
                 var postContent = await postResponse.Content.ReadAsStringAsync();
-                Log($"POST响应状态: {postResponse.StatusCode}");
-                Log($"POST响应长度: {postContent.Length}");
+                Log($"POST response status: {postResponse.StatusCode}");
+                Log($"POST response length: {postContent.Length}");
 
-                Log("步骤5: 访问WMH首页...");
+                Log("Step 5: Access WMH home page...");
                 var wmhResponse = await _client.GetAsync("http://wmh.sdtbu.edu.cn:7011/tp_wp/wp/wxH6/wpHome");
-                Log($"WMH首页响应状态: {wmhResponse.StatusCode}");
+                Log($"WMH home page response status: {wmhResponse.StatusCode}");
 
-                Log("步骤6: 访问zhss验证用户信息...");
-                // 访问 zhss 系统获取用户信息（这个系统可能仍需要单独认证）
+                Log("Step 6: Access zhss to verify user info...");
                 var zhssResponse = await _client.GetAsync("https://cas.sdtbu.edu.cn/cas/login?service=https://zhss.sdtbu.edu.cn/tp_up/");
-                Log($"zhss响应状态: {zhssResponse.StatusCode}");
+                Log($"zhss response status: {zhssResponse.StatusCode}");
 
-                Log("步骤7: 验证登录状态...");
+                Log("Step 7: Verify login status...");
                 var verifyResult2 = await VerifyLoginAsync(username);
                 if (verifyResult2)
                 {
                     _loginStatus = true;
-                    Log("登录成功!");
-                    return (true, "登录成功");
+                    Log("Login successful!");
+                    return (true, "Login successful");
                 }
                 else
                 {
-                    Log("登录验证失败：用户信息不匹配");
-                    return (false, "登录验证失败");
+                    Log("Login verification failed: User info mismatch");
+                    return (false, "Login verification failed");
                 }
             }
             catch (Exception ex)
             {
-                Log($"登录异常: {ex.Message}");
-                Log($"堆栈: {ex.StackTrace}");
-                return (false, $"登录异常: {ex.Message}");
+                Log($"Login exception: {ex.Message}");
+                Log($"Stack trace: {ex.StackTrace}");
+                return (false, $"Login exception: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// 验证登录状态 - 通过获取用户信息验证
+        /// Verify login status by getting user info
         /// </summary>
         private async Task<bool> VerifyLoginAsync(string username)
         {
             try
             {
-                Log("正在验证用户信息...");
+                Log("Verifying user info...");
                 var beOptId = DesHelper.StrEnc(username, "tp", "des", "param");
                 var data = new { BE_OPT_ID = beOptId };
                 var json = JsonConvert.SerializeObject(data);
@@ -168,42 +166,42 @@ namespace iiCourse.Core
 
                 var response = await _client.PostAsync("https://zhss.sdtbu.edu.cn/tp_up/sys/uacm/profile/getUserInfo", content);
                 var result = await response.Content.ReadAsStringAsync();
-                Log($"用户信息响应: {result.Substring(0, Math.Min(200, result.Length))}...");
+                Log($"User info response: {result.Substring(0, Math.Min(200, result.Length))}...");
 
                 var jsonDoc = JObject.Parse(result);
 
                 if (jsonDoc["ID_NUMBER"] != null)
                 {
                     var idNumber = jsonDoc["ID_NUMBER"]?.ToString() ?? "";
-                    Log($"返回的学号: {idNumber}");
-                    Log($"输入的学号: {username}");
+                    Log($"Returned student ID: {idNumber}");
+                    Log($"Input student ID: {username}");
                     
                     if (idNumber == username)
                     {
-                        Log("学号匹配，验证成功");
+                        Log("Student ID match, verification successful");
                         _userInfo = new UserInfo
                         {
-                            学号 = idNumber,
-                            姓名 = jsonDoc["USER_NAME"]?.ToString() ?? "",
-                            性别 = jsonDoc["USER_SEX"]?.ToString() ?? "",
-                            学院 = jsonDoc["UNIT_NAME"]?.ToString() ?? ""
+                            StudentId = idNumber,
+                            Name = jsonDoc["USER_NAME"]?.ToString() ?? "",
+                            Gender = jsonDoc["USER_SEX"]?.ToString() ?? "",
+                            College = jsonDoc["UNIT_NAME"]?.ToString() ?? ""
                         };
                         return true;
                     }
                 }
                 
-                Log("学号不匹配或无法获取学号");
+                Log("Student ID mismatch or cannot get student ID");
                 return false;
             }
             catch (Exception ex)
             {
-                Log($"验证异常: {ex.Message}");
+                Log($"Verification exception: {ex.Message}");
                 return false;
             }
         }
 
         /// <summary>
-        /// 获取用户信息
+        /// Get user info
         /// </summary>
         public async Task<UserInfo?> GetUserInfoAsync(string username)
         {
@@ -222,10 +220,10 @@ namespace iiCourse.Core
 
                 _userInfo = new UserInfo
                 {
-                    学号 = jsonDoc["ID_NUMBER"]?.ToString() ?? "",
-                    姓名 = jsonDoc["USER_NAME"]?.ToString() ?? "",
-                    性别 = jsonDoc["USER_SEX"]?.ToString() ?? "",
-                    学院 = jsonDoc["UNIT_NAME"]?.ToString() ?? ""
+                    StudentId = jsonDoc["ID_NUMBER"]?.ToString() ?? "",
+                    Name = jsonDoc["USER_NAME"]?.ToString() ?? "",
+                    Gender = jsonDoc["USER_SEX"]?.ToString() ?? "",
+                    College = jsonDoc["UNIT_NAME"]?.ToString() ?? ""
                 };
                 return _userInfo;
             }
@@ -236,7 +234,7 @@ namespace iiCourse.Core
         }
 
         /// <summary>
-        /// 获取一卡通信息
+        /// Get card info
         /// </summary>
         public async Task<CardInfo?> GetCardInfoAsync()
         {
@@ -250,8 +248,8 @@ namespace iiCourse.Core
 
                 return new CardInfo
                 {
-                    上次消费时间 = first["TBSJ"]?.ToString() ?? "",
-                    余额 = first["YE"]?.ToString() ?? ""
+                    LastConsumeTime = first["TBSJ"]?.ToString() ?? "",
+                    Balance = first["YE"]?.ToString() ?? ""
                 };
             }
             catch
@@ -261,7 +259,7 @@ namespace iiCourse.Core
         }
 
         /// <summary>
-        /// 获取考试成绩
+        /// Get exam scores
         /// </summary>
         public async Task<string?> GetExamScoreAsync()
         {
@@ -290,9 +288,9 @@ namespace iiCourse.Core
         }
 
         /// <summary>
-        /// 获取教学楼列表
+        /// Get building list
         /// </summary>
-        /// <param name="campusId">校区ID，1为东校区，2为西校区</param>
+        /// <param name="campusId">Campus ID, 1 for East Campus, 2 for West Campus</param>
         public async Task<List<BuildingInfo>> GetBuildingsAsync(string campusId = "1")
         {
             var result = new List<BuildingInfo>();
@@ -305,10 +303,9 @@ namespace iiCourse.Core
                 var response = await _client.PostAsync("http://wmh.sdtbu.edu.cn:7011/tp_wp/wp/kxclassroom/getbuild", content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                // 检查响应是否为JSON格式
                 if (string.IsNullOrWhiteSpace(responseContent) || responseContent.TrimStart().StartsWith("<"))
                 {
-                    Log("获取教学楼列表失败：服务器返回了非JSON数据，可能是未登录");
+                    Log("Failed to get building list: Server returned non-JSON data, may be not logged in");
                     return result;
                 }
 
@@ -318,20 +315,20 @@ namespace iiCourse.Core
                 {
                     result.Add(new BuildingInfo
                     {
-                        名称 = item["BUILD"]?.ToString() ?? "",
+                        Name = item["BUILD"]?.ToString() ?? "",
                         ID = item["BUILD_ID"]?.ToString() ?? ""
                     });
                 }
             }
             catch (Exception ex)
             {
-                Log($"获取教学楼列表失败: {ex.Message}");
+                Log($"Failed to get building list: {ex.Message}");
             }
             return result;
         }
 
         /// <summary>
-        /// 获取空教室
+        /// Get spare classrooms
         /// </summary>
         public async Task<List<SpareClassroom>> GetSpareClassroomAsync(int buildingId)
         {
@@ -339,7 +336,6 @@ namespace iiCourse.Core
             try
             {
                 var tasks = new List<Task<HttpResponseMessage>>();
-                // 根据API，课时范围是1-10
                 for (int i = 1; i <= 10; i++)
                 {
                     var data = new { build = buildingId.ToString(), time = i.ToString() };
@@ -352,10 +348,9 @@ namespace iiCourse.Core
                 foreach (var response in responses)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    // 检查响应是否为JSON格式
                     if (string.IsNullOrWhiteSpace(responseContent) || responseContent.TrimStart().StartsWith("<"))
                     {
-                        Log("获取空教室失败：服务器返回了非JSON数据，可能是未登录");
+                        Log("Failed to get spare classrooms: Server returned non-JSON data, may be not logged in");
                         continue;
                     }
 
@@ -364,22 +359,22 @@ namespace iiCourse.Core
                     {
                         result.Add(new SpareClassroom
                         {
-                            教室名称 = item["KXJS"]?.ToString() ?? "",
-                            教学楼 = buildingId.ToString(),
-                            节次 = item["SKJC"]?.ToString() ?? ""
+                            ClassroomName = item["KXJS"]?.ToString() ?? "",
+                            BuildingName = buildingId.ToString(),
+                            Period = item["SKJC"]?.ToString() ?? ""
                         });
                     }
                 }
             }
             catch (Exception ex)
             {
-                Log($"获取空教室异常: {ex.Message}");
+                Log($"Get spare classrooms exception: {ex.Message}");
             }
             return result;
         }
 
         /// <summary>
-        /// 获取课程信息
+        /// Get class info
         /// </summary>
         public async Task<List<ClassInfo>> GetClassInfoAsync()
         {
@@ -389,20 +384,18 @@ namespace iiCourse.Core
                 var infoResponse = await _client.PostAsync("http://wmh.sdtbu.edu.cn:7011/tp_wp/wp/wxH6/wpHome/getLearnweekbyDate", content);
                 var infoResult = await infoResponse.Content.ReadAsStringAsync();
 
-                // 检查响应是否为 JSON（以 HTML 开头表示可能是错误页面或未登录）
                 if (string.IsNullOrWhiteSpace(infoResult) || infoResult.TrimStart().StartsWith("<"))
                 {
-                    Log("获取课程信息失败：服务器返回了 HTML 页面，可能是未登录或会话过期");
-                    throw new InvalidOperationException("获取课程信息失败，请重新登录");
+                    Log("Failed to get class info: Server returned HTML page, may be not logged in or session expired");
+                    throw new InvalidOperationException("Failed to get class info, please login again");
                 }
 
                 var infoDoc = JObject.Parse(infoResult);
 
-                // 检测假期状态
                 var isHoliday = infoDoc["isHoliday"]?.ToString() ?? "";
                 if (isHoliday == "y")
                 {
-                    throw new InvalidOperationException("当前处于假期时间段，暂无课程信息");
+                    throw new InvalidOperationException("Currently in holiday period, no class info available");
                 }
 
                 var learnWeek = infoDoc["learnWeek"]?.ToString() ?? "";
@@ -416,11 +409,10 @@ namespace iiCourse.Core
                 var classResponse = await _client.PostAsync("http://wmh.sdtbu.edu.cn:7011/tp_wp/wp/wxH6/wpHome/getWeekClassbyUserId", classContent);
                 var classResult = await classResponse.Content.ReadAsStringAsync();
 
-                // 检查响应是否为 JSON
                 if (string.IsNullOrWhiteSpace(classResult) || classResult.TrimStart().StartsWith("<"))
                 {
-                    Log("获取课程详情失败：服务器返回了 HTML 页面");
-                    throw new InvalidOperationException("获取课程详情失败");
+                    Log("Failed to get class details: Server returned HTML page");
+                    throw new InvalidOperationException("Failed to get class details");
                 }
 
                 var classDoc = JArray.Parse(classResult);
@@ -456,7 +448,7 @@ namespace iiCourse.Core
             }
             catch (Exception ex)
             {
-                Log($"获取课程信息异常: {ex.Message}");
+                Log($"Get class info exception: {ex.Message}");
                 return new List<ClassInfo>();
             }
         }
@@ -466,10 +458,10 @@ namespace iiCourse.Core
             return item[propertyName]?.ToString() ?? "";
         }
 
-        #region 自定义查询课程表API
+        #region Custom Query Schedule API
 
         /// <summary>
-        /// 获取学年年份列表
+        /// Get school year list
         /// </summary>
         public async Task<List<SchoolYearInfo>> GetSchoolYearsAsync()
         {
@@ -483,10 +475,9 @@ namespace iiCourse.Core
                 var response = await _client.PostAsync("https://zhss.sdtbu.edu.cn/tp_up/up/widgets/getSchoolYear", content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                // 检查响应是否为JSON格式
                 if (string.IsNullOrWhiteSpace(responseContent) || responseContent.TrimStart().StartsWith("<"))
                 {
-                    Log("获取学年年份失败：服务器返回了非JSON数据");
+                    Log("Failed to get school years: Server returned non-JSON data");
                     return result;
                 }
 
@@ -501,13 +492,13 @@ namespace iiCourse.Core
             }
             catch (Exception ex)
             {
-                Log($"获取学年年份异常: {ex.Message}");
+                Log($"Get school years exception: {ex.Message}");
             }
             return result;
         }
 
         /// <summary>
-        /// 获取学生所有课程（自定义查询用）
+        /// Get all user classes (for custom query)
         /// </summary>
         public async Task<List<UserClassInfo>> GetUserClassesAsync(string schoolYear, string semester, string learnWeek)
         {
@@ -521,10 +512,9 @@ namespace iiCourse.Core
                 var response = await _client.PostAsync("https://zhss.sdtbu.edu.cn/tp_up/up/widgets/getClassbyUserInfo", content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                // 检查响应是否为JSON格式
                 if (string.IsNullOrWhiteSpace(responseContent) || responseContent.TrimStart().StartsWith("<"))
                 {
-                    Log("获取学生课程失败：服务器返回了非JSON数据");
+                    Log("Failed to get user classes: Server returned non-JSON data");
                     return result;
                 }
 
@@ -554,13 +544,13 @@ namespace iiCourse.Core
             }
             catch (Exception ex)
             {
-                Log($"获取学生课程异常: {ex.Message}");
+                Log($"Get user classes exception: {ex.Message}");
             }
             return result;
         }
 
         /// <summary>
-        /// 获取指定周的日期信息
+        /// Get week date info
         /// </summary>
         public async Task<WeekDateInfo?> GetWeekDatesAsync(string schoolYear, string semester, string learnWeek)
         {
@@ -573,10 +563,9 @@ namespace iiCourse.Core
                 var response = await _client.PostAsync("https://zhss.sdtbu.edu.cn/tp_up/up/widgets/getDatebyLearnweek", content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                // 检查响应是否为JSON格式
                 if (string.IsNullOrWhiteSpace(responseContent) || responseContent.TrimStart().StartsWith("<"))
                 {
-                    Log("获取周日期失败：服务器返回了非JSON数据");
+                    Log("Failed to get week dates: Server returned non-JSON data");
                     return null;
                 }
 
@@ -594,20 +583,19 @@ namespace iiCourse.Core
             }
             catch (Exception ex)
             {
-                Log($"获取周日期异常: {ex.Message}");
+                Log($"Get week dates exception: {ex.Message}");
                 return null;
             }
         }
 
         /// <summary>
-        /// 获取选定时间的课程列表
+        /// Get classes by selected time
         /// </summary>
         public async Task<List<SelectedTimeClassInfo>> GetClassesByTimeAsync(string schoolYear, string semester, string learnWeek, List<UserClassInfo> classList)
         {
             var result = new List<SelectedTimeClassInfo>();
             try
             {
-                // 构建请求对象，classList 直接作为对象数组传递
                 var data = new
                 {
                     schoolYear,
@@ -621,10 +609,9 @@ namespace iiCourse.Core
                 var response = await _client.PostAsync("https://zhss.sdtbu.edu.cn/tp_up/up/widgets/getClassbyTime", content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                // 检查响应是否为JSON格式
                 if (string.IsNullOrWhiteSpace(responseContent) || responseContent.TrimStart().StartsWith("<"))
                 {
-                    Log("获取选定时间课程失败：服务器返回了非JSON数据");
+                    Log("Failed to get classes by time: Server returned non-JSON data");
                     return result;
                 }
 
@@ -656,43 +643,39 @@ namespace iiCourse.Core
             }
             catch (Exception ex)
             {
-                Log($"获取选定时间课程异常: {ex.Message}");
+                Log($"Get classes by time exception: {ex.Message}");
             }
             return result;
         }
 
         /// <summary>
-        /// 自定义查询课程表（整合所有步骤）
+        /// Custom query schedule (integrates all steps)
         /// </summary>
         public async Task<(List<SelectedTimeClassInfo> classes, WeekDateInfo? dates, string message)> QueryCustomScheduleAsync(CustomQueryParams parameters)
         {
             try
             {
-                // 步骤1：获取学生所有课程
                 var userClasses = await GetUserClassesAsync(parameters.SchoolYear, parameters.Semester, parameters.LearnWeek);
                 if (!userClasses.Any())
                 {
-                    return (new List<SelectedTimeClassInfo>(), null, "未找到课程信息");
+                    return (new List<SelectedTimeClassInfo>(), null, "No class info found");
                 }
 
-                // 步骤2：获取周日期信息
                 var weekDates = await GetWeekDatesAsync(parameters.SchoolYear, parameters.Semester, parameters.LearnWeek);
-
-                // 步骤3：获取选定时间的课程列表
                 var classes = await GetClassesByTimeAsync(parameters.SchoolYear, parameters.Semester, parameters.LearnWeek, userClasses);
 
-                return (classes, weekDates, $"成功加载 {classes.Count} 门课程");
+                return (classes, weekDates, $"Successfully loaded {classes.Count} classes");
             }
             catch (Exception ex)
             {
-                return (new List<SelectedTimeClassInfo>(), null, $"查询失败: {ex.Message}");
+                return (new List<SelectedTimeClassInfo>(), null, $"Query failed: {ex.Message}");
             }
         }
 
         #endregion
 
         /// <summary>
-        /// 获取学生评教列表
+        /// Get student review list
         /// </summary>
         public async Task<ApiResponse<List<StudentReview>>> GetStudentReviewsAsync()
         {
@@ -718,12 +701,12 @@ namespace iiCourse.Core
                         var link = tds[7].SelectSingleNode(".//a");
                         result.Add(new StudentReview
                         {
-                            学年学期 = tds[1].InnerText.Trim(),
-                            评价分类 = tds[2].InnerText.Trim(),
-                            评价批次 = tds[3].InnerText.Trim(),
-                            评价课程类别 = tds[4].InnerText.Trim(),
-                            开始时间 = tds[5].InnerText.Trim(),
-                            结束时间 = tds[6].InnerText.Trim(),
+                            YearSemester = tds[1].InnerText.Trim(),
+                            Category = tds[2].InnerText.Trim(),
+                            Batch = tds[3].InnerText.Trim(),
+                            CourseType = tds[4].InnerText.Trim(),
+                            StartTime = tds[5].InnerText.Trim(),
+                            EndTime = tds[6].InnerText.Trim(),
                             Url = "http://wfw.sdtbu.edu.cn" + (link?.GetAttributeValue("href", "") ?? "")
                         });
                     }
@@ -733,12 +716,12 @@ namespace iiCourse.Core
             }
             catch
             {
-                return new ApiResponse<List<StudentReview>> { Code = 500, Message = "获取评教列表失败" };
+                return new ApiResponse<List<StudentReview>> { Code = 500, Message = "Failed to get review list" };
             }
         }
 
         /// <summary>
-        /// 获取学生评教详情
+        /// Get student review details
         /// </summary>
         public async Task<ApiResponse<List<StudentReviewDetail>>> GetStudentReviewsDetailAsync()
         {
@@ -747,7 +730,7 @@ namespace iiCourse.Core
                 var reviewsData = await GetStudentReviewsAsync();
                 if (reviewsData.Data == null || !reviewsData.Data.Any())
                 {
-                    return new ApiResponse<List<StudentReviewDetail>> { Code = 404, Message = "没有评教数据" };
+                    return new ApiResponse<List<StudentReviewDetail>> { Code = 404, Message = "No review data" };
                 }
 
                 var firstReview = reviewsData.Data.First();
@@ -769,13 +752,13 @@ namespace iiCourse.Core
                         var link = tds[8].SelectSingleNode(".//a");
                         result.Add(new StudentReviewDetail
                         {
-                            教师编号 = tds[1].InnerText.Trim(),
-                            教师姓名 = tds[2].InnerText.Trim(),
-                            所属院系 = tds[3].InnerText.Trim(),
-                            评教类别 = tds[4].InnerText.Trim(),
-                            总评分 = tds[5].InnerText.Trim(),
-                            已评 = tds[6].InnerText.Trim(),
-                            是否提交 = tds[7].InnerText.Trim(),
+                            TeacherId = tds[1].InnerText.Trim(),
+                            TeacherName = tds[2].InnerText.Trim(),
+                            Department = tds[3].InnerText.Trim(),
+                            ReviewType = tds[4].InnerText.Trim(),
+                            TotalScore = tds[5].InnerText.Trim(),
+                            IsReviewed = tds[6].InnerText.Trim(),
+                            IsSubmitted = tds[7].InnerText.Trim(),
                             Url = "http://wfw.sdtbu.edu.cn" + (link?.GetAttributeValue("href", "") ?? "")
                         });
                     }
@@ -785,12 +768,12 @@ namespace iiCourse.Core
             }
             catch
             {
-                return new ApiResponse<List<StudentReviewDetail>> { Code = 500, Message = "获取评教详情失败" };
+                return new ApiResponse<List<StudentReviewDetail>> { Code = 500, Message = "Failed to get review details" };
             }
         }
 
         /// <summary>
-        /// 完成学生评教
+        /// Finish student reviews
         /// </summary>
         public async Task<ApiResponse<List<string>>> FinishStudentReviewsAsync()
         {
@@ -799,7 +782,7 @@ namespace iiCourse.Core
                 var detailData = await GetStudentReviewsDetailAsync();
                 if (detailData.Data == null || !detailData.Data.Any())
                 {
-                    return new ApiResponse<List<string>> { Code = 404, Message = "没有需要评教的课程" };
+                    return new ApiResponse<List<string>> { Code = 404, Message = "No reviews to complete" };
                 }
 
                 var completedTeachers = new HashSet<string>();
@@ -807,15 +790,15 @@ namespace iiCourse.Core
 
                 foreach (var item in detailData.Data)
                 {
-                    if (item.是否提交 == "是")
+                    if (item.IsSubmitted == "Yes")
                     {
-                        completedTeachers.Add(item.教师编号);
+                        completedTeachers.Add(item.TeacherId);
                         continue;
                     }
-                    if (completedTeachers.Contains(item.教师编号)) continue;
+                    if (completedTeachers.Contains(item.TeacherId)) continue;
 
-                    completedTeachers.Add(item.教师编号);
-                    result.Add(item.教师姓名);
+                    completedTeachers.Add(item.TeacherId);
+                    result.Add(item.TeacherName);
                     await FinishOneStudentReviewAsync(item.Url);
                     await Task.Delay(500);
                 }
@@ -824,7 +807,7 @@ namespace iiCourse.Core
             }
             catch
             {
-                return new ApiResponse<List<string>> { Code = 500, Message = "完成评教失败" };
+                return new ApiResponse<List<string>> { Code = 500, Message = "Failed to complete reviews" };
             }
         }
 
@@ -899,7 +882,7 @@ namespace iiCourse.Core
                     }
                 }
 
-                formData.Add(new KeyValuePair<string, string>("jynr", "老师讲课很好，很认真，很负责，很有耐心，很有爱心，很有责任心，很有教育责任心"));
+                formData.Add(new KeyValuePair<string, string>("jynr", "Teacher lectures very well, very serious, very responsible, very patient, very caring, very responsible, very educational responsibility"));
                 formData.Add(new KeyValuePair<string, string>("isxtjg", "1"));
 
                 var formContent = new FormUrlEncodedContent(formData);

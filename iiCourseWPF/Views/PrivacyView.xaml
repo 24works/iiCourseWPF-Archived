@@ -13,7 +13,7 @@
         </Style>
     </UserControl.Resources>
     
-    <Grid Background="#FFF8F0">
+    <Grid Background="{StaticResource BackgroundColor}">
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
@@ -164,7 +164,7 @@
                                           Foreground="#555555"/>
                             </StackPanel>
 
-                            <Border Background="#FFF5EB" CornerRadius="6" Margin="0,12,0,0" Padding="12,10">
+                            <Border Background="{StaticResource HoverBackgroundColor}" CornerRadius="6" Margin="0,12,0,0" Padding="12,10">
                                 <StackPanel Orientation="Horizontal">
                                     <Path Width="16" Height="16" Data="{StaticResource InfoIcon}"
                                           Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
@@ -429,7 +429,7 @@
                     </Border>
 
                     <!-- 同意声明 -->
-                    <Border Background="#E8F5E9" CornerRadius="8" Margin="0,16,0,20" Padding="16,14"
+                    <Border Background="{StaticResource TipBackgroundColor}" CornerRadius="8" Margin="0,16,0,20" Padding="16,14"
                             BorderBrush="#81C784" BorderThickness="1">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">

@@ -45,7 +45,7 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </UserControl.Resources>
 
-    <Grid Background="#FFF8F0">
+    <Grid Background="{StaticResource BackgroundColor}">
         <!-- 装饰性背景 -->
         <Grid>
             <Ellipse Width="400" Height="400" Fill="#FF6B35" Opacity="0.05" 
@@ -282,7 +282,7 @@
                     </StackPanel>
 
                     <!-- 提示信息 -->
-                    <Border Background="#FFF8F0" CornerRadius="8" Margin="0,16,0,0" Padding="14,10">
+                    <Border Background="{StaticResource LightBackgroundColor}" CornerRadius="8" Margin="0,16,0,0" Padding="14,10">
                         <StackPanel Orientation="Horizontal">
                             <Path Width="16" Height="16" Data="{StaticResource LightbulbIcon}"
                                   Fill="#FF6B35" Stretch="Uniform" Margin="0,0,10,0"

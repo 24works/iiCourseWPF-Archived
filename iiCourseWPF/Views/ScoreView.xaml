@@ -27,7 +27,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="#FFF8F0">
+    <Grid Background="{StaticResource BackgroundColor}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <!-- 头部标题 -->

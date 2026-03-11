@@ -210,7 +210,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="#FFF8F0">
+    <Grid Background="{StaticResource BackgroundColor}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -219,7 +219,7 @@
         <!-- 头部标题 -->
         <Border Grid.Row="0" Style="{StaticResource PageHeaderStyle}">
             <StackPanel>
-                <TextBlock Text="课程表" FontSize="22" FontWeight="Bold" 
+                <TextBlock Text="课程表" FontSize="24" FontWeight="Bold" 
                           Foreground="White" Margin="0,0,0,4"/>
                 <TextBlock Text="查看您的课程安排" FontSize="13" 
                           Foreground="#D9FFFFFF"/>
@@ -228,7 +228,7 @@
 
         <!-- 主内容区 -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Margin="16">
+            <StackPanel Margin="20">
                 <!-- 课程表网格 -->
                 <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16">
                     <Grid>

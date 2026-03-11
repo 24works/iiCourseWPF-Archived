@@ -14,30 +14,6 @@
             <Setter Property="Margin" Value="2"/>
         </Style>
         
-        <!-- 课时筛选按钮样式 - 紧凑版 -->
-        <Style x:Key="PeriodFilterButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="6,4"/>
-            <Setter Property="Margin" Value="2"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="MinWidth" Value="52"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
         <!-- 课时行样式 -->
         <Style x:Key="PeriodRowStyle" TargetType="Border">
             <Setter Property="Background" Value="White"/>
@@ -52,7 +28,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="#FFF8F0">
+    <Grid Background="{StaticResource BackgroundColor}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <!-- 头部标题 -->
@@ -66,44 +42,14 @@
                 </Border>
 
                 <!-- 查询控制区 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="16,16,16,8">
+                <Border Style="{StaticResource CardBorderStyle}" Margin="20,20,20,10">
                     <StackPanel>
                         <!-- 校区选择 -->
                         <TextBlock Text="选择校区" FontSize="13" FontWeight="SemiBold" 
                                   Foreground="#2C3E50" Margin="0,0,0,10"/>
                         
-                        <WrapPanel Orientation="Horizontal" Margin="0,0,0,14">
-                            <Button Command="{Binding SelectCampusCommand}"
-                                    CommandParameter="1"
-                                    IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Padding="14,8" FontSize="12"
-                                    Margin="0,0,8,8">
-                                <Button.Content>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Path Width="12" Height="12" Data="{StaticResource SchoolIcon}"
-                                              Fill="#FF6B35" Stretch="Uniform" Margin="0,0,6,0"
-                                              VerticalAlignment="Center"/>
-                                        <TextBlock Text="东校区" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button.Content>
-                            </Button>
-
-                            <Button Command="{Binding SelectCampusCommand}"
-                                    CommandParameter="2"
-                                    IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Padding="14,8" FontSize="12"
-                                    Margin="0,0,8,8">
-                                <Button.Content>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Path Width="12" Height="12" Data="{StaticResource SchoolIcon}"
-                                              Fill="#FF6B35" Stretch="Uniform" Margin="0,0,6,0"
-                                              VerticalAlignment="Center"/>
-                                        <TextBlock Text="西校区" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button.Content>
-                            </Button>
+                        <WrapPanel x:Name="CampusButtonsPanel" Orientation="Horizontal" Margin="0,0,0,14">
+                            <!-- 校区按钮将在这里动态生成 -->
                         </WrapPanel>
 
                         <!-- 教学楼选择 -->
@@ -122,7 +68,7 @@
 
                 <!-- 课时筛选区 -->
                 <Border x:Name="PeriodFilterPanel" Style="{StaticResource CardBorderStyle}" 
-                        Margin="16,8,16,8" Visibility="Collapsed">
+                        Margin="20,10,20,10" Visibility="Collapsed">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -144,7 +90,7 @@
                 </Border>
 
                 <!-- 空教室列表 - 按课时分组 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="16,8,16,16">
+                <Border Style="{StaticResource CardBorderStyle}" Margin="20,10,20,20">
                     <StackPanel>
                         <Grid Margin="0,0,0,12">
                             <Grid.ColumnDefinitions>
@@ -161,7 +107,7 @@
                                      HorizontalScrollBarVisibility="Disabled">
                             <StackPanel x:Name="ClassroomByPeriodPanel">
                                 <!-- 按课时分组的内容将在这里动态生成 -->
-                                <Border Style="{StaticResource PeriodRowStyle}" Background="#FFF8F0">
+                                <Border Style="{StaticResource PeriodRowStyle}" Background="{StaticResource LightBackgroundColor}">
                                     <StackPanel>
                                         <Path Width="32" Height="32" Data="{StaticResource RoomIcon}"
                                               Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,0,10"

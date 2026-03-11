@@ -85,8 +85,17 @@ namespace iiCourseWPF.Views
                         UpdateClassroomList();
                         break;
                     case nameof(SpareClassroomViewModel.SelectedPeriod):
-                        // 节次筛选改变时刷新列表
+                        // 节次筛选改变时刷新按钮样式和列表
+                        UpdatePeriodFilterButtons();
                         UpdateClassroomList();
+                        break;
+                    case nameof(SpareClassroomViewModel.SelectedBuildingId):
+                        // 教学楼改变时刷新按钮样式
+                        UpdateBuildingButtons();
+                        break;
+                    case nameof(SpareClassroomViewModel.SelectedCampusId):
+                        // 校区改变时刷新按钮样式
+                        UpdateCampusButtons();
                         break;
                 }
             });
@@ -104,11 +113,100 @@ namespace iiCourseWPF.Views
 
         private void UpdateUI()
         {
+            UpdateCampusButtons();
             UpdateBuildingButtons();
             UpdatePeriodFilterButtons();
             UpdateClassroomList();
             StatusText.Text = ViewModel?.StatusMessage ?? "";
             ResultCountText.Text = ViewModel?.ResultCountText ?? "";
+        }
+
+        private void UpdateCampusButtons()
+        {
+            CampusButtonsPanel.Children.Clear();
+
+            var filterButtonStyle = (Style)FindResource("FilterButtonStyle");
+            var filterButtonSelectedStyle = (Style)FindResource("FilterButtonSelectedStyle");
+
+            // 东校区按钮
+            var eastCampusButton = new Button
+            {
+                Tag = "1",
+                Style = ViewModel?.SelectedCampusId == "1" ? filterButtonSelectedStyle : filterButtonStyle,
+                Cursor = System.Windows.Input.Cursors.Hand,
+                Content = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Children =
+                    {
+                        new Path
+                        {
+                            Width = 14,
+                            Height = 14,
+                            Data = (Geometry)FindResource("SchoolIcon"),
+                            Fill = ViewModel?.SelectedCampusId == "1" ? Brushes.White : (Brush)FindResource("PrimaryColor"),
+                            Stretch = Stretch.Uniform,
+                            Margin = new Thickness(0, 0, 8, 0),
+                            VerticalAlignment = VerticalAlignment.Center
+                        },
+                        new TextBlock
+                        {
+                            Text = "东校区",
+                            VerticalAlignment = VerticalAlignment.Center
+                        }
+                    }
+                }
+            };
+            eastCampusButton.IsEnabled = true;
+            eastCampusButton.Click += (s, e) =>
+            {
+                System.Diagnostics.Debug.WriteLine("东校区按钮被点击");
+                if (ViewModel?.SelectCampusCommand != null)
+                {
+                    ViewModel.SelectCampusCommand.Execute("1");
+                }
+            };
+            CampusButtonsPanel.Children.Add(eastCampusButton);
+
+            // 西校区按钮
+            var westCampusButton = new Button
+            {
+                Tag = "2",
+                Style = ViewModel?.SelectedCampusId == "2" ? filterButtonSelectedStyle : filterButtonStyle,
+                Cursor = System.Windows.Input.Cursors.Hand,
+                Content = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Children =
+                    {
+                        new Path
+                        {
+                            Width = 14,
+                            Height = 14,
+                            Data = (Geometry)FindResource("SchoolIcon"),
+                            Fill = ViewModel?.SelectedCampusId == "2" ? Brushes.White : (Brush)FindResource("PrimaryColor"),
+                            Stretch = Stretch.Uniform,
+                            Margin = new Thickness(0, 0, 8, 0),
+                            VerticalAlignment = VerticalAlignment.Center
+                        },
+                        new TextBlock
+                        {
+                            Text = "西校区",
+                            VerticalAlignment = VerticalAlignment.Center
+                        }
+                    }
+                }
+            };
+            westCampusButton.IsEnabled = true;
+            westCampusButton.Click += (s, e) =>
+            {
+                System.Diagnostics.Debug.WriteLine("西校区按钮被点击");
+                if (ViewModel?.SelectCampusCommand != null)
+                {
+                    ViewModel.SelectCampusCommand.Execute("2");
+                }
+            };
+            CampusButtonsPanel.Children.Add(westCampusButton);
         }
 
         private void UpdateBuildingButtons()
@@ -117,22 +215,20 @@ namespace iiCourseWPF.Views
 
             if (ViewModel?.Buildings == null) return;
 
+            var filterButtonStyle = (Style)FindResource("FilterButtonStyle");
+            var filterButtonSelectedStyle = (Style)FindResource("FilterButtonSelectedStyle");
+
             foreach (var building in ViewModel.Buildings)
             {
                 var buildingId = building.Id; // 捕获变量
+                var isSelected = ViewModel.SelectedBuildingId == buildingId;
+
                 var button = new Button
                 {
                     Content = building.Name,
                     Tag = buildingId,
-                    Padding = new Thickness(14, 8, 14, 8),
-                    Margin = new Thickness(0, 0, 8, 8),
-                    FontSize = 12,
-                    Background = Brushes.White,
-                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF6B35")!),
-                    BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0")!),
-                    BorderThickness = new Thickness(1),
-                    Cursor = System.Windows.Input.Cursors.Hand,
-                    MinWidth = 80
+                    Style = isSelected ? filterButtonSelectedStyle : filterButtonStyle,
+                    Cursor = System.Windows.Input.Cursors.Hand
                 };
 
                 // 强制启用按钮
@@ -174,17 +270,15 @@ namespace iiCourseWPF.Views
 
             PeriodFilterPanel.Visibility = Visibility.Visible;
 
+            var compactFilterButtonStyle = (Style)FindResource("CompactFilterButtonStyle");
+            var compactFilterButtonSelectedStyle = (Style)FindResource("CompactFilterButtonSelectedStyle");
+
+            // "全部"按钮 - 当选中节次为空时显示选中状态
+            var isAllSelected = string.IsNullOrEmpty(ViewModel?.SelectedPeriod);
             var allButton = new Button
             {
                 Content = "全部",
-                Padding = new Thickness(6, 4, 6, 4),
-                Margin = new Thickness(2),
-                FontSize = 11,
-                MinWidth = 52,
-                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF6B35")!),
-                Foreground = Brushes.White,
-                BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF6B35")!),
-                BorderThickness = new Thickness(1),
+                Style = isAllSelected ? compactFilterButtonSelectedStyle : compactFilterButtonStyle,
                 Cursor = System.Windows.Input.Cursors.Hand
             };
             allButton.IsEnabled = true;
@@ -204,16 +298,12 @@ namespace iiCourseWPF.Views
             foreach (var period in ViewModel?.AvailablePeriods ?? new System.Collections.ObjectModel.ObservableCollection<string>())
             {
                 var periodValue = period; // 捕获变量
+                var isSelected = ViewModel?.SelectedPeriod == periodValue;
+
                 var button = new Button
                 {
                     Content = $"第{period}节",
-                    Padding = new Thickness(6, 4, 6, 4),
-                    Margin = new Thickness(2),
-                    FontSize = 11,
-                    MinWidth = 52,
-                    Background = Brushes.White,
-                    BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0")!),
-                    BorderThickness = new Thickness(1),
+                    Style = isSelected ? compactFilterButtonSelectedStyle : compactFilterButtonStyle,
                     Cursor = System.Windows.Input.Cursors.Hand
                 };
                 button.IsEnabled = true;

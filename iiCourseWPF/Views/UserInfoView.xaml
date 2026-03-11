@@ -9,7 +9,7 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </UserControl.Resources>
 
-    <Grid Background="#FFF8F0">
+    <Grid Background="{StaticResource BackgroundColor}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <!-- 头部标题 -->
@@ -32,7 +32,7 @@
 
                         <!-- 头像区域 -->
                         <Border Grid.Column="0" Width="72" Height="72" 
-                                Background="#FFF5EB" CornerRadius="36" 
+                                Background="{StaticResource HoverBackgroundColor}" CornerRadius="36" 
                                 Margin="0,0,20,0" VerticalAlignment="Top">
                             <Path Width="36" Height="36" Data="{StaticResource UserIcon}"
                                   Fill="#FF6B35" Stretch="Uniform"
@@ -95,7 +95,7 @@
                         <!-- 登录状态 -->
                         <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                             <TextBlock Text="登录状态" Style="{StaticResource InfoLabelStyle}"/>
-                            <Border Background="#E8F5E9" CornerRadius="6" Padding="10,6" 
+                            <Border Background="{StaticResource TipBackgroundColor}" CornerRadius="6" Padding="10,6" 
                                     HorizontalAlignment="Left"
                                     Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <StackPanel Orientation="Horizontal">

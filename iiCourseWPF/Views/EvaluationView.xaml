@@ -20,7 +20,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="#FFF8F0">
+    <Grid Background="{StaticResource BackgroundColor}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <!-- 头部标题 -->
@@ -34,7 +34,7 @@
                 </Border>
 
                 <!-- 操作区 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="20,20,20,10">
+                <Border Style="{StaticResource CardBorderStyle}" Margin="20,20,20,0">
                     <StackPanel>
                         <TextBlock Text="评教操作" FontSize="15" FontWeight="SemiBold" 
                                   Foreground="#2C3E50" Margin="0,0,0,14"/>
@@ -119,7 +119,7 @@
                                                         <TextBlock Text="{Binding Batch}" 
                                                                   FontSize="11" Foreground="#7F8C8D"/>
                                                     </StackPanel>
-                                                    <Border Grid.Column="1" Background="#E8F5E9" CornerRadius="4" 
+                                                    <Border Grid.Column="1" Background="{StaticResource TipBackgroundColor}" CornerRadius="4" 
                                                             Padding="8,4" VerticalAlignment="Center">
                                                         <TextBlock Text="待评教" FontSize="11" 
                                                                   Foreground="#27AE60" FontWeight="SemiBold"/>
@@ -135,7 +135,7 @@
                 </Border>
 
                 <!-- 提示信息 -->
-                <Border Background="#FFF8F0" CornerRadius="8" Margin="20,10,20,20" Padding="16,14" 
+                <Border Background="{StaticResource LightBackgroundColor}" CornerRadius="8" Margin="20,10,20,20" Padding="16,14" 
                         BorderBrush="#FFE8D6" BorderThickness="1">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">

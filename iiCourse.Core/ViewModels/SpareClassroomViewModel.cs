@@ -1,10 +1,137 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Windows.Media;
 using iiCourse.Core.Commands;
 using iiCourse.Core.Models;
 
 namespace iiCourse.Core.ViewModels
 {
+    /// <summary>
+    /// 校区选项
+    /// </summary>
+    public class CampusOption : ViewModelBase
+    {
+        private string _id = string.Empty;
+        private string _name = string.Empty;
+        private bool _isSelected;
+        private Brush _backgroundBrush = Brushes.Transparent;
+        private Brush _foregroundBrush = Brushes.Black;
+
+        public string Id
+        {
+            get => _id;
+            set => SetProperty(ref _id, value);
+        }
+
+        public string Name
+        {
+            get => _name;
+            set => SetProperty(ref _name, value);
+        }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetProperty(ref _isSelected, value);
+        }
+
+        public Brush BackgroundBrush
+        {
+            get => _backgroundBrush;
+            set => SetProperty(ref _backgroundBrush, value);
+        }
+
+        public Brush ForegroundBrush
+        {
+            get => _foregroundBrush;
+            set => SetProperty(ref _foregroundBrush, value);
+        }
+    }
+
+    /// <summary>
+    /// 教学楼选项
+    /// </summary>
+    public class BuildingOption : ViewModelBase
+    {
+        private string _id = string.Empty;
+        private string _name = string.Empty;
+        private bool _isSelected;
+        private Brush _backgroundBrush = Brushes.Transparent;
+        private Brush _foregroundBrush = Brushes.Black;
+
+        public string Id
+        {
+            get => _id;
+            set => SetProperty(ref _id, value);
+        }
+
+        public string Name
+        {
+            get => _name;
+            set => SetProperty(ref _name, value);
+        }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetProperty(ref _isSelected, value);
+        }
+
+        public Brush BackgroundBrush
+        {
+            get => _backgroundBrush;
+            set => SetProperty(ref _backgroundBrush, value);
+        }
+
+        public Brush ForegroundBrush
+        {
+            get => _foregroundBrush;
+            set => SetProperty(ref _foregroundBrush, value);
+        }
+    }
+
+    /// <summary>
+    /// 节次筛选选项
+    /// </summary>
+    public class PeriodFilterOption : ViewModelBase
+    {
+        private string? _period; // null 表示"全部"
+        private string _displayText = string.Empty;
+        private bool _isSelected;
+        private Brush _backgroundBrush = Brushes.Transparent;
+        private Brush _foregroundBrush = Brushes.Black;
+
+        public string? Period
+        {
+            get => _period;
+            set => SetProperty(ref _period, value);
+        }
+
+        public string DisplayText
+        {
+            get => _displayText;
+            set => SetProperty(ref _displayText, value);
+        }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetProperty(ref _isSelected, value);
+        }
+
+        public Brush BackgroundBrush
+        {
+            get => _backgroundBrush;
+            set => SetProperty(ref _backgroundBrush, value);
+        }
+
+        public Brush ForegroundBrush
+        {
+            get => _foregroundBrush;
+            set => SetProperty(ref _foregroundBrush, value);
+        }
+    }
+
     /// <summary>
     /// 教学楼信息
     /// </summary>
@@ -42,15 +169,26 @@ namespace iiCourse.Core.ViewModels
     {
         private readonly iiCoreService _coreService;
 
-        private ObservableCollection<BuildingViewModel> _buildings = new();
+        // 颜色常量 - 优化配色方案
+        private static readonly SolidColorBrush PrimaryBrush = new SolidColorBrush(Color.FromRgb(255, 107, 53));
+        private static readonly SolidColorBrush PrimaryDarkBrush = new SolidColorBrush(Color.FromRgb(230, 90, 40));
+        private static readonly SolidColorBrush WhiteBrush = new SolidColorBrush(Colors.White);
+        private static readonly SolidColorBrush LightGrayBrush = new SolidColorBrush(Color.FromRgb(245, 245, 245));
+        private static readonly SolidColorBrush MediumGrayBrush = new SolidColorBrush(Color.FromRgb(220, 220, 220));
+        private static readonly SolidColorBrush DarkGrayBrush = new SolidColorBrush(Color.FromRgb(100, 100, 100));
+        private static readonly SolidColorBrush TextGrayBrush = new SolidColorBrush(Color.FromRgb(127, 140, 141));
+
+        private ObservableCollection<CampusOption> _campusOptions = new();
+        private ObservableCollection<BuildingOption> _buildingOptions = new();
+        private ObservableCollection<PeriodFilterOption> _periodFilterOptions = new();
         private ObservableCollection<PeriodGroup> _periodGroups = new();
-        private ObservableCollection<string> _availablePeriods = new();
         private string? _selectedCampusId;
         private string? _selectedBuildingId;
         private string? _selectedPeriod;
         private bool _isLoading;
         private string _statusMessage = string.Empty;
         private string _resultCountText = string.Empty;
+        private bool _showPeriodFilter;
 
         public SpareClassroomViewModel(iiCoreService coreService)
         {
@@ -58,38 +196,89 @@ namespace iiCourse.Core.ViewModels
             SelectCampusCommand = new RelayCommand<string>(async campusId => await SelectCampusAsync(campusId), _ => !IsLoading);
             SelectBuildingCommand = new RelayCommand<string>(async buildingId => await SelectBuildingAsync(buildingId), _ => !IsLoading);
             SelectPeriodCommand = new RelayCommand<string>(period => SelectPeriod(period), _ => !IsLoading);
+            
+            // 初始化校区选项
+            InitCampusOptions();
         }
 
         #region 属性
 
-        public ObservableCollection<BuildingViewModel> Buildings
+        /// <summary>
+        /// 校区选项集合（用于XAML绑定）
+        /// </summary>
+        public ObservableCollection<CampusOption> CampusOptions
         {
-            get => _buildings;
-            set => SetProperty(ref _buildings, value);
+            get => _campusOptions;
+            set => SetProperty(ref _campusOptions, value);
+        }
+
+        /// <summary>
+        /// 教学楼选项集合（用于XAML绑定）
+        /// </summary>
+        public ObservableCollection<BuildingOption> BuildingOptions
+        {
+            get => _buildingOptions;
+            set => SetProperty(ref _buildingOptions, value);
+        }
+
+        /// <summary>
+        /// 节次筛选选项集合（用于XAML绑定）
+        /// </summary>
+        public ObservableCollection<PeriodFilterOption> PeriodFilterOptions
+        {
+            get => _periodFilterOptions;
+            set => SetProperty(ref _periodFilterOptions, value);
+        }
+
+        /// <summary>
+        /// 筛选后的节次分组（用于XAML绑定）
+        /// </summary>
+        public ObservableCollection<PeriodGroup> FilteredPeriodGroups
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_selectedPeriod))
+                    return _periodGroups;
+                return new ObservableCollection<PeriodGroup>(
+                    _periodGroups.Where(g => g.Period == _selectedPeriod));
+            }
         }
 
         public ObservableCollection<PeriodGroup> PeriodGroups
         {
             get => _periodGroups;
-            set => SetProperty(ref _periodGroups, value);
-        }
-
-        public ObservableCollection<string> AvailablePeriods
-        {
-            get => _availablePeriods;
-            set => SetProperty(ref _availablePeriods, value);
+            set
+            {
+                if (SetProperty(ref _periodGroups, value))
+                {
+                    OnPropertyChanged(nameof(FilteredPeriodGroups));
+                    OnPropertyChanged(nameof(HasData));
+                }
+            }
         }
 
         public string? SelectedCampusId
         {
             get => _selectedCampusId;
-            set => SetProperty(ref _selectedCampusId, value);
+            set
+            {
+                if (SetProperty(ref _selectedCampusId, value))
+                {
+                    UpdateCampusOptionStyles();
+                }
+            }
         }
 
         public string? SelectedBuildingId
         {
             get => _selectedBuildingId;
-            set => SetProperty(ref _selectedBuildingId, value);
+            set
+            {
+                if (SetProperty(ref _selectedBuildingId, value))
+                {
+                    UpdateBuildingOptionStyles();
+                }
+            }
         }
 
         public string? SelectedPeriod
@@ -99,7 +288,9 @@ namespace iiCourse.Core.ViewModels
             {
                 if (SetProperty(ref _selectedPeriod, value))
                 {
-                    FilterByPeriod();
+                    UpdatePeriodFilterOptionStyles();
+                    OnPropertyChanged(nameof(FilteredPeriodGroups));
+                    UpdateResultCount();
                 }
             }
         }
@@ -132,6 +323,15 @@ namespace iiCourse.Core.ViewModels
 
         public bool HasData => PeriodGroups.Count > 0;
 
+        /// <summary>
+        /// 是否显示节次筛选区
+        /// </summary>
+        public bool ShowPeriodFilter
+        {
+            get => _showPeriodFilter;
+            set => SetProperty(ref _showPeriodFilter, value);
+        }
+
         #endregion
 
         #region 命令
@@ -145,6 +345,85 @@ namespace iiCourse.Core.ViewModels
         #region 方法
 
         /// <summary>
+        /// 初始化校区选项
+        /// </summary>
+        private void InitCampusOptions()
+        {
+            CampusOptions = new ObservableCollection<CampusOption>
+            {
+                new CampusOption { Id = "1", Name = "东校区", IsSelected = false },
+                new CampusOption { Id = "2", Name = "西校区", IsSelected = false }
+            };
+            UpdateCampusOptionStyles();
+        }
+
+        /// <summary>
+        /// 更新校区选项样式 - 优化配色
+        /// </summary>
+        private void UpdateCampusOptionStyles()
+        {
+            foreach (var option in CampusOptions)
+            {
+                option.IsSelected = option.Id == _selectedCampusId;
+                if (option.IsSelected)
+                {
+                    option.BackgroundBrush = PrimaryBrush;
+                    option.ForegroundBrush = WhiteBrush;
+                }
+                else
+                {
+                    option.BackgroundBrush = LightGrayBrush;
+                    option.ForegroundBrush = DarkGrayBrush;
+                }
+            }
+            OnPropertyChanged(nameof(CampusOptions));
+        }
+
+        /// <summary>
+        /// 更新教学楼选项样式 - 优化配色
+        /// </summary>
+        private void UpdateBuildingOptionStyles()
+        {
+            foreach (var option in BuildingOptions)
+            {
+                option.IsSelected = option.Id == _selectedBuildingId;
+                if (option.IsSelected)
+                {
+                    option.BackgroundBrush = PrimaryBrush;
+                    option.ForegroundBrush = WhiteBrush;
+                }
+                else
+                {
+                    option.BackgroundBrush = LightGrayBrush;
+                    option.ForegroundBrush = DarkGrayBrush;
+                }
+            }
+            OnPropertyChanged(nameof(BuildingOptions));
+        }
+
+        /// <summary>
+        /// 更新节次筛选选项样式 - 优化配色
+        /// </summary>
+        private void UpdatePeriodFilterOptionStyles()
+        {
+            foreach (var option in PeriodFilterOptions)
+            {
+                option.IsSelected = option.Period == _selectedPeriod;
+                if (option.IsSelected)
+                {
+                    option.BackgroundBrush = PrimaryBrush;
+                    option.ForegroundBrush = WhiteBrush;
+                }
+                else
+                {
+                    option.BackgroundBrush = LightGrayBrush;
+                    option.ForegroundBrush = DarkGrayBrush;
+                }
+            }
+            OnPropertyChanged(nameof(PeriodFilterOptions));
+        }
+
+        /// <summary>
         /// 选择校区
         /// </summary>
         private async Task SelectCampusAsync(string? campusId)
@@ -153,8 +432,11 @@ namespace iiCourse.Core.ViewModels
 
             SelectedCampusId = campusId;
             SelectedBuildingId = null;
+            SelectedPeriod = null;
             PeriodGroups.Clear();
-            AvailablePeriods.Clear();
+            BuildingOptions.Clear();
+            PeriodFilterOptions.Clear();
+            ShowPeriodFilter = false;
 
             await LoadBuildingsAsync(campusId);
         }
@@ -170,18 +452,21 @@ namespace iiCourse.Core.ViewModels
                 StatusMessage = "正在加载教学楼列表...";
 
                 var buildings = await _coreService.GetBuildingsAsync(campusId);
-                var viewModels = new ObservableCollection<BuildingViewModel>();
+                var options = new ObservableCollection<BuildingOption>();
 
                 foreach (var b in buildings)
                 {
-                    viewModels.Add(new BuildingViewModel
+                    options.Add(new BuildingOption
                     {
                         Name = b.Name,
-                        Id = b.ID
+                        Id = b.ID,
+                        IsSelected = false,
+                        BackgroundBrush = LightGrayBrush,
+                        ForegroundBrush = DarkGrayBrush
                     });
                 }
 
-                Buildings = viewModels;
+                BuildingOptions = options;
                 StatusMessage = $"共 {buildings.Count} 栋教学楼";
             }
             catch (Exception ex)
@@ -229,7 +514,33 @@ namespace iiCourse.Core.ViewModels
                     .OrderBy(p => int.TryParse(p, out var n) ? n : 999)
                     .ToList();
 
-                AvailablePeriods = new ObservableCollection<string>(periods);
+                // 创建节次筛选选项
+                var filterOptions = new ObservableCollection<PeriodFilterOption>
+                {
+                    new PeriodFilterOption
+                    {
+                        Period = null,
+                        DisplayText = "全部",
+                        IsSelected = true,
+                        BackgroundBrush = PrimaryBrush,
+                        ForegroundBrush = WhiteBrush
+                    }
+                };
+
+                foreach (var period in periods)
+                {
+                    filterOptions.Add(new PeriodFilterOption
+                    {
+                        Period = period,
+                        DisplayText = $"第{period}节",
+                        IsSelected = false,
+                        BackgroundBrush = LightGrayBrush,
+                        ForegroundBrush = DarkGrayBrush
+                    });
+                }
+
+                PeriodFilterOptions = filterOptions;
+                ShowPeriodFilter = periods.Count > 0;
 
                 // 按节次分组
                 var groups = new ObservableCollection<PeriodGroup>();
@@ -254,6 +565,7 @@ namespace iiCourse.Core.ViewModels
                 }
 
                 PeriodGroups = groups;
+                OnPropertyChanged(nameof(FilteredPeriodGroups));
                 UpdateResultCount();
                 StatusMessage = $"共 {classrooms.Count} 个空闲时段";
             }
@@ -274,15 +586,6 @@ namespace iiCourse.Core.ViewModels
         private void SelectPeriod(string? period)
         {
             SelectedPeriod = period;
-        }
-
-        /// <summary>
-        /// 按节次筛选
-        /// </summary>
-        private void FilterByPeriod()
-        {
-            // 筛选逻辑在UI层处理，这里只是触发属性变更
-            UpdateResultCount();
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Windows.Media;
 using iiCourse.Core.Commands;
 using iiCourse.Core.Models;
 
@@ -17,6 +18,11 @@ namespace iiCourse.Core.ViewModels
         public int StartPeriod { get; set; }
         public int Duration { get; set; }
         public int EndPeriod => StartPeriod + Duration - 1;
+
+        // 颜色属性（由ViewModel设置）
+        public Brush BackgroundBrush { get; set; } = Brushes.White;
+        public Brush BorderBrush { get; set; } = Brushes.Transparent;
+        public Brush ForegroundBrush { get; set; } = Brushes.Black;
     }
 
     /// <summary>
@@ -29,6 +35,43 @@ namespace iiCourse.Core.ViewModels
     }
 
     /// <summary>
+    /// 周次选项
+    /// </summary>
+    public class WeekOption : ViewModelBase
+    {
+        private int _week;
+        private bool _isSelected;
+        private Brush _backgroundBrush = new SolidColorBrush(Color.FromRgb(245, 245, 245));
+        private Brush _foregroundBrush = new SolidColorBrush(Color.FromRgb(100, 100, 100));
+
+        public int Week
+        {
+            get => _week;
+            set => SetProperty(ref _week, value);
+        }
+
+        public string DisplayText => $"第{Week}周";
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetProperty(ref _isSelected, value);
+        }
+
+        public Brush BackgroundBrush
+        {
+            get => _backgroundBrush;
+            set => SetProperty(ref _backgroundBrush, value);
+        }
+
+        public Brush ForegroundBrush
+        {
+            get => _foregroundBrush;
+            set => SetProperty(ref _foregroundBrush, value);
+        }
+    }
+
+    /// <summary>
     /// 课程表ViewModel
     /// </summary>
     public class ClassScheduleViewModel : ViewModelBase
@@ -37,6 +80,7 @@ namespace iiCourse.Core.ViewModels
 
         private ObservableCollection<ScheduleClassItem> _classes = new();
         private ObservableCollection<SchoolYearOption> _schoolYears = new();
+        private ObservableCollection<WeekOption> _weekOptions = new();
         private string _selectedSchoolYear = string.Empty;
         private string _selectedSemester = string.Empty;
         private int _selectedWeek = 1;
@@ -46,12 +90,31 @@ namespace iiCourse.Core.ViewModels
         private string _dateRangeText = string.Empty;
         private WeekDateInfo? _currentWeekDates;
 
+        // 颜色调色板
+        private static readonly Color[] ColorPalette = new[]
+        {
+            Color.FromRgb(255, 235, 210), // 浅橙
+            Color.FromRgb(255, 240, 220), // 浅黄
+            Color.FromRgb(255, 230, 225), // 浅粉
+            Color.FromRgb(235, 245, 255), // 浅蓝
+            Color.FromRgb(230, 255, 235), // 浅绿
+            Color.FromRgb(245, 235, 255), // 浅紫
+            Color.FromRgb(255, 245, 230), // 浅杏
+            Color.FromRgb(240, 255, 250), // 浅青
+        };
+
         public ClassScheduleViewModel(iiCoreService coreService)
         {
             _coreService = coreService;
             RefreshCommand = new RelayCommand(async _ => await RefreshScheduleAsync(), _ => !IsLoading);
             QueryCommand = new RelayCommand(async _ => await QueryCustomScheduleAsync(), _ => !IsLoading);
             SelectWeekCommand = new RelayCommand<int>(async week => await SelectWeekAsync(week), _ => !IsLoading);
+
+            // 初始化周次选项（1-20周）
+            for (int i = 1; i <= 20; i++)
+            {
+                _weekOptions.Add(new WeekOption { Week = i, IsSelected = i == 1 });
+            }
         }
 
         #region 属性
@@ -66,6 +129,11 @@ namespace iiCourse.Core.ViewModels
         {
             get => _schoolYears;
             set => SetProperty(ref _schoolYears, value);
+        }
+
+        public ObservableCollection<WeekOption> WeekOptions
+        {
+            get => _weekOptions;
         }
 
         public string SelectedSchoolYear
@@ -153,6 +221,68 @@ namespace iiCourse.Core.ViewModels
         #region 方法
 
         /// <summary>
+        /// 根据课程名获取一致的颜色
+        /// </summary>
+        private Brush GetClassColor(string courseName)
+        {
+            int hash = 0;
+            foreach (char c in courseName)
+            {
+                hash = ((hash << 5) - hash) + c;
+                hash = hash & hash;
+            }
+
+            var color = ColorPalette[Math.Abs(hash) % ColorPalette.Length];
+            return new SolidColorBrush(color);
+        }
+
+        /// <summary>
+        /// 创建课程项并设置颜色
+        /// </summary>
+        private ScheduleClassItem CreateClassItem(string courseName, string classroom, string teacher, int weekday, int startPeriod, int duration)
+        {
+            return new ScheduleClassItem
+            {
+                CourseName = courseName,
+                Classroom = classroom,
+                Teacher = teacher,
+                Weekday = weekday,
+                StartPeriod = startPeriod,
+                Duration = duration,
+                BackgroundBrush = GetClassColor(courseName),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(255, 200, 150)),
+                ForegroundBrush = new SolidColorBrush(Color.FromRgb(150, 80, 40))
+            };
+        }
+
+        // 颜色常量
+        private static readonly SolidColorBrush PrimaryBrush = new SolidColorBrush(Color.FromRgb(255, 107, 53));
+        private static readonly SolidColorBrush WhiteBrush = new SolidColorBrush(Colors.White);
+        private static readonly SolidColorBrush LightGrayBrush = new SolidColorBrush(Color.FromRgb(245, 245, 245));
+        private static readonly SolidColorBrush DarkGrayBrush = new SolidColorBrush(Color.FromRgb(100, 100, 100));
+
+        /// <summary>
+        /// 更新周次选中状态
+        /// </summary>
+        private void UpdateWeekSelection(int selectedWeek)
+        {
+            foreach (var option in WeekOptions)
+            {
+                option.IsSelected = option.Week == selectedWeek;
+                if (option.IsSelected)
+                {
+                    option.BackgroundBrush = PrimaryBrush;
+                    option.ForegroundBrush = WhiteBrush;
+                }
+                else
+                {
+                    option.BackgroundBrush = LightGrayBrush;
+                    option.ForegroundBrush = DarkGrayBrush;
+                }
+            }
+        }
+
+        /// <summary>
         /// 加载学年列表
         /// </summary>
         public async Task LoadSchoolYearsAsync()
@@ -213,15 +343,7 @@ namespace iiCourse.Core.ViewModels
                         if (weekday >= 1 && weekday <= 7 &&
                             startPeriod >= 1 && startPeriod <= 11)
                         {
-                            items.Add(new ScheduleClassItem
-                            {
-                                CourseName = c.KCMC,
-                                Classroom = c.JXDD,
-                                Teacher = c.JSXM,
-                                Weekday = weekday,
-                                StartPeriod = startPeriod,
-                                Duration = duration
-                            });
+                            items.Add(CreateClassItem(c.KCMC, c.JXDD, c.JSXM, weekday, startPeriod, duration));
                         }
                     }
                 }
@@ -291,15 +413,7 @@ namespace iiCourse.Core.ViewModels
                         c.SKJC >= 1 && c.SKJC <= 11 &&
                         endPeriod <= 11)
                     {
-                        items.Add(new ScheduleClassItem
-                        {
-                            CourseName = c.KCMC,
-                            Classroom = c.JXDD,
-                            Teacher = c.JSXM,
-                            Weekday = c.SKXQ,
-                            StartPeriod = c.SKJC,
-                            Duration = c.CXJC
-                        });
+                        items.Add(CreateClassItem(c.KCMC, c.JXDD, c.JSXM, c.SKXQ, c.SKJC, c.CXJC));
                     }
                 }
 
@@ -330,6 +444,7 @@ namespace iiCourse.Core.ViewModels
         private async Task SelectWeekAsync(int week)
         {
             SelectedWeek = week;
+            UpdateWeekSelection(week);
 
             // 如果已经选择了学年和学期，自动查询
             if (!string.IsNullOrEmpty(SelectedSchoolYear) && !string.IsNullOrEmpty(SelectedSemester))

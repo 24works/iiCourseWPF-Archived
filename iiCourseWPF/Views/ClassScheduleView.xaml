@@ -2,7 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:iiCourseWPF.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="700" d:DesignWidth="900">
     <UserControl.Resources>
@@ -28,46 +29,77 @@
             <Setter Property="BorderBrush" Value="#FFE8D6"/>
         </Style>
 
-        <!-- 周选择按钮样式 - 响应式 -->
+        <!-- 周选择按钮样式 - 与空教室查询统一设计 -->
         <Style x:Key="WeekButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Foreground" Value="#333"/>
-            <Setter Property="MinWidth" Value="40"/>
-            <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="Background" Value="{Binding BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding ForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Margin" Value="0,0,6,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="MinWidth" Value="50"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
-                                            Margin="{TemplateBinding Padding}"/>
-                        </Border>
+                        <Grid Margin="{TemplateBinding Margin}">
+                            <!-- 外发光层 - 选中时显示 -->
+                            <Border x:Name="GlowBorder"
+                                    Background="Transparent"
+                                    CornerRadius="8"
+                                    Opacity="0"
+                                    Margin="-3"
+                                    RenderTransformOrigin="0.5,0.5">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#FF6B35" 
+                                                      Opacity="0.55" 
+                                                      BlurRadius="14" 
+                                                      ShadowDepth="0"/>
+                                </Border.Effect>
+                                <Border Background="#FF6B35" CornerRadius="8"/>
+                            </Border>
+                            <!-- 主按钮 -->
+                            <Border x:Name="ButtonBorder"
+                                    Background="{TemplateBinding Background}"
+                                    CornerRadius="6"
+                                    Padding="{TemplateBinding Padding}"
+                                    RenderTransformOrigin="0.5,0.5"
+                                    BorderBrush="{x:Null}"
+                                    BorderThickness="0">
+                                <Border.RenderTransform>
+                                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                </Border.RenderTransform>
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                VerticalAlignment="Center"
+                                                TextElement.Foreground="{TemplateBinding Foreground}"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter TargetName="GlowBorder" Property="Opacity" Value="1"/>
+                                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#FF8555"/>
+                                <Setter TargetName="ButtonBorder" Property="BorderThickness" Value="2"/>
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="1.05" ScaleY="1.05"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.93" ScaleY="0.93"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#E55A25"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FFF0E6"/>
-                    <Setter Property="BorderBrush" Value="#FF6B35"/>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#FF6B35"/>
-                    <Setter Property="Foreground" Value="White"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- 周选择按钮选中样式 -->
-        <Style x:Key="WeekButtonSelectedStyle" TargetType="Button" BasedOn="{StaticResource WeekButtonStyle}">
-            <Setter Property="Background" Value="#FF6B35"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF6B35"/>
         </Style>
 
         <!-- 统一ComboBox样式 - 与整体UI风格一致 -->
@@ -260,11 +292,11 @@
                                       VerticalAlignment="Center" Margin="10,0,0,0"/>
                         </StackPanel>
 
-                        <!-- 课程表 - 响应式布局 -->
+                        <!-- 课程表 - 使用Grid + ItemsControl -->
                         <Border Grid.Row="1" BorderBrush="#E8E8E8" BorderThickness="1"
                                 CornerRadius="8" Background="White"
                                 HorizontalAlignment="Stretch">
-                            <Grid x:Name="ScheduleGrid">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="32"/>
                                     <ColumnDefinition Width="1*"/>
@@ -275,90 +307,160 @@
                                     <ColumnDefinition Width="1*"/>
                                     <ColumnDefinition Width="1*"/>
                                 </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
 
-                                    <!-- 表头 -->
-                                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource HeaderStyle}">
-                                        <TextBlock Text="节" FontSize="10" FontWeight="SemiBold" 
-                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource HeaderStyle}">
-                                        <TextBlock x:Name="MondayHeader" Text="一" FontSize="10" FontWeight="SemiBold" 
-                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource HeaderStyle}">
-                                        <TextBlock x:Name="TuesdayHeader" Text="二" FontSize="10" FontWeight="SemiBold" 
-                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource HeaderStyle}">
-                                        <TextBlock x:Name="WednesdayHeader" Text="三" FontSize="10" FontWeight="SemiBold" 
-                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource HeaderStyle}">
-                                        <TextBlock x:Name="ThursdayHeader" Text="四" FontSize="10" FontWeight="SemiBold" 
-                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <Border Grid.Row="0" Grid.Column="5" Style="{StaticResource HeaderStyle}">
-                                        <TextBlock x:Name="FridayHeader" Text="五" FontSize="10" FontWeight="SemiBold" 
-                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <Border Grid.Row="0" Grid.Column="6" Style="{StaticResource HeaderStyle}">
-                                        <TextBlock x:Name="SaturdayHeader" Text="六" FontSize="10" FontWeight="SemiBold" 
-                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <Border Grid.Row="0" Grid.Column="7" Style="{StaticResource HeaderStyle}">
-                                        <TextBlock x:Name="SundayHeader" Text="日" FontSize="10" FontWeight="SemiBold" 
-                                                  Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
+                                <!-- 表头 -->
+                                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource HeaderStyle}">
+                                    <TextBlock Text="节" FontSize="10" FontWeight="SemiBold" 
+                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource HeaderStyle}">
+                                    <TextBlock Text="一" FontSize="10" FontWeight="SemiBold" 
+                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource HeaderStyle}">
+                                    <TextBlock Text="二" FontSize="10" FontWeight="SemiBold" 
+                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource HeaderStyle}">
+                                    <TextBlock Text="三" FontSize="10" FontWeight="SemiBold" 
+                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource HeaderStyle}">
+                                    <TextBlock Text="四" FontSize="10" FontWeight="SemiBold" 
+                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="5" Style="{StaticResource HeaderStyle}">
+                                    <TextBlock Text="五" FontSize="10" FontWeight="SemiBold" 
+                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="6" Style="{StaticResource HeaderStyle}">
+                                    <TextBlock Text="六" FontSize="10" FontWeight="SemiBold" 
+                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="7" Style="{StaticResource HeaderStyle}">
+                                    <TextBlock Text="日" FontSize="10" FontWeight="SemiBold" 
+                                              Foreground="White" TextAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
 
-                                    <!-- 节次标签 -->
-                                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                        <TextBlock Text="1" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                    </Border>
-                                    <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                        <TextBlock Text="2" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                    </Border>
-                                    <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                        <TextBlock Text="3" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                    </Border>
-                                    <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                        <TextBlock Text="4" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                    </Border>
-                                    <Border Grid.Row="5" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                        <TextBlock Text="5" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                    </Border>
-                                    <Border Grid.Row="6" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                        <TextBlock Text="6" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                    </Border>
-                                    <Border Grid.Row="7" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                        <TextBlock Text="7" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                    </Border>
-                                    <Border Grid.Row="8" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                        <TextBlock Text="8" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                    </Border>
-                                    <Border Grid.Row="9" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                        <TextBlock Text="9" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                    </Border>
-                                    <Border Grid.Row="10" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                        <TextBlock Text="10" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                    </Border>
-                                    <Border Grid.Row="11" Grid.Column="0" Style="{StaticResource CellStyle}">
-                                        <TextBlock Text="11" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
-                                    </Border>
-                                </Grid>
+                                <!-- 节次标签 -->
+                                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                    <TextBlock Text="1" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                    <TextBlock Text="2" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                </Border>
+                                <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                    <TextBlock Text="3" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                </Border>
+                                <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                    <TextBlock Text="4" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                </Border>
+                                <Border Grid.Row="5" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                    <TextBlock Text="5" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                </Border>
+                                <Border Grid.Row="6" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                    <TextBlock Text="6" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                </Border>
+                                <Border Grid.Row="7" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                    <TextBlock Text="7" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                </Border>
+                                <Border Grid.Row="8" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                    <TextBlock Text="8" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                </Border>
+                                <Border Grid.Row="9" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                    <TextBlock Text="9" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                </Border>
+                                <Border Grid.Row="10" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                    <TextBlock Text="10" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                </Border>
+                                <Border Grid.Row="11" Grid.Column="0" Style="{StaticResource CellStyle}">
+                                    <TextBlock Text="11" FontSize="10" TextAlignment="Center" VerticalAlignment="Center" Foreground="#7F8C8D"/>
+                                </Border>
+
+                                <!-- 课程卡片 - 使用ItemsControl -->
+                                <ItemsControl Grid.Column="1" Grid.ColumnSpan="7" Grid.Row="1" Grid.RowSpan="11"
+                                              ItemsSource="{Binding Classes}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Grid IsItemsHost="True">
+                                                <!-- 7列对应星期一到星期日 -->
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <!-- 11行对应1-11节 -->
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                            </Grid>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="ContentPresenter">
+                                            <!-- Weekday: 1-7 对应 Grid.Column: 0-6 -->
+                                            <Setter Property="Grid.Column" Value="{Binding Weekday, Converter={StaticResource IndexConverter}}"/>
+                                            <!-- StartPeriod: 1-11 对应 Grid.Row: 0-10 -->
+                                            <Setter Property="Grid.Row" Value="{Binding StartPeriod, Converter={StaticResource IndexConverter}}"/>
+                                            <Setter Property="Grid.RowSpan" Value="{Binding Duration}"/>
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{Binding BackgroundBrush}"
+                                                    BorderBrush="{Binding BorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="6"
+                                                    Margin="2"
+                                                    Padding="4">
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding CourseName}"
+                                                              FontSize="11" FontWeight="SemiBold"
+                                                              Foreground="{Binding ForegroundBrush}"
+                                                              TextWrapping="Wrap" TextAlignment="Center"
+                                                              Margin="0,0,0,2"/>
+                                                    <TextBlock Text="{Binding Classroom}"
+                                                              FontSize="9"
+                                                              Foreground="{Binding ForegroundBrush}"
+                                                              TextAlignment="Center" Margin="0,0,0,1"/>
+                                                    <TextBlock Text="{Binding Teacher}"
+                                                              FontSize="9"
+                                                              Foreground="{Binding ForegroundBrush}"
+                                                              TextAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
                         </Border>
                     </Grid>
                 </Border>
@@ -416,11 +518,23 @@
                             </Button>
                         </Grid>
 
-                        <!-- 周次选择 - 响应式布局 -->
+                        <!-- 周次选择 - 使用ItemsControl -->
                         <TextBlock Text="选择周次" FontSize="11" Foreground="#666" Margin="0,14,0,8"/>
-                        <WrapPanel x:Name="WeekButtonsPanel" Orientation="Horizontal">
-                            <!-- 动态生成周次按钮 -->
-                        </WrapPanel>
+                        <ItemsControl ItemsSource="{Binding WeekOptions}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding DisplayText}"
+                                            Command="{Binding DataContext.SelectWeekCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding Week}"
+                                            Style="{StaticResource WeekButtonStyle}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
                 </Border>
             </StackPanel>

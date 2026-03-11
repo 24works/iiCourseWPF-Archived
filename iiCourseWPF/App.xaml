@@ -16,6 +16,10 @@
             <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
             <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+            <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+            <converters:IndexConverter x:Key="IndexConverter"/>
         <!-- 全局颜色资源 - 温暖活泼配色方案 -->
         <SolidColorBrush x:Key="PrimaryColor" Color="#FF6B35"/>
         <SolidColorBrush x:Key="PrimaryHoverColor" Color="#FF8555"/>

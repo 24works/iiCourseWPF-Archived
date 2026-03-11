@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Windows.Media;
 using iiCourse.Core.Commands;
 using iiCourse.Core.Models;
 using Newtonsoft.Json.Linq;
@@ -18,6 +19,9 @@ namespace iiCourse.Core.ViewModels
         public string Nature { get; set; } = string.Empty;
         public string Semester { get; set; } = string.Empty;
         public double ScoreValue { get; set; }
+
+        // 颜色属性（由ViewModel设置）
+        public Brush ScoreBrush { get; set; } = Brushes.Gray;
     }
 
     /// <summary>
@@ -126,6 +130,22 @@ namespace iiCourse.Core.ViewModels
         #endregion
 
         #region 方法
+
+        /// <summary>
+        /// 根据分数获取颜色
+        /// </summary>
+        private Brush GetScoreBrush(double score)
+        {
+            if (score >= 90)
+                return new SolidColorBrush(Color.FromRgb(39, 174, 96)); // 绿色-优秀
+            if (score >= 80)
+                return new SolidColorBrush(Color.FromRgb(52, 152, 219)); // 蓝色-良好
+            if (score >= 60)
+                return new SolidColorBrush(Color.FromRgb(243, 156, 18)); // 橙色-及格
+            if (score > 0)
+                return new SolidColorBrush(Color.FromRgb(231, 76, 60)); // 红色-不及格
+            return new SolidColorBrush(Color.FromRgb(127, 140, 141)); // 灰色-无数据
+        }
 
         /// <summary>
         /// 加载学年列表（从服务层缓存或API获取）
@@ -290,7 +310,8 @@ namespace iiCourse.Core.ViewModels
                         GPA = "--",
                         Nature = item["EXAMPROPERTY"]?.ToString() ?? "--",
                         Semester = $"{item["XN"]?.ToString() ?? "--"}-{item["XQ"]?.ToString() ?? "--"}",
-                        ScoreValue = scoreValue
+                        ScoreValue = scoreValue,
+                        ScoreBrush = GetScoreBrush(scoreValue)
                     });
                 }
             }

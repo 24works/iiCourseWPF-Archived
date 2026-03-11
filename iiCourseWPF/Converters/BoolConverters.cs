@@ -1,6 +1,8 @@
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Windows.Controls;
 
 namespace iiCourseWPF.Converters
 {
@@ -57,14 +59,142 @@ namespace iiCourseWPF.Converters
         {
             if (value is string str && !string.IsNullOrEmpty(str))
             {
-                return System.Windows.Visibility.Visible;
+                return Visibility.Visible;
             }
-            return System.Windows.Visibility.Collapsed;
+            return Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// 布尔值到可见性转换器
+    /// </summary>
+    public class BoolToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolValue && boolValue)
+            {
+                return Visibility.Visible;
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// 布尔值反转到可见性转换器
+    /// </summary>
+    public class InverseBooleanToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolValue && !boolValue)
+            {
+                return Visibility.Visible;
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// 选中状态转样式转换器
+    /// </summary>
+    public class IsSelectedToStyleConverter : IValueConverter
+    {
+        public Style? SelectedStyle { get; set; }
+        public Style? UnselectedStyle { get; set; }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool isSelected && isSelected)
+            {
+                return SelectedStyle ?? UnselectedStyle ?? new Style();
+            }
+            return UnselectedStyle ?? SelectedStyle ?? new Style();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// 交替行转换器
+    /// </summary>
+    public class AlternatingRowConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // 返回行索引用于判断是否为交替行
+            if (value is int index)
+            {
+                return index % 2 == 1;
+            }
+            return false;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// 数量到可见性转换器（数量为0时显示）
+    /// </summary>
+    public class CountToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is int count && count == 0)
+            {
+                return Visibility.Visible;
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// 索引转换器（将1-based索引转换为0-based索引）
+    /// </summary>
+    public class IndexConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is int index)
+            {
+                return index - 1;
+            }
+            return 0;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is int index)
+            {
+                return index + 1;
+            }
+            return 1;
         }
     }
 }

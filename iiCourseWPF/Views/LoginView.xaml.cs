@@ -14,9 +14,12 @@ namespace iiCourseWPF.Views
     {
         public event Action<bool, string>? LoginCompleted;
 
-        private ZHSSService? _service;
+        private iiCoreService? _service;
         private readonly CredentialService _credentialService;
 
+        /// <summary>
+        /// Initializes a new LoginView, sets up UI components, restores saved credentials, and focuses the username field.
+        /// </summary>
         public LoginView()
         {
             InitializeComponent();
@@ -50,8 +53,11 @@ namespace iiCourseWPF.Views
 
         /// <summary>
         /// 设置服务实例
+        /// <summary>
+        /// Assigns the provided iiCoreService to the view and attaches the view's log handler.
         /// </summary>
-        public void SetService(ZHSSService service)
+        /// <param name="service">The iiCoreService instance used for performing logins and receiving log messages.</param>
+        public void SetService(iiCoreService service)
         {
             _service = service;
             _service.LogCallback = OnLogMessage;

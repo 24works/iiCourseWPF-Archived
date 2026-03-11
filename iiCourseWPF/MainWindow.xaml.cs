@@ -13,7 +13,7 @@ namespace iiCourseWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ZHSSService? _service;
+        private iiCoreService? _service;
         private string? _username;
         private bool _isLoggedIn;
         private UserControl? _currentView;
@@ -28,10 +28,15 @@ namespace iiCourseWPF
 
         /// <summary>
         /// 初始化服务
+        /// <summary>
+        /// Creates and configures the iiCoreService instance and assigns it to all view components.
         /// </summary>
+        /// <remarks>
+        /// Sets the private _service field and injects that service into LoginView, UserInfoView, ClassScheduleView, ScoreView, SpareClassroomView, CardInfoView, and EvaluationView.
+        /// </remarks>
         private void InitializeService()
         {
-            _service = new ZHSSService
+            _service = new iiCoreService
             {
                 LogCallback = message => Console.WriteLine(message)
             };
@@ -88,7 +93,11 @@ namespace iiCourseWPF
 
         /// <summary>
         /// 处理菜单点击
+        /// <summary>
+        /// Handles a sidebar menu click by navigating to the corresponding view and triggering any view-specific data loads.
         /// </summary>
+        /// <param name="menuTag">The identifier of the clicked menu item (e.g., "UserInfo", "ClassSchedule", "Score", "CardInfo", "Evaluation", "Settings", "Privacy").</param>
+        /// <returns>A task that completes when navigation and any view-specific loading operations have finished.</returns>
         private async Task HandleMenuClick(string menuTag)
         {
             // 隐私政策页面不需要登录即可访问
@@ -117,6 +126,7 @@ namespace iiCourseWPF
                     break;
 
                 case "ClassSchedule":
+                    await ClassScheduleView.LoadSchoolYearsAsync();
                     await ClassScheduleView.LoadClassScheduleAsync();
                     break;
 

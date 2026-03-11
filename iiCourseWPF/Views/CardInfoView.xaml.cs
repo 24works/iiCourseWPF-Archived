@@ -9,56 +9,64 @@ using iiCourse.Core.Models;
 namespace iiCourseWPF.Views
 {
     /// <summary>
-    /// 一卡通信息视图
+    /// Card info view
     /// </summary>
     public partial class CardInfoView : UserControl
     {
-        private ZHSSService? _service;
+        private iiCoreService? _service;
 
+        /// <summary>
+        /// Initializes a new instance of the CardInfoView class and initializes its UI components.
+        /// </summary>
         public CardInfoView()
         {
             InitializeComponent();
         }
 
         /// <summary>
-        /// 设置服务实例
+        /// Set service instance
+        /// <summary>
+        /// Sets the iiCoreService instance used by this view to load and display card information.
         /// </summary>
-        public void SetService(ZHSSService service)
+        /// <param name="service">The service implementation used to retrieve card data.</param>
+        public void SetService(iiCoreService service)
         {
             _service = service;
         }
 
         /// <summary>
-        /// 加载一卡通信息
+        /// Load card info
+        /// <summary>
+        /// Loads card information from the configured service and updates the view with status, loading state, and content or error messages.
         /// </summary>
         public async Task LoadCardInfoAsync()
         {
             if (_service == null)
             {
-                ShowStatus("服务未初始化");
+                ShowStatus("Service not initialized");
                 return;
             }
 
             try
             {
                 SetLoadingState(true);
-                ShowStatus("正在加载一卡通信息...");
+                ShowStatus("Loading card info...");
 
                 var cardInfo = await _service.GetCardInfoAsync();
 
                 if (cardInfo != null)
                 {
                     DisplayCardInfo(cardInfo);
-                    ShowStatus("一卡通信息加载完成");
+                    ShowStatus("Card info loaded");
                 }
                 else
                 {
-                    ShowError("获取一卡通信息失败");
+                    ShowError("Failed to get card info");
                 }
             }
             catch (Exception ex)
             {
-                ShowError($"加载一卡通信息时发生错误: {ex.Message}");
+                ShowError($"Error loading card info: {ex.Message}");
             }
             finally
             {
@@ -67,27 +75,31 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 显示一卡通信息
+        /// Display card info
+        /// <summary>
+        /// Populate the UI fields with the provided card's balance and last consume time.
         /// </summary>
+        /// <param name="cardInfo">Card information whose Balance and LastConsumeTime are displayed; if LastConsumeTime is null or empty, displays "No consume record".</param>
         private void DisplayCardInfo(CardInfo cardInfo)
         {
-            // 显示余额
-            BalanceText.Text = cardInfo.余额;
+            BalanceText.Text = cardInfo.Balance;
 
-            // 显示上次消费时间
-            if (!string.IsNullOrEmpty(cardInfo.上次消费时间))
+            if (!string.IsNullOrEmpty(cardInfo.LastConsumeTime))
             {
-                LastConsumeText.Text = cardInfo.上次消费时间;
+                LastConsumeText.Text = cardInfo.LastConsumeTime;
             }
             else
             {
-                LastConsumeText.Text = "暂无消费记录";
+                LastConsumeText.Text = "No consume record";
             }
         }
 
         /// <summary>
-        /// 显示错误信息
+        /// Show error message
+        /// <summary>
+        /// Display an error message and reset visible card fields to placeholders.
         /// </summary>
+        /// <param name="message">The error text to show in the status area.</param>
         private void ShowError(string message)
         {
             BalanceText.Text = "--";
@@ -96,25 +108,35 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 显示状态信息
+        /// Show status message
+        /// <summary>
+        /// Updates the status text displayed in the view.
         /// </summary>
+        /// <param name="message">The status message to display.</param>
         private void ShowStatus(string message)
         {
             StatusText.Text = message;
         }
 
         /// <summary>
-        /// 设置加载状态
+        /// Set loading state
+        /// <summary>
+        /// Updates the UI to reflect the current loading state.
         /// </summary>
+        /// <param name="isLoading">When true, disables the refresh button and sets its content to "Loading..."; when false, enables the button and sets its content to "Refresh".</param>
         private void SetLoadingState(bool isLoading)
         {
             RefreshButton.IsEnabled = !isLoading;
-            RefreshButton.Content = isLoading ? "加载中..." : "刷新信息";
+            RefreshButton.Content = isLoading ? "Loading..." : "Refresh";
         }
 
         /// <summary>
-        /// 刷新按钮点击事件
+        /// Refresh button click event
+        /// <summary>
+        /// Handles the Refresh button click and triggers reloading of card information.
         /// </summary>
+        /// <param name="sender">The source of the click event.</param>
+        /// <param name="e">Event data for the routed event.</param>
         private async void OnRefreshClick(object sender, RoutedEventArgs e)
         {
             await LoadCardInfoAsync();

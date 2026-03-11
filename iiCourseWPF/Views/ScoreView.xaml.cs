@@ -14,8 +14,11 @@ namespace iiCourseWPF.Views
     /// </summary>
     public partial class ScoreView : UserControl
     {
-        private ZHSSService? _service;
+        private iiCoreService? _service;
 
+        /// <summary>
+        /// Initializes a new instance of the ScoreView class and sets up its UI components.
+        /// </summary>
         public ScoreView()
         {
             InitializeComponent();
@@ -23,8 +26,11 @@ namespace iiCourseWPF.Views
 
         /// <summary>
         /// 设置服务实例
+        /// <summary>
+        /// Stores the provided iiCoreService instance for use by this ScoreView.
         /// </summary>
-        public void SetService(ZHSSService service)
+        /// <param name="service">The iiCoreService implementation used to load exam scores and related data.</param>
+        public void SetService(iiCoreService service)
         {
             _service = service;
         }

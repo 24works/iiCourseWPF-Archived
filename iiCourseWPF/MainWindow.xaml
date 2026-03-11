@@ -59,14 +59,7 @@
                         <TranslateTransform Y="20"/>
                     </views:SpareClassroomView.RenderTransform>
                 </views:SpareClassroomView>
-                
-                <!-- 一卡通信息视图 -->
-                <views:CardInfoView x:Name="CardInfoView" Visibility="Collapsed" Opacity="0">
-                    <views:CardInfoView.RenderTransform>
-                        <TranslateTransform Y="20"/>
-                    </views:CardInfoView.RenderTransform>
-                </views:CardInfoView>
-                
+
                 <!-- 评教视图 -->
                 <views:EvaluationView x:Name="EvaluationView" Visibility="Collapsed" Opacity="0">
                     <views:EvaluationView.RenderTransform>

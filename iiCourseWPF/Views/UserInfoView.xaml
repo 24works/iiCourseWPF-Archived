@@ -5,7 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="600">
-    <Grid Background="#FFF8F0">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource BackgroundColor}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <!-- 头部标题 -->
@@ -28,7 +32,7 @@
 
                         <!-- 头像区域 -->
                         <Border Grid.Column="0" Width="72" Height="72" 
-                                Background="#FFF5EB" CornerRadius="36" 
+                                Background="{StaticResource HoverBackgroundColor}" CornerRadius="36" 
                                 Margin="0,0,20,0" VerticalAlignment="Top">
                             <Path Width="36" Height="36" Data="{StaticResource UserIcon}"
                                   Fill="#FF6B35" Stretch="Uniform"
@@ -37,10 +41,10 @@
 
                         <!-- 信息区域 -->
                         <StackPanel Grid.Column="1">
-                            <TextBlock x:Name="NameText" Text="--" 
+                            <TextBlock Text="{Binding Name, FallbackValue=--}" 
                                       Style="{StaticResource InfoValueStyle}" 
                                       FontSize="22" Margin="0,0,0,6"/>
-                            <TextBlock x:Name="CollegeText" Text="--" 
+                            <TextBlock Text="{Binding College, FallbackValue=--}" 
                                       Style="{StaticResource InfoValueStyle}" 
                                       FontSize="14" Foreground="#7F8C8D"/>
                         </StackPanel>
@@ -63,42 +67,55 @@
                         <!-- 学号 -->
                         <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,16">
                             <TextBlock Text="学号" Style="{StaticResource InfoLabelStyle}"/>
-                            <TextBlock x:Name="StudentIdText" Text="--" 
+                            <TextBlock Text="{Binding StudentId, FallbackValue=--}" 
                                       Style="{StaticResource InfoValueStyle}"/>
                         </StackPanel>
 
                         <!-- 姓名 -->
                         <StackPanel Grid.Row="0" Grid.Column="1" Margin="12,0,0,16">
                             <TextBlock Text="姓名" Style="{StaticResource InfoLabelStyle}"/>
-                            <TextBlock x:Name="NameDetailText" Text="--" 
+                            <TextBlock Text="{Binding Name, FallbackValue=--}" 
                                       Style="{StaticResource InfoValueStyle}"/>
                         </StackPanel>
 
                         <!-- 性别 -->
                         <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,16">
                             <TextBlock Text="性别" Style="{StaticResource InfoLabelStyle}"/>
-                            <TextBlock x:Name="GenderText" Text="--" 
+                            <TextBlock Text="{Binding Gender, FallbackValue=--}" 
                                       Style="{StaticResource InfoValueStyle}"/>
                         </StackPanel>
 
                         <!-- 学院 -->
                         <StackPanel Grid.Row="1" Grid.Column="1" Margin="12,0,0,16">
                             <TextBlock Text="学院" Style="{StaticResource InfoLabelStyle}"/>
-                            <TextBlock x:Name="CollegeDetailText" Text="--" 
+                            <TextBlock Text="{Binding College, FallbackValue=--}" 
                                       Style="{StaticResource InfoValueStyle}"/>
                         </StackPanel>
 
                         <!-- 登录状态 -->
                         <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                             <TextBlock Text="登录状态" Style="{StaticResource InfoLabelStyle}"/>
-                            <Border Background="#E8F5E9" CornerRadius="6" Padding="10,6" 
-                                    HorizontalAlignment="Left">
+                            <Border Background="{StaticResource TipBackgroundColor}" CornerRadius="6" Padding="10,6" 
+                                    HorizontalAlignment="Left"
+                                    Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <StackPanel Orientation="Horizontal">
                                     <Path Width="12" Height="12" Data="{StaticResource CheckIcon}"
                                           Fill="#27AE60" Stretch="Uniform" Margin="0,0,6,0"
                                           VerticalAlignment="Center"/>
-                                    <TextBlock x:Name="LoginStatusText" Text="已登录" 
+                                    <TextBlock Text="已登录" 
                                               FontSize="13" Foreground="#27AE60" 
+                                              FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#FFEBEE" CornerRadius="6" Padding="10,6" 
+                                    HorizontalAlignment="Left"
+                                    Visibility="{Binding IsError, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="12" Height="12" Data="{StaticResource CloseIcon}"
+                                          Fill="#E74C3C" Stretch="Uniform" Margin="0,0,6,0"
+                                          VerticalAlignment="Center"/>
+                                    <TextBlock Text="加载失败" 
+                                              FontSize="13" Foreground="#E74C3C" 
                                               FontWeight="SemiBold" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
@@ -106,12 +123,59 @@
                     </Grid>
                 </Border>
 
+                <!-- 一卡通信息卡片 -->
+                <Border Style="{StaticResource CardBorderStyle}" Margin="20,16,20,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 卡片图标 -->
+                        <Border Grid.Column="0" Width="72" Height="72" 
+                                CornerRadius="12" 
+                                Margin="0,0,20,0" VerticalAlignment="Top">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#FF6B35" Offset="0"/>
+                                    <GradientStop Color="#FFD23F" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Path Width="36" Height="36" Data="{StaticResource CardIcon}"
+                                  Fill="White" Stretch="Uniform"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <!-- 信息区域 -->
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="校园一卡通" FontSize="18" FontWeight="Bold" 
+                                      Foreground="#FF6B35" Margin="0,0,0,18"/>
+
+                            <!-- 余额 -->
+                            <StackPanel Margin="0,0,0,18">
+                                <TextBlock Text="当前余额" Style="{StaticResource InfoLabelStyle}"/>
+                                <TextBlock Text="{Binding Balance, FallbackValue=--}" 
+                                          Style="{StaticResource InfoValueStyle}" 
+                                          FontSize="28" Foreground="#27AE60"/>
+                            </StackPanel>
+
+                            <!-- 上次消费时间 -->
+                            <StackPanel>
+                                <TextBlock Text="上次消费时间" Style="{StaticResource InfoLabelStyle}"/>
+                                <TextBlock Text="{Binding LastConsumeTime, FallbackValue=--}" 
+                                          Style="{StaticResource InfoValueStyle}" 
+                                          FontSize="14" Foreground="#7F8C8D"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
                 <!-- 刷新按钮 -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-                    <Button x:Name="RefreshButton" 
+                    <Button Command="{Binding RefreshCommand}"
+                            IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
                             Style="{StaticResource PrimaryButtonStyle}"
-                            Padding="20,10" FontSize="13"
-                            Click="OnRefreshClick">
+                            Padding="20,10" FontSize="13">
                         <Button.Content>
                             <StackPanel Orientation="Horizontal">
                                 <Path Width="14" Height="14" Data="{StaticResource RefreshIcon}"
@@ -122,6 +186,33 @@
                         </Button.Content>
                     </Button>
                 </StackPanel>
+
+                <!-- 状态信息 -->
+                <TextBlock Text="{Binding StatusMessage}" 
+                          FontSize="12" 
+                          Foreground="#7F8C8D"
+                          TextAlignment="Center"
+                          Margin="0,12,0,0"
+                          Visibility="{Binding StatusMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+                <!-- 提示信息 -->
+                <Border Background="{StaticResource TipBackgroundColor}" CornerRadius="8" Margin="20,16,20,20" Padding="16,14">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Path Width="16" Height="16" Data="{StaticResource LightbulbIcon}"
+                                  Fill="#27AE60" Stretch="Uniform" Margin="0,0,8,0"
+                                  VerticalAlignment="Center"/>
+                            <TextBlock Text="使用提示" FontSize="13" FontWeight="SemiBold" 
+                                      Foreground="#27AE60" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="• 余额信息实时更新，请定期查询" FontSize="11" 
+                                  Foreground="#555555" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                        <TextBlock Text="• 如有余额异常，请及时联系校园卡管理中心" FontSize="11" 
+                                  Foreground="#555555" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                        <TextBlock Text="• 校园卡可在食堂、超市、图书馆等场所使用" FontSize="11" 
+                                  Foreground="#555555" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
 
                 <!-- 底部间距 -->
                 <Border Height="20"/>

@@ -26,7 +26,6 @@ namespace iiCourseWPF.Controls
             BtnClassSchedule.Style = Resources["MenuButtonStyle"] as Style;
             BtnScore.Style = Resources["MenuButtonStyle"] as Style;
             BtnSpareClassroom.Style = Resources["MenuButtonStyle"] as Style;
-            BtnCardInfo.Style = Resources["MenuButtonStyle"] as Style;
             BtnEvaluation.Style = Resources["MenuButtonStyle"] as Style;
             BtnSettings.Style = Resources["MenuButtonStyle"] as Style;
             BtnPrivacy.Style = Resources["MenuButtonStyle"] as Style;
@@ -38,7 +37,6 @@ namespace iiCourseWPF.Controls
                 "ClassSchedule" => BtnClassSchedule,
                 "Score" => BtnScore,
                 "SpareClassroom" => BtnSpareClassroom,
-                "CardInfo" => BtnCardInfo,
                 "Evaluation" => BtnEvaluation,
                 "Settings" => BtnSettings,
                 "Privacy" => BtnPrivacy,
@@ -54,19 +52,21 @@ namespace iiCourseWPF.Controls
         /// <summary>
         /// 更新登录状态显示
         /// </summary>
-        public void UpdateLoginStatus(bool isLoggedIn, string userName = "")
+        public void UpdateLoginStatus(bool isLoggedIn, string name = "", string studentId = "")
         {
             if (isLoggedIn)
             {
                 StatusText.Text = "已登录";
                 StatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
-                UserNameText.Text = userName;
+                UserNameText.Text = name;
+                StudentIdText.Text = studentId;
             }
             else
             {
                 StatusText.Text = "未登录";
                 StatusText.Foreground = System.Windows.Media.Brushes.Gray;
                 UserNameText.Text = "";
+                StudentIdText.Text = "";
             }
         }
 
@@ -77,7 +77,9 @@ namespace iiCourseWPF.Controls
         {
             if (sender is Button button && button.Tag is string tag)
             {
-                SetActiveMenu(tag);
+                // 不在这里立即更新UI状态
+                // 选中状态由 MainWindow 在视图切换完成后统一更新
+                // 避免异步加载导致的闪烁问题
                 MenuClicked?.Invoke(tag);
             }
         }

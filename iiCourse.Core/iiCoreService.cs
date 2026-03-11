@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
@@ -18,6 +19,9 @@ namespace iiCourse.Core
         private readonly HttpClientHandler _handler;
         private bool _loginStatus;
         private UserInfo? _userInfo;
+
+        // 缓存学年数据，供多个页面共享使用
+        private List<SchoolYearInfo>? _cachedSchoolYears;
 
         /// <summary>
         /// Log callback
@@ -260,7 +264,7 @@ namespace iiCourse.Core
         }
 
         /// <summary>
-        /// Get exam scores
+        /// Get exam scores (current semester)
         /// </summary>
         public async Task<string?> GetExamScoreAsync()
         {
@@ -274,7 +278,22 @@ namespace iiCourse.Core
                 var xn = timeObj["XN"]?.ToString() ?? "";
                 var xq = timeObj["XQ"]?.ToString() ?? "";
 
-                var scoreData = new { nian = xn, xueqi = xq };
+                return await GetExamScoreByParamsAsync(xn, xq);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Get exam scores by school year and semester
+        /// </summary>
+        public async Task<string?> GetExamScoreByParamsAsync(string schoolYear, string semester)
+        {
+            try
+            {
+                var scoreData = new { nian = schoolYear, xueqi = semester };
                 var scoreJson = JsonConvert.SerializeObject(scoreData);
                 var scoreContent = new StringContent(scoreJson, Encoding.UTF8, "application/json");
 
@@ -462,10 +481,17 @@ namespace iiCourse.Core
         #region Custom Query Schedule API
 
         /// <summary>
-        /// Get school year list
+        /// Get school year list (with caching)
         /// </summary>
         public async Task<List<SchoolYearInfo>> GetSchoolYearsAsync()
         {
+            // 如果缓存中有数据，直接返回
+            if (_cachedSchoolYears != null && _cachedSchoolYears.Count > 0)
+            {
+                Log("Returning cached school years");
+                return _cachedSchoolYears;
+            }
+
             var result = new List<SchoolYearInfo>();
             try
             {
@@ -490,12 +516,33 @@ namespace iiCourse.Core
                         SCHOOL_YEAR = item["SCHOOL_YEAR"]?.ToString() ?? ""
                     });
                 }
+
+                // 缓存结果
+                _cachedSchoolYears = result;
+                Log($"School years cached: {result.Count} items");
             }
             catch (Exception ex)
             {
                 Log($"Get school years exception: {ex.Message}");
             }
             return result;
+        }
+
+        /// <summary>
+        /// Get cached school years without making API call
+        /// </summary>
+        public List<SchoolYearInfo> GetCachedSchoolYears()
+        {
+            return _cachedSchoolYears ?? new List<SchoolYearInfo>();
+        }
+
+        /// <summary>
+        /// Clear school years cache
+        /// </summary>
+        public void ClearSchoolYearsCache()
+        {
+            _cachedSchoolYears = null;
+            Log("School years cache cleared");
         }
 
         /// <summary>

@@ -40,9 +40,12 @@
             <Setter Property="Margin" Value="0,0,12,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+
+        <!-- 状态文本颜色转换器 -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </UserControl.Resources>
 
-    <Grid Background="#FFF8F0">
+    <Grid Background="{StaticResource BackgroundColor}">
         <!-- 装饰性背景 -->
         <Grid>
             <Ellipse Width="400" Height="400" Fill="#FF6B35" Opacity="0.05" 
@@ -74,7 +77,7 @@
                     <StackPanel>
                         <TextBlock Text="学号" FontSize="12" FontWeight="SemiBold" 
                                   Foreground="#2C3E50" Margin="0,0,0,4"/>
-                        <Border x:Name="UsernameBorder" Style="{StaticResource InputBoxStyle}">
+                        <Border Style="{StaticResource InputBoxStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -82,7 +85,9 @@
                                 </Grid.ColumnDefinitions>
                                 <Path Grid.Column="0" Style="{StaticResource InputIconStyle}" 
                                       Data="{StaticResource UserIcon}"/>
-                                <TextBox Grid.Column="1" x:Name="UsernameTextBox" BorderThickness="0" 
+                                <TextBox Grid.Column="1" 
+                                         Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
+                                         BorderThickness="0" 
                                          FontSize="14" VerticalAlignment="Center" 
                                          VerticalContentAlignment="Center" Padding="0"
                                          Background="Transparent" CaretBrush="#FF6B35"/>
@@ -94,7 +99,7 @@
                     <StackPanel Margin="0,14,0,0">
                         <TextBlock Text="密码" FontSize="12" FontWeight="SemiBold" 
                                   Foreground="#2C3E50" Margin="0,0,0,4"/>
-                        <Border x:Name="PasswordBorder" Style="{StaticResource InputBoxStyle}">
+                        <Border Style="{StaticResource InputBoxStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -102,7 +107,10 @@
                                 </Grid.ColumnDefinitions>
                                 <Path Grid.Column="0" Style="{StaticResource InputIconStyle}" 
                                       Data="{StaticResource LockIcon}"/>
-                                <PasswordBox Grid.Column="1" x:Name="PasswordBox" BorderThickness="0" 
+                                <PasswordBox x:Name="PasswordBox"
+                                            Grid.Column="1" 
+                                            PasswordChanged="OnPasswordChanged"
+                                            BorderThickness="0" 
                                             FontSize="14" VerticalAlignment="Center" 
                                             VerticalContentAlignment="Center" Padding="0"
                                             Background="Transparent" CaretBrush="#FF6B35"/>
@@ -111,12 +119,13 @@
                     </StackPanel>
 
                     <!-- 记住密码选项 -->
-                    <CheckBox x:Name="RememberPasswordCheckBox" 
+                    <CheckBox IsChecked="{Binding RememberPassword}" 
                               Content="记住账号密码" 
                               FontSize="12" 
                               Foreground="#7F8C8D"
                               Margin="0,14,0,0"
-                              VerticalContentAlignment="Center">
+                              VerticalContentAlignment="Center"
+                              Cursor="Hand">
                         <CheckBox.Style>
                             <Style TargetType="CheckBox">
                                 <Setter Property="Template">
@@ -124,31 +133,104 @@
                                         <ControlTemplate TargetType="CheckBox">
                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                 <Border x:Name="CheckBorder" 
-                                                        Width="18" Height="18" 
-                                                        CornerRadius="4"
+                                                        Width="20" Height="20" 
+                                                        CornerRadius="6"
                                                         Background="White"
                                                         BorderBrush="#E0E0E0"
-                                                        BorderThickness="1.5"
-                                                        Margin="0,0,8,0">
-                                                    <Path x:Name="CheckMark" 
-                                                          Data="{StaticResource CheckIcon}"
-                                                          Width="12" Height="12"
-                                                          Stretch="Uniform"
-                                                          Fill="White"
-                                                          HorizontalAlignment="Center" 
-                                                          VerticalAlignment="Center"
-                                                          Visibility="Collapsed"/>
+                                                        BorderThickness="2"
+                                                        Margin="0,0,10,0">
+
+                                                    <Grid>
+                                                        <!-- 勾选图标 -->
+                                                        <Path x:Name="CheckMark" 
+                                                              Data="{StaticResource CheckIcon}"
+                                                              Width="12" Height="12"
+                                                              Stretch="Uniform"
+                                                              Fill="White"
+                                                              HorizontalAlignment="Center" 
+                                                              VerticalAlignment="Center"
+                                                              Opacity="0"
+                                                              RenderTransformOrigin="0.5,0.5">
+                                                            <Path.RenderTransform>
+                                                                <ScaleTransform x:Name="CheckScale" ScaleX="0" ScaleY="0"/>
+                                                            </Path.RenderTransform>
+                                                        </Path>
+                                                        <!-- 锁定图标（记住密码时显示） -->
+                                                        <Path x:Name="LockSmallIcon" 
+                                                              Data="{StaticResource LockIcon}"
+                                                              Width="10" Height="10"
+                                                              Stretch="Uniform"
+                                                              Fill="White"
+                                                              HorizontalAlignment="Center" 
+                                                              VerticalAlignment="Center"
+                                                              Opacity="0"
+                                                              RenderTransformOrigin="0.5,0.5">
+                                                            <Path.RenderTransform>
+                                                                <ScaleTransform x:Name="LockScale" ScaleX="0" ScaleY="0"/>
+                                                            </Path.RenderTransform>
+                                                        </Path>
+                                                    </Grid>
                                                 </Border>
                                                 <ContentPresenter VerticalAlignment="Center"/>
                                             </StackPanel>
                                             <ControlTemplate.Triggers>
+                                                <!-- 选中状态 -->
                                                 <Trigger Property="IsChecked" Value="True">
                                                     <Setter TargetName="CheckBorder" Property="Background" Value="#FF6B35"/>
                                                     <Setter TargetName="CheckBorder" Property="BorderBrush" Value="#FF6B35"/>
-                                                    <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                                                    <Setter TargetName="CheckMark" Property="Opacity" Value="1"/>
+                                                    <!-- 勾选动画 -->
+                                                    <Trigger.EnterActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetName="CheckScale"
+                                                                                 Storyboard.TargetProperty="ScaleX"
+                                                                                 From="0" To="1.2" Duration="0:0:0.15"/>
+                                                                <DoubleAnimation Storyboard.TargetName="CheckScale"
+                                                                                 Storyboard.TargetProperty="ScaleY"
+                                                                                 From="0" To="1.2" Duration="0:0:0.15"/>
+                                                                <DoubleAnimation Storyboard.TargetName="CheckScale"
+                                                                                 Storyboard.TargetProperty="ScaleX"
+                                                                                 From="1.2" To="1" Duration="0:0:0.1"
+                                                                                 BeginTime="0:0:0.15"/>
+                                                                <DoubleAnimation Storyboard.TargetName="CheckScale"
+                                                                                 Storyboard.TargetProperty="ScaleY"
+                                                                                 From="1.2" To="1" Duration="0:0:0.1"
+                                                                                 BeginTime="0:0:0.15"/>
+
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </Trigger.EnterActions>
+                                                    <Trigger.ExitActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetName="CheckScale"
+                                                                                 Storyboard.TargetProperty="ScaleX"
+                                                                                 To="0" Duration="0:0:0.1"/>
+                                                                <DoubleAnimation Storyboard.TargetName="CheckScale"
+                                                                                 Storyboard.TargetProperty="ScaleY"
+                                                                                 To="0" Duration="0:0:0.1"/>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </Trigger.ExitActions>
                                                 </Trigger>
+                                                <!-- 悬停状态 -->
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter TargetName="CheckBorder" Property="BorderBrush" Value="#FF6B35"/>
+                                                    <Setter TargetName="CheckBorder" Property="Background" Value="#FFF5F0"/>
+                                                    <Setter TargetName="CheckBorder" Property="Effect">
+                                                        <Setter.Value>
+                                                            <DropShadowEffect Color="#FF6B35" Opacity="0.3" BlurRadius="8" ShadowDepth="0"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Trigger>
+                                                <!-- 按下状态 -->
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter TargetName="CheckBorder" Property="RenderTransform">
+                                                        <Setter.Value>
+                                                            <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+                                                        </Setter.Value>
+                                                    </Setter>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -159,41 +241,48 @@
                     </CheckBox>
 
                     <!-- 登录按钮 -->
-                    <Button x:Name="LoginButton" Content="登录" 
+                    <Button Content="登录" 
+                            Command="{Binding LoginCommand}"
                             Style="{StaticResource PrimaryButtonStyle}"
-                            Click="OnLoginClick" Margin="0,24,0,0" HorizontalAlignment="Stretch"/>
+                            Margin="0,24,0,0" HorizontalAlignment="Stretch"/>
 
                     <!-- 状态信息 -->
-                    <TextBlock x:Name="StatusText" Text="" FontSize="12" 
-                              Foreground="#E74C3C" TextAlignment="Center" 
-                              TextWrapping="Wrap" Margin="0,12,0,0" Visibility="Collapsed"/>
+                    <TextBlock Text="{Binding StatusMessage}" 
+                              FontSize="12" 
+                              Foreground="{Binding IsStatusError, Converter={StaticResource BoolToColorConverter}, FallbackValue=#E74C3C}" 
+                              TextAlignment="Center" 
+                              TextWrapping="Wrap" 
+                              Margin="0,12,0,0"
+                              Visibility="{Binding IsStatusVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                     <!-- 加载动画 -->
-                    <StackPanel x:Name="LoadingPanel" Orientation="Horizontal" 
-                               HorizontalAlignment="Center" Margin="0,12,0,0" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" 
+                               HorizontalAlignment="Center" 
+                               Margin="0,12,0,0" 
+                               Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <Path x:Name="LoadingPath" Width="16" Height="16" Data="{StaticResource RefreshIcon}"
                               Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
                               RenderTransformOrigin="0.5,0.5">
                             <Path.RenderTransform>
                                 <RotateTransform x:Name="LoadingRotate" Angle="0"/>
                             </Path.RenderTransform>
+                            <Path.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <DoubleAnimation Storyboard.TargetName="LoadingRotate"
+                                                           Storyboard.TargetProperty="Angle"
+                                                           From="0" To="360" Duration="0:0:1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Path.Triggers>
                         </Path>
                         <TextBlock Text="登录中..." FontSize="12" Foreground="#FF6B35" VerticalAlignment="Center"/>
-                        <StackPanel.Triggers>
-                            <EventTrigger RoutedEvent="Loaded">
-                                <BeginStoryboard x:Name="LoadingStoryboard">
-                                    <Storyboard RepeatBehavior="Forever">
-                                        <DoubleAnimation Storyboard.TargetName="LoadingRotate"
-                                                       Storyboard.TargetProperty="Angle"
-                                                       From="0" To="360" Duration="0:0:1"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger>
-                        </StackPanel.Triggers>
                     </StackPanel>
 
                     <!-- 提示信息 -->
-                    <Border Background="#FFF8F0" CornerRadius="8" Margin="0,16,0,0" Padding="14,10">
+                    <Border Background="{StaticResource LightBackgroundColor}" CornerRadius="8" Margin="0,16,0,0" Padding="14,10">
                         <StackPanel Orientation="Horizontal">
                             <Path Width="16" Height="16" Data="{StaticResource LightbulbIcon}"
                                   Fill="#FF6B35" Stretch="Uniform" Margin="0,0,10,0"

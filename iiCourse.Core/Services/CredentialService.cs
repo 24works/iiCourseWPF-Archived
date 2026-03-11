@@ -1,16 +1,15 @@
-using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace iiCourseWPF.Services
+namespace iiCourse.Core.Services
 {
     /// <summary>
     /// 安全凭据存储服务
     /// 使用 Windows DPAPI 加密存储账号密码
     /// </summary>
-    public class CredentialService
+    public class CredentialService : ICredentialService
     {
         // 凭据文件存储路径
         private static readonly string AppDataPath = Path.Combine(
@@ -26,9 +25,6 @@ namespace iiCourseWPF.Services
         /// <summary>
         /// 保存凭据到本地
         /// </summary>
-        /// <param name="username">用户名</param>
-        /// <param name="password">密码</param>
-        /// <param name="rememberPassword">是否记住密码</param>
         public void SaveCredentials(string username, string password, bool rememberPassword)
         {
             try
@@ -66,7 +62,6 @@ namespace iiCourseWPF.Services
         /// <summary>
         /// 加载保存的凭据
         /// </summary>
-        /// <returns>凭据数据，如果没有保存则返回 null</returns>
         public CredentialData? LoadCredentials()
         {
             try
@@ -118,26 +113,5 @@ namespace iiCourseWPF.Services
         {
             return File.Exists(CredentialFilePath);
         }
-    }
-
-    /// <summary>
-    /// 凭据数据模型
-    /// </summary>
-    public class CredentialData
-    {
-        /// <summary>
-        /// 用户名（学号）
-        /// </summary>
-        public string Username { get; set; } = string.Empty;
-
-        /// <summary>
-        /// 密码
-        /// </summary>
-        public string Password { get; set; } = string.Empty;
-
-        /// <summary>
-        /// 是否记住密码
-        /// </summary>
-        public bool RememberPassword { get; set; }
     }
 }

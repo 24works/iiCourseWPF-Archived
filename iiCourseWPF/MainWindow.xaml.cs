@@ -34,7 +34,6 @@ namespace iiCourseWPF
             UserInfoView.ViewModel = _viewModel.UserInfoViewModel;
             ClassScheduleView.ViewModel = _viewModel.ClassScheduleViewModel;
             ScoreView.ViewModel = _viewModel.ScoreViewModel;
-            CardInfoView.ViewModel = _viewModel.CardInfoViewModel;
             SpareClassroomView.ViewModel = _viewModel.SpareClassroomViewModel;
             EvaluationView.ViewModel = _viewModel.EvaluationViewModel;
 
@@ -98,7 +97,6 @@ namespace iiCourseWPF
                 "ClassSchedule" => ClassScheduleView,
                 "Score" => ScoreView,
                 "SpareClassroom" => SpareClassroomView,
-                "CardInfo" => CardInfoView,
                 "Evaluation" => EvaluationView,
                 "Settings" => SettingsView,
                 "Privacy" => PrivacyView,

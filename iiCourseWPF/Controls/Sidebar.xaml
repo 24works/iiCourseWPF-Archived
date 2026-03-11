@@ -160,7 +160,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="BtnSpareClassroom" Style="{StaticResource MenuButtonStyle}" 
+                    <Button x:Name="BtnSpareClassroom" Style="{StaticResource MenuButtonStyle}"
                             Click="OnMenuClick" Tag="SpareClassroom">
                         <StackPanel Orientation="Horizontal" Margin="12,0,0,0">
                             <Path Style="{StaticResource MenuIconStyle}" Data="{StaticResource SchoolIcon}"/>
@@ -168,15 +168,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="BtnCardInfo" Style="{StaticResource MenuButtonStyle}" 
-                            Click="OnMenuClick" Tag="CardInfo">
-                        <StackPanel Orientation="Horizontal" Margin="12,0,0,0">
-                            <Path Style="{StaticResource MenuIconStyle}" Data="{StaticResource CardIcon}"/>
-                            <TextBlock Text="一卡通信息" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Button x:Name="BtnEvaluation" Style="{StaticResource MenuButtonStyle}" 
+                    <Button x:Name="BtnEvaluation" Style="{StaticResource MenuButtonStyle}"
                             Click="OnMenuClick" Tag="Evaluation">
                         <StackPanel Orientation="Horizontal" Margin="12,0,0,0">
                             <Path Style="{StaticResource MenuIconStyle}" Data="{StaticResource StarIcon}"/>

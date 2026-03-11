@@ -26,7 +26,6 @@ namespace iiCourseWPF.Controls
             BtnClassSchedule.Style = Resources["MenuButtonStyle"] as Style;
             BtnScore.Style = Resources["MenuButtonStyle"] as Style;
             BtnSpareClassroom.Style = Resources["MenuButtonStyle"] as Style;
-            BtnCardInfo.Style = Resources["MenuButtonStyle"] as Style;
             BtnEvaluation.Style = Resources["MenuButtonStyle"] as Style;
             BtnSettings.Style = Resources["MenuButtonStyle"] as Style;
             BtnPrivacy.Style = Resources["MenuButtonStyle"] as Style;
@@ -38,7 +37,6 @@ namespace iiCourseWPF.Controls
                 "ClassSchedule" => BtnClassSchedule,
                 "Score" => BtnScore,
                 "SpareClassroom" => BtnSpareClassroom,
-                "CardInfo" => BtnCardInfo,
                 "Evaluation" => BtnEvaluation,
                 "Settings" => BtnSettings,
                 "Privacy" => BtnPrivacy,

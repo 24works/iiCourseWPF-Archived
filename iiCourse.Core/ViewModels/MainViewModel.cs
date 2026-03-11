@@ -24,7 +24,6 @@ namespace iiCourse.Core.ViewModels
         public UserInfoViewModel UserInfoViewModel { get; }
         public ClassScheduleViewModel ClassScheduleViewModel { get; }
         public ScoreViewModel ScoreViewModel { get; }
-        public CardInfoViewModel CardInfoViewModel { get; }
         public SpareClassroomViewModel SpareClassroomViewModel { get; }
         public EvaluationViewModel EvaluationViewModel { get; }
 
@@ -38,7 +37,6 @@ namespace iiCourse.Core.ViewModels
             UserInfoViewModel = new UserInfoViewModel(_coreService);
             ClassScheduleViewModel = new ClassScheduleViewModel(_coreService);
             ScoreViewModel = new ScoreViewModel(_coreService);
-            CardInfoViewModel = new CardInfoViewModel(_coreService);
             SpareClassroomViewModel = new SpareClassroomViewModel(_coreService);
             EvaluationViewModel = new EvaluationViewModel(_coreService);
 
@@ -144,10 +142,6 @@ namespace iiCourse.Core.ViewModels
                     case "Score":
                         await ScoreViewModel.LoadSchoolYearsAsync();
                         await ScoreViewModel.LoadScoresAsync();
-                        break;
-
-                    case "CardInfo":
-                        await CardInfoViewModel.LoadCardInfoAsync();
                         break;
                 }
             }

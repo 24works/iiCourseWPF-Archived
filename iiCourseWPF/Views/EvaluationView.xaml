@@ -25,12 +25,30 @@
             <StackPanel>
                 <!-- 头部标题 -->
                 <Border Style="{StaticResource PageHeaderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="学生评教" FontSize="24" FontWeight="Bold" 
-                                  Foreground="White" Margin="0,0,0,6"/>
-                        <TextBlock Text="完成课程教学评价" FontSize="13" 
-                                  Foreground="#D9FFFFFF"/>
-                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="学生评教" FontSize="24" FontWeight="Bold" 
+                                      Foreground="White" Margin="0,0,0,6"/>
+                            <TextBlock Text="完成课程教学评价" FontSize="13" 
+                                      Foreground="#D9FFFFFF"/>
+                        </StackPanel>
+                        <!-- 正在开发中提示 -->
+                        <Border Grid.Column="1" Background="#FFE4E1" CornerRadius="6" 
+                                Padding="12,8" VerticalAlignment="Center" Margin="0,0,20,0"
+                                BorderBrush="#FF6B6B" BorderThickness="2">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="20" Height="20" Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M13,7H11V13H13V7M13,15H11V17H13V15Z"
+                                      Fill="#FF6B6B" Stretch="Uniform" Margin="0,0,8,0"
+                                      VerticalAlignment="Center"/>
+                                <TextBlock Text="正在开发中" FontSize="14" FontWeight="Bold" 
+                                          Foreground="#FF6B6B" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
                 </Border>
 
                 <!-- 操作区 -->
@@ -39,12 +57,14 @@
                         <TextBlock Text="评教操作" FontSize="15" FontWeight="SemiBold" 
                                   Foreground="#2C3E50" Margin="0,0,0,14"/>
 
+                        <!-- 评教功能暂时停用：因当前无评教任务，无法进行开发和测试，待有评教任务时恢复 -->
                         <WrapPanel Orientation="Horizontal">
                             <Button Command="{Binding LoadReviewsCommand}"
-                                    IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                    IsEnabled="False"
                                     Style="{StaticResource PrimaryButtonStyle}"
                                     Padding="16,10" FontSize="13"
-                                    Margin="0,0,10,8">
+                                    Margin="0,0,10,8"
+                                    Opacity="0.5">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
                                         <Path Width="14" Height="14" Data="{StaticResource RefreshIcon}"
@@ -56,10 +76,11 @@
                             </Button>
 
                             <Button Command="{Binding FinishAllCommand}"
-                                    IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                    IsEnabled="False"
                                     Style="{StaticResource SecondaryButtonStyle}"
                                     Padding="16,10" FontSize="13"
-                                    Margin="0,0,0,8">
+                                    Margin="0,0,0,8"
+                                    Opacity="0.5">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
                                         <Path Width="14" Height="14" Data="{StaticResource CheckIcon}"

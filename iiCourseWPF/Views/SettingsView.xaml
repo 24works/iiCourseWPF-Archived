@@ -34,7 +34,7 @@
                         <StackPanel Margin="0,0,0,10">
                             <TextBlock Text="版本" FontSize="11" 
                                       Foreground="#7F8C8D" Margin="0,0,0,3"/>
-                            <TextBlock Text="1.0.0" FontSize="14" 
+                            <TextBlock Text="1.7.200 (26MGUI)" FontSize="14" 
                                       Foreground="#2C3E50" FontWeight="SemiBold"/>
                         </StackPanel>
 

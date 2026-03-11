@@ -7,6 +7,11 @@
     <RootNamespace>iiCourse.Core</RootNamespace>
     <AssemblyName>iiCourse.Core</AssemblyName>
     <UseWPF>true</UseWPF>
+    <Version>1.7.200</Version>
+    <AssemblyVersion>1.7.200</AssemblyVersion>
+    <FileVersion>1.7.200</FileVersion>
+    <Product>iiCourse.Core</Product>
+    <AssemblyTitle>iiCourse.Core 26MCORE</AssemblyTitle>
   </PropertyGroup>
 
   <ItemGroup>

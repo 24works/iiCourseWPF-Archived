@@ -14,7 +14,7 @@ namespace iiCourseWPF.Views
     {
         public event Action<bool, string>? LoginCompleted;
 
-        private ZHSSService? _service;
+        private iiCoreService? _service;
         private readonly CredentialService _credentialService;
 
         public LoginView()
@@ -51,7 +51,7 @@ namespace iiCourseWPF.Views
         /// <summary>
         /// 设置服务实例
         /// </summary>
-        public void SetService(ZHSSService service)
+        public void SetService(iiCoreService service)
         {
             _service = service;
             _service.LogCallback = OnLogMessage;

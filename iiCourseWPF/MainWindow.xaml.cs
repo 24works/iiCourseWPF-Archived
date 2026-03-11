@@ -13,7 +13,7 @@ namespace iiCourseWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ZHSSService? _service;
+        private iiCoreService? _service;
         private string? _username;
         private bool _isLoggedIn;
         private UserControl? _currentView;
@@ -31,7 +31,7 @@ namespace iiCourseWPF
         /// </summary>
         private void InitializeService()
         {
-            _service = new ZHSSService
+            _service = new iiCoreService
             {
                 LogCallback = message => Console.WriteLine(message)
             };
@@ -117,6 +117,7 @@ namespace iiCourseWPF
                     break;
 
                 case "ClassSchedule":
+                    await ClassScheduleView.LoadSchoolYearsAsync();
                     await ClassScheduleView.LoadClassScheduleAsync();
                     break;
 

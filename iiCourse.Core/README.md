@@ -15,7 +15,7 @@
 ```
 iiCourse.Core/
 ├── iiCourse.Core.csproj    # 项目配置文件
-├── ZHSSService.cs          # 核心服务类
+├── iiCoreService.cs        # 核心服务类
 ├── DesHelper.cs            # DES 加密辅助类
 └── Models/
     ├── Models.cs           # 数据模型定义
@@ -55,9 +55,9 @@ iiCourse.Core/
 
 ## 核心类说明
 
-### ZHSSService
+### iiCoreService
 
-智慧山商服务的主类，提供所有业务功能的实现。
+iiCourse 核心服务的主类，提供所有业务功能的实现。
 
 #### 属性
 
@@ -179,7 +179,7 @@ DES 加密辅助类，用于智慧山商登录时的密码加密。
 using iiCourse.Core;
 
 // 创建服务实例
-using var service = new ZHSSService
+using var service = new iiCoreService
 {
     LogCallback = message => Console.WriteLine(message)
 };

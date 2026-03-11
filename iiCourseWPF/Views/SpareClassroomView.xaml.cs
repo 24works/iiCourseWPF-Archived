@@ -13,18 +13,18 @@ using iiCourse.Core.Models;
 namespace iiCourseWPF.Views
 {
     /// <summary>
-    /// 空教室查询视图 - 按课时维度展示
+    /// Spare classroom query view - Display by period dimension
     /// </summary>
     public partial class SpareClassroomView : UserControl
     {
-        private ZHSSService? _service;
+        private iiCoreService? _service;
         private List<SpareClassroom> _classrooms = new();
         private List<BuildingInfo> _buildings = new();
         private Button? _currentCampusButton;
         private Button? _currentBuildingButton;
-        private string? _selectedPeriod; // 当前选中的课时筛选
-        private string? _currentCampusId; // 当前选中的校区ID
-        private string? _currentBuildingName; // 当前选中的教学楼名称
+        private string? _selectedPeriod;
+        private string? _currentCampusId;
+        private string? _currentBuildingName;
 
         public SpareClassroomView()
         {
@@ -32,71 +32,66 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 设置服务实例
+        /// Set service instance
         /// </summary>
-        public void SetService(ZHSSService service)
+        public void SetService(iiCoreService service)
         {
             _service = service;
         }
 
         /// <summary>
-        /// 校区按钮点击事件
+        /// Campus button click event
         /// </summary>
         private async void OnCampusClick(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is string tag)
             {
-                // 更新校区按钮状态
                 UpdateCampusButtonStates(button);
                 _currentCampusButton = button;
                 _currentCampusId = tag;
 
-                // 加载对应校区的教学楼
                 await LoadBuildingsAsync(tag);
             }
         }
 
         /// <summary>
-        /// 加载教学楼列表
+        /// Load building list
         /// </summary>
         private async Task LoadBuildingsAsync(string campusId)
         {
             if (_service == null)
             {
-                ShowStatus("服务未初始化");
+                ShowStatus("Service not initialized");
                 return;
             }
 
             try
             {
                 SetLoadingState(true);
-                ShowStatus("正在加载教学楼列表...");
+                ShowStatus("Loading building list...");
 
-                // 清空现有教学楼按钮
                 BuildingButtonsPanel.Children.Clear();
                 _currentBuildingButton = null;
 
-                // 获取教学楼列表
                 _buildings = await _service.GetBuildingsAsync(campusId);
 
-                if (_buildings.Any())
+                if (_buildings.Count > 0)
                 {
-                    // 动态创建教学楼按钮
                     foreach (var building in _buildings)
                     {
                         var btn = CreateBuildingButton(building);
                         BuildingButtonsPanel.Children.Add(btn);
                     }
-                    ShowStatus($"已加载 {_buildings.Count} 个教学楼");
+                    ShowStatus($"Loaded {_buildings.Count} buildings");
                 }
                 else
                 {
-                    ShowStatus("该校区暂无教学楼数据");
+                    ShowStatus("No building data for this campus");
                 }
             }
             catch (Exception ex)
             {
-                ShowStatus($"加载教学楼失败: {ex.Message}");
+                ShowStatus($"Failed to load buildings: {ex.Message}");
             }
             finally
             {
@@ -105,7 +100,7 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 创建教学楼按钮
+        /// Create building button
         /// </summary>
         private Button CreateBuildingButton(BuildingInfo building)
         {
@@ -120,7 +115,6 @@ namespace iiCourseWPF.Views
 
             var content = new StackPanel { Orientation = Orientation.Horizontal };
 
-            // 图标
             var icon = new Path
             {
                 Width = 16,
@@ -132,10 +126,9 @@ namespace iiCourseWPF.Views
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            // 文字
             var text = new TextBlock
             {
-                Text = building.名称,
+                Text = building.Name,
                 VerticalAlignment = VerticalAlignment.Center
             };
 
@@ -149,7 +142,7 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 教学楼按钮点击事件
+        /// Building button click event
         /// </summary>
         private async void OnBuildingClick(object sender, RoutedEventArgs e)
         {
@@ -158,8 +151,7 @@ namespace iiCourseWPF.Views
                 if (int.TryParse(tag, out int buildingId))
                 {
                     _currentBuildingButton = button;
-                    _selectedPeriod = null; // 重置课时筛选
-                    // 获取教学楼名称用于时间计算
+                    _selectedPeriod = null;
                     _currentBuildingName = ((button.Content as StackPanel)?.Children[1] as TextBlock)?.Text;
                     await LoadSpareClassroomsAsync(buildingId);
                     UpdateBuildingButtonStates(button);
@@ -168,41 +160,39 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 加载空教室数据
+        /// Load spare classroom data
         /// </summary>
         private async Task LoadSpareClassroomsAsync(int buildingId)
         {
             if (_service == null)
             {
-                ShowStatus("服务未初始化");
+                ShowStatus("Service not initialized");
                 return;
             }
 
             try
             {
                 SetLoadingState(true);
-                ShowStatus("正在查询空教室...");
+                ShowStatus("Querying spare classrooms...");
 
                 _classrooms = await _service.GetSpareClassroomAsync(buildingId);
 
-                if (_classrooms.Any())
+                if (_classrooms.Count > 0)
                 {
-                    // 生成课时筛选按钮
                     GeneratePeriodFilterButtons();
-                    // 显示按课时分组的结果
                     DisplayClassroomsByPeriod();
-                    ShowStatus($"共找到 {_classrooms.Count} 个空闲时段");
+                    ShowStatus($"Found {_classrooms.Count} spare time slots");
                 }
                 else
                 {
                     ShowEmptyState();
                     PeriodFilterPanel.Visibility = Visibility.Collapsed;
-                    ShowStatus("暂无空教室");
+                    ShowStatus("No spare classrooms");
                 }
             }
             catch (Exception ex)
             {
-                ShowStatus($"查询失败: {ex.Message}");
+                ShowStatus($"Query failed: {ex.Message}");
                 ShowEmptyState();
                 PeriodFilterPanel.Visibility = Visibility.Collapsed;
             }
@@ -213,22 +203,20 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 生成课时筛选按钮
+        /// Generate period filter buttons
         /// </summary>
         private void GeneratePeriodFilterButtons()
         {
             PeriodFilterButtons.Children.Clear();
             PeriodFilterPanel.Visibility = Visibility.Visible;
 
-            // 获取所有可用的课时
             var availablePeriods = _classrooms
-                .Select(c => c.节次)
+                .Select(c => c.Period)
                 .Distinct()
                 .OrderBy(p => int.TryParse(p, out var n) ? n : 999)
                 .ToList();
 
-            // 添加"全部"按钮
-            var allButton = CreatePeriodFilterButton("全部", null, true);
+            var allButton = CreatePeriodFilterButton("All", null, true);
             PeriodFilterButtons.Children.Add(allButton);
 
             foreach (var period in availablePeriods)
@@ -239,7 +227,7 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 创建课时筛选按钮 - 使用紧凑样式
+        /// Create period filter button
         /// </summary>
         private Button CreatePeriodFilterButton(string displayText, string? periodValue, bool isActive)
         {
@@ -250,11 +238,10 @@ namespace iiCourseWPF.Views
                 Margin = new Thickness(3)
             };
 
-            // 获取课时显示文本 - 简化为只显示节次
             string buttonText = displayText;
             if (periodValue != null)
             {
-                buttonText = $"第{periodValue}节";
+                buttonText = $"Period {periodValue}";
             }
 
             button.Content = new TextBlock
@@ -264,7 +251,6 @@ namespace iiCourseWPF.Views
                 TextTrimming = TextTrimming.CharacterEllipsis
             };
 
-            // 设置初始状态
             if (isActive)
             {
                 SetPeriodButtonActive(button);
@@ -275,7 +261,7 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 课时筛选按钮点击事件
+        /// Period filter button click event
         /// </summary>
         private void OnPeriodFilterClick(object sender, RoutedEventArgs e)
         {
@@ -283,7 +269,6 @@ namespace iiCourseWPF.Views
             {
                 _selectedPeriod = button.Tag as string;
 
-                // 更新所有课时按钮状态
                 foreach (var child in PeriodFilterButtons.Children)
                 {
                     if (child is Button btn)
@@ -299,15 +284,14 @@ namespace iiCourseWPF.Views
                     }
                 }
 
-                // 刷新显示
                 DisplayClassroomsByPeriod();
             }
         }
 
         /// <summary>
-        /// 设置课时按钮为激活状态
+        /// Set period button active state
         /// </summary>
-        private void SetPeriodButtonActive(Button button)
+        private static void SetPeriodButtonActive(Button button)
         {
             button.Background = new SolidColorBrush(Color.FromRgb(255, 107, 53));
             button.BorderBrush = new SolidColorBrush(Color.FromRgb(255, 107, 53));
@@ -315,7 +299,7 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 设置课时按钮为非激活状态
+        /// Set period button inactive state
         /// </summary>
         private void SetPeriodButtonInactive(Button button)
         {
@@ -325,20 +309,18 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 按课时分组显示空教室
+        /// Display classrooms by period
         /// </summary>
         private void DisplayClassroomsByPeriod()
         {
             ClassroomByPeriodPanel.Children.Clear();
 
-            // 筛选数据
             var filteredClassrooms = _selectedPeriod == null
                 ? _classrooms
-                : _classrooms.Where(c => c.节次 == _selectedPeriod).ToList();
+                : _classrooms.Where(c => c.Period == _selectedPeriod).ToList();
 
-            // 按课时分组
             var groupedByPeriod = filteredClassrooms
-                .GroupBy(c => c.节次)
+                .GroupBy(c => c.Period)
                 .OrderBy(g => int.TryParse(g.Key, out var n) ? n : 999);
 
             int totalCount = 0;
@@ -350,14 +332,13 @@ namespace iiCourseWPF.Views
                 totalCount += periodGroup.Count();
             }
 
-            // 更新结果计数
             ResultCountText.Text = _selectedPeriod == null
-                ? $"共 {totalCount} 个空闲时段"
-                : $"第{_selectedPeriod}节 共 {totalCount} 个教室";
+                ? $"Total {totalCount} spare time slots"
+                : $"Period {_selectedPeriod}: {totalCount} classrooms";
         }
 
         /// <summary>
-        /// 创建课时行
+        /// Create period row
         /// </summary>
         private Border CreatePeriodRow(string period, List<SpareClassroom> classrooms)
         {
@@ -369,13 +350,11 @@ namespace iiCourseWPF.Views
 
             var mainStack = new StackPanel();
 
-            // 课时标题行
             var headerGrid = new Grid();
             headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-            // 课时标签
             var periodBadge = new Border
             {
                 Background = new SolidColorBrush(Color.FromRgb(255, 107, 53)),
@@ -384,7 +363,6 @@ namespace iiCourseWPF.Views
                 Margin = new Thickness(0, 0, 12, 0)
             };
 
-            // 使用 ClassTime 获取课时显示文本
             string periodDisplay = GetPeriodDisplayText(period);
             var periodText = new TextBlock
             {
@@ -396,7 +374,6 @@ namespace iiCourseWPF.Views
             periodBadge.Child = periodText;
             Grid.SetColumn(periodBadge, 0);
 
-            // 分隔线
             var separator = new Border
             {
                 Background = new SolidColorBrush(Color.FromRgb(240, 240, 240)),
@@ -405,10 +382,9 @@ namespace iiCourseWPF.Views
             };
             Grid.SetColumn(separator, 1);
 
-            // 教室数量
             var countText = new TextBlock
             {
-                Text = $"{classrooms.Count} 间空教室",
+                Text = $"{classrooms.Count} spare classrooms",
                 FontSize = 13,
                 Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141)),
                 Margin = new Thickness(12, 0, 0, 0),
@@ -422,7 +398,6 @@ namespace iiCourseWPF.Views
 
             mainStack.Children.Add(headerGrid);
 
-            // 教室列表 - 使用UniformGrid实现响应式布局
             var classroomGrid = new UniformGrid
             {
                 Columns = 4,
@@ -430,14 +405,13 @@ namespace iiCourseWPF.Views
                 Margin = new Thickness(0, 12, 0, 0)
             };
 
-            // 按教学楼分组显示教室
             var byBuilding = classrooms
-                .GroupBy(c => c.教学楼)
+                .GroupBy(c => c.BuildingName)
                 .OrderBy(g => g.Key);
 
             foreach (var buildingGroup in byBuilding)
             {
-                foreach (var classroom in buildingGroup.OrderBy(c => c.教室名称))
+                foreach (var classroom in buildingGroup.OrderBy(c => c.ClassroomName))
                 {
                     var classroomTag = CreateClassroomTag(classroom);
                     classroomGrid.Children.Add(classroomTag);
@@ -451,9 +425,9 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 创建教室标签 - 响应式布局
+        /// Create classroom tag
         /// </summary>
-        private Border CreateClassroomTag(SpareClassroom classroom)
+        private static Border CreateClassroomTag(SpareClassroom classroom)
         {
             var border = new Border
             {
@@ -468,13 +442,13 @@ namespace iiCourseWPF.Views
 
             var tooltip = new ToolTip
             {
-                Content = $"{classroom.教学楼}\n{classroom.教室名称}"
+                Content = $"{classroom.BuildingName}\n{classroom.ClassroomName}"
             };
             border.ToolTip = tooltip;
 
             var text = new TextBlock
             {
-                Text = classroom.教室名称,
+                Text = classroom.ClassroomName,
                 FontSize = 12,
                 FontWeight = FontWeights.Medium,
                 Foreground = new SolidColorBrush(Color.FromRgb(45, 90, 61)),
@@ -488,25 +462,23 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 获取课时显示文本，根据当前教学楼自动判断时间类型
+        /// Get period display text
         /// </summary>
         private string GetPeriodDisplayText(string period)
         {
             if (!int.TryParse(period, out int periodNumber))
-                return $"第{period}节";
+                return $"Period {period}";
 
-            // 根据教学楼名称和校区获取时间显示
             if (!string.IsNullOrEmpty(_currentBuildingName))
             {
                 return ClassTime.GetPeriodDisplayText(_currentBuildingName, periodNumber);
             }
 
-            // 默认使用 TypeA 的时间
             return ClassTime.GetPeriodDisplayText(periodNumber);
         }
 
         /// <summary>
-        /// 显示空状态
+        /// Show empty state
         /// </summary>
         private void ShowEmptyState()
         {
@@ -531,7 +503,7 @@ namespace iiCourseWPF.Views
 
             var text = new TextBlock
             {
-                Text = "暂无空教室",
+                Text = "No spare classrooms",
                 FontSize = 14,
                 Foreground = new SolidColorBrush(Color.FromRgb(136, 136, 136)),
                 TextAlignment = TextAlignment.Center
@@ -545,7 +517,7 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 更新校区按钮状态
+        /// Update campus button states
         /// </summary>
         private void UpdateCampusButtonStates(Button activeButton)
         {
@@ -555,7 +527,7 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 更新教学楼按钮状态
+        /// Update building button states
         /// </summary>
         private void UpdateBuildingButtonStates(Button activeButton)
         {
@@ -570,25 +542,25 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 重置按钮样式
+        /// Reset button style
         /// </summary>
-        private void ResetButtonStyle(Button button)
+        private static void ResetButtonStyle(Button button)
         {
             button.Background = new SolidColorBrush(Color.FromRgb(232, 245, 233));
             button.Foreground = new SolidColorBrush(Color.FromRgb(45, 90, 61));
         }
 
         /// <summary>
-        /// 设置激活按钮样式
+        /// Set active button style
         /// </summary>
-        private void SetActiveButtonStyle(Button button)
+        private static void SetActiveButtonStyle(Button button)
         {
             button.Background = new SolidColorBrush(Color.FromRgb(45, 90, 61));
             button.Foreground = Brushes.White;
         }
 
         /// <summary>
-        /// 显示状态信息
+        /// Show status message
         /// </summary>
         private void ShowStatus(string message)
         {
@@ -596,7 +568,7 @@ namespace iiCourseWPF.Views
         }
 
         /// <summary>
-        /// 设置加载状态
+        /// Set loading state
         /// </summary>
         private void SetLoadingState(bool isLoading)
         {

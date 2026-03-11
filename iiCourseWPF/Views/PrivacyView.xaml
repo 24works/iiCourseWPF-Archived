@@ -9,7 +9,7 @@
         <!-- 项目符号样式 -->
         <Style x:Key="BulletItemStyle" TargetType="StackPanel">
             <Setter Property="Orientation" Value="Horizontal"/>
-            <Setter Property="Margin" Value="16,0,0,8"/>
+            <Setter Property="Margin" Value="12,0,0,6"/>
         </Style>
     </UserControl.Resources>
     
@@ -19,438 +19,433 @@
             <StackPanel>
                 <!-- 头部标题 - 全宽显示 -->
                 <Border Style="{StaticResource PageHeaderStyle}">
-                    <StackPanel MaxWidth="900" HorizontalAlignment="Left">
-                        <TextBlock Text="隐私政策" FontSize="26" FontWeight="Bold"
+                    <StackPanel>
+                        <TextBlock Text="隐私政策" FontSize="24" FontWeight="Bold"
                                   Foreground="White" Margin="0,0,0,6"/>
                         <TextBlock Text="我们如何处理和保护您的数据" FontSize="13"
                                   Foreground="#D9FFFFFF"/>
                     </StackPanel>
                 </Border>
 
-                <!-- 内容区域 - 限制最大宽度并居中 -->
-                <Grid MaxWidth="900" HorizontalAlignment="Center">
-                    <StackPanel>
-                        <!-- 最后更新时间 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,24,24,0">
-                    <StackPanel Orientation="Horizontal">
-                        <Path Width="16" Height="16" Data="{StaticResource ClockIcon}"
-                              Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,8,0"
-                              VerticalAlignment="Center"/>
-                        <TextBlock Text="最后更新时间：2025年3月9日" FontSize="13" 
-                                  Foreground="#7F8C8D" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
+                <!-- 内容区域 -->
+                <StackPanel Margin="16,16,16,0">
+                    <!-- 最后更新时间 -->
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Width="14" Height="14" Data="{StaticResource ClockIcon}"
+                                  Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,8,0"
+                                  VerticalAlignment="Center"/>
+                            <TextBlock Text="最后更新时间：2025年3月9日" FontSize="12" 
+                                      Foreground="#7F8C8D" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
 
-                <!-- 简介 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,16,24,0">
-                    <StackPanel>
-                        <TextBlock Text="简介" FontSize="18" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,12"/>
-                        <TextBlock FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" LineHeight="22">
-                            <Run Text="iiCourse（以下简称"/>
-                            <Run Text="我们" FontWeight="SemiBold"/>
-                            <Run Text="、"/>
-                            <Run Text="本应用" FontWeight="SemiBold"/>
-                            <Run Text="）是一款面向山东工商学院学生的第三方教务助手应用。我们非常重视用户的隐私保护，本隐私政策将详细说明我们如何收集、使用、存储和保护您的个人信息。"/>
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
+                    <!-- 简介 -->
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="简介" FontSize="16" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,10"/>
+                            <TextBlock FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" LineHeight="20">
+                                <Run Text="iiCourse（以下简称"/>
+                                <Run Text="我们" FontWeight="SemiBold"/>
+                                <Run Text="、"/>
+                                <Run Text="本应用" FontWeight="SemiBold"/>
+                                <Run Text="）是一款面向山东工商学院学生的第三方教务助手应用。我们非常重视用户的隐私保护，本隐私政策将详细说明我们如何收集、使用、存储和保护您的个人信息。"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
 
-                <!-- 信息收集 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,16,24,0">
-                    <StackPanel>
-                        <TextBlock Text="1. 我们收集的信息" FontSize="18" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,16"/>
-                        
-                        <TextBlock Text="1.1 账户信息" FontSize="14" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,8"/>
-                        <TextBlock Text="当您使用本应用时，我们需要您提供以下信息以访问学校教务系统：" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,8" LineHeight="20"/>
-                        
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="学号：用于身份验证和登录教务系统" FontSize="13" 
-                                      Foreground="#555555" TextWrapping="Wrap"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="密码：用于登录学校CAS认证系统（可选记住密码功能，详见第3节）" FontSize="13" 
-                                      Foreground="#555555" TextWrapping="Wrap"/>
-                        </StackPanel>
-
-                        <TextBlock Text="1.2 教务系统数据" FontSize="14" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,16,0,8"/>
-                        <TextBlock Text="在您登录后，应用会从学校教务系统获取以下信息用于展示：" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,8" LineHeight="20"/>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="个人基本信息（姓名、性别、学院）" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="课程表信息（课程名称、上课时间、地点、教师）" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="考试成绩信息" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="一卡通余额和消费记录" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="评教任务信息" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-
-                        <TextBlock Text="1.3 技术信息" FontSize="14" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,16,0,8"/>
-                        <TextBlock Text="为了提供更好的服务，我们可能会收集：" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,8" LineHeight="20"/>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="应用日志：用于排查问题和改进应用性能" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="会话Cookie：用于维持与学校系统的登录状态" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- 信息使用 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,16,24,0">
-                    <StackPanel>
-                        <TextBlock Text="2. 信息的使用方式" FontSize="18" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,16"/>
-                        
-                        <TextBlock Text="我们收集的信息仅用于以下目的：" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,12" LineHeight="20"/>
-                        
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="身份验证：使用您的学号和密码登录学校教务系统" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="数据展示：从教务系统获取您的课程、成绩等信息并展示" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="功能实现：提供空教室查询、评教等功能" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="问题排查：通过日志分析解决应用故障" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="服务改进：根据使用情况优化应用体验" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-
-                        <Border Background="#FFF5EB" CornerRadius="6" Margin="0,16,0,0" Padding="12,10">
-                            <StackPanel Orientation="Horizontal">
-                                <Path Width="18" Height="18" Data="{StaticResource InfoIcon}"
-                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,10,0"
-                                      VerticalAlignment="Center"/>
-                                <TextBlock Text="重要声明：我们不会将您的任何信息用于上述目的之外的用途，不会向第三方出售或共享您的个人信息。" 
-                                          FontSize="12" Foreground="#FF6B35" 
-                                          TextWrapping="Wrap" FontWeight="SemiBold"/>
+                    <!-- 信息收集 -->
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="1. 我们收集的信息" FontSize="16" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,12"/>
+                            
+                            <TextBlock Text="1.1 账户信息" FontSize="13" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,6"/>
+                            <TextBlock Text="当您使用本应用时，我们需要您提供以下信息以访问学校教务系统：" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" Margin="0,0,0,6" LineHeight="18"/>
+                            
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="学号：用于身份验证和登录教务系统" FontSize="12" 
+                                          Foreground="#555555" TextWrapping="Wrap"/>
                             </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </Border>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="密码：用于登录学校CAS认证系统（可选记住密码功能，详见第3节）" FontSize="12" 
+                                          Foreground="#555555" TextWrapping="Wrap"/>
+                            </StackPanel>
 
-                <!-- 信息存储 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,16,24,0">
-                    <StackPanel>
-                        <TextBlock Text="3. 信息的存储和保护" FontSize="18" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,16"/>
-                        
-                        <TextBlock Text="3.1 本地存储" FontSize="14" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,8"/>
-                        <TextBlock Text="应用在本地存储以下信息：" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,8" LineHeight="20"/>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="会话Cookie：存储在内存中，应用关闭后自动清除" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="临时缓存：课程表、成绩等数据可能临时缓存在内存中" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock FontSize="13" Foreground="#555555" TextWrapping="Wrap">
-                                <Run Text="密码（可选）：" FontWeight="SemiBold"/>
-                                <Run Text="如果您选择" />
-                                <Run Text="记住密码" FontWeight="SemiBold"/>
-                                <Run Text="，密码将使用" />
-                                <Run Text="Windows 数据保护 API (DPAPI)" FontWeight="SemiBold"/>
-                                <Run Text="加密后存储在本地。您可以在设置中随时关闭此功能，关闭后密码将被立即删除。" />
-                            </TextBlock>
-                        </StackPanel>
+                            <TextBlock Text="1.2 教务系统数据" FontSize="13" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,12,0,6"/>
+                            <TextBlock Text="在您登录后，应用会从学校教务系统获取以下信息用于展示：" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" Margin="0,0,0,6" LineHeight="18"/>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="个人基本信息（姓名、性别、学院）" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="课程表信息（课程名称、上课时间、地点、教师）" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="考试成绩信息" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="一卡通余额和消费记录" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="评教任务信息" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
 
-                        <TextBlock Text="3.2 数据传输安全" FontSize="14" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,16,0,8"/>
-                        <TextBlock Text="我们采取以下措施保护数据传输安全：" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,8" LineHeight="20"/>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="使用DES加密算法对敏感数据进行加密传输" FontSize="13" 
-                                      Foreground="#555555"/>
+                            <TextBlock Text="1.3 技术信息" FontSize="13" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,12,0,6"/>
+                            <TextBlock Text="为了提供更好的服务，我们可能会收集：" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" Margin="0,0,0,6" LineHeight="18"/>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="应用日志：用于排查问题和改进应用性能" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="会话Cookie：用于维持与学校系统的登录状态" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
                         </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="所有与学校系统的通信均使用HTTPS协议" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="遵循学校CAS单点登录的安全规范" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
+                    </Border>
 
-                <!-- 信息共享 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,16,24,0">
-                    <StackPanel>
-                        <TextBlock Text="4. 信息共享与披露" FontSize="18" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,16"/>
-                        
-                        <TextBlock FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" LineHeight="20">
-                            <Run Text="我们"/>
-                            <Run Text="不会" FontWeight="Bold" Foreground="#E74C3C"/>
-                            <Run Text="将您的个人信息出售、交易或以其他方式转让给第三方。但在以下情况下，我们可能会披露您的信息："/>
-                        </TextBlock>
-                        
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="法律要求：根据法律法规或政府机关的合法要求" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="保护权益：为保护我们的合法权益或用户安全所必需" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="学校要求：根据学校相关部门的正式要求" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- 用户权利 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,16,24,0">
-                    <StackPanel>
-                        <TextBlock Text="5. 您的权利" FontSize="18" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,16"/>
-                        
-                        <TextBlock Text="作为用户，您享有以下权利：" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,12" LineHeight="20"/>
-                        
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock FontSize="13" Foreground="#555555" TextWrapping="Wrap">
-                                <Run Text="访问权：" FontWeight="SemiBold"/>
-                                <Run Text="您可以随时查看应用中展示的所有您的个人信息"/>
-                            </TextBlock>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock FontSize="13" Foreground="#555555" TextWrapping="Wrap">
-                                <Run Text="更正权：" FontWeight="SemiBold"/>
-                                <Run Text="如发现信息有误，请通过学校官方渠道更正"/>
-                            </TextBlock>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock FontSize="13" Foreground="#555555" TextWrapping="Wrap">
-                                <Run Text="删除权：" FontWeight="SemiBold"/>
-                                <Run Text="退出登录可清除会话数据；关闭记住密码功能可删除存储的密码；卸载应用可删除所有本地数据"/>
-                            </TextBlock>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock FontSize="13" Foreground="#555555" TextWrapping="Wrap">
-                                <Run Text="退出权：" FontWeight="SemiBold"/>
-                                <Run Text="您可以随时退出登录，终止应用对教务系统的访问"/>
-                            </TextBlock>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock FontSize="13" Foreground="#555555" TextWrapping="Wrap">
-                                <Run Text="卸载权：" FontWeight="SemiBold"/>
-                                <Run Text="卸载应用将删除所有本地数据"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- 第三方服务 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,16,24,0">
-                    <StackPanel>
-                        <TextBlock Text="6. 第三方服务" FontSize="18" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,16"/>
-                        
-                        <TextBlock Text="本应用使用以下第三方服务和库：" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,12" LineHeight="20"/>
-                        
-                        <Grid Margin="16,0,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                    <!-- 信息使用 -->
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="2. 信息的使用方式" FontSize="16" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,12"/>
                             
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="• HtmlAgilityPack" 
-                                      FontSize="13" Foreground="#555555" Margin="0,0,20,8"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="用于解析HTML页面" 
-                                      FontSize="13" Foreground="#7F8C8D"/>
+                            <TextBlock Text="我们收集的信息仅用于以下目的：" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" Margin="0,0,0,10" LineHeight="18"/>
                             
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="• Newtonsoft.Json" 
-                                      FontSize="13" Foreground="#555555" Margin="0,0,20,0"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="用于JSON数据处理" 
-                                      FontSize="13" Foreground="#7F8C8D"/>
-                        </Grid>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="身份验证：使用您的学号和密码登录学校教务系统" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="数据展示：从教务系统获取您的课程、成绩等信息并展示" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="功能实现：提供空教室查询、评教等功能" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="问题排查：通过日志分析解决应用故障" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="服务改进：根据使用情况优化应用体验" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
 
-                        <TextBlock Text="这些第三方库仅在本地运行，不会将您的数据传输给第三方。" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,12,0,0" LineHeight="20"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- 免责声明 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,16,24,0">
-                    <StackPanel>
-                        <TextBlock Text="7. 免责声明" FontSize="18" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,16"/>
-                        
-                        <TextBlock Text="7.1 第三方系统风险" FontSize="14" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,8"/>
-                        <TextBlock Text="本应用需要连接到学校官方教务系统获取数据。我们无法控制学校系统的安全性和可用性，因学校系统故障、维护或安全漏洞导致的任何问题，我们不承担责任。" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,12" LineHeight="20"/>
-
-                        <TextBlock Text="7.2 数据准确性" FontSize="14" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,8"/>
-                        <TextBlock Text="应用中展示的所有数据均来自学校教务系统。我们对数据的准确性、完整性和及时性不做任何保证。如有疑问，请以学校官方系统为准。" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,12" LineHeight="20"/>
-
-                        <TextBlock Text="7.3 使用风险" FontSize="14" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,8"/>
-                        <TextBlock Text="使用本应用的风险由您自行承担。我们建议：" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,8" LineHeight="20"/>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="不要在公共电脑上使用本应用" FontSize="13" 
-                                      Foreground="#555555"/>
+                            <Border Background="#FFF5EB" CornerRadius="6" Margin="0,12,0,0" Padding="12,10">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="16" Height="16" Data="{StaticResource InfoIcon}"
+                                          Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
+                                          VerticalAlignment="Center"/>
+                                    <TextBlock Text="重要声明：我们不会将您的任何信息用于上述目的之外的用途，不会向第三方出售或共享您的个人信息。" 
+                                              FontSize="11" Foreground="#FF6B35" 
+                                              TextWrapping="Wrap" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="使用后及时退出登录" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource BulletItemStyle}">
-                            <TextBlock Text="•" FontSize="13" Foreground="#FF6B35" Margin="0,0,8,0"/>
-                            <TextBlock Text="定期修改学校系统密码" FontSize="13" 
-                                      Foreground="#555555"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
+                    </Border>
 
-                <!-- 政策更新 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,16,24,0">
-                    <StackPanel>
-                        <TextBlock Text="8. 隐私政策的更新" FontSize="18" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,12"/>
-                        <TextBlock Text="我们可能会不时更新本隐私政策。任何更改将在应用更新时一并发布。继续使用本应用即表示您同意修订后的隐私政策。重大变更时，我们会在应用内提供显著通知。" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" LineHeight="20"/>
-                    </StackPanel>
-                </Border>
+                    <!-- 信息存储 -->
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="3. 信息的存储和保护" FontSize="16" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,12"/>
+                            
+                            <TextBlock Text="3.1 本地存储" FontSize="13" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,6"/>
+                            <TextBlock Text="应用在本地存储以下信息：" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" Margin="0,0,0,6" LineHeight="18"/>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="会话Cookie：存储在内存中，应用关闭后自动清除" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="临时缓存：课程表、成绩等数据可能临时缓存在内存中" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock FontSize="12" Foreground="#555555" TextWrapping="Wrap">
+                                    <Run Text="密码（可选）：" FontWeight="SemiBold"/>
+                                    <Run Text="如果您选择" />
+                                    <Run Text="记住密码" FontWeight="SemiBold"/>
+                                    <Run Text="，密码将使用" />
+                                    <Run Text="Windows 数据保护 API (DPAPI)" FontWeight="SemiBold"/>
+                                    <Run Text="加密后存储在本地。您可以在设置中随时关闭此功能，关闭后密码将被立即删除。" />
+                                </TextBlock>
+                            </StackPanel>
 
-                <!-- 联系我们 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,16,24,0">
-                    <StackPanel>
-                        <TextBlock Text="9. 联系我们" FontSize="18" FontWeight="SemiBold" 
-                                  Foreground="#2C3E50" Margin="0,0,0,12"/>
-                        <TextBlock Text="如果您对本隐私政策有任何疑问、建议或投诉，请通过以下方式联系我们：" 
-                                  FontSize="13" Foreground="#555555" 
-                                  TextWrapping="Wrap" Margin="0,0,0,12" LineHeight="20"/>
-                        
-                        <StackPanel Orientation="Horizontal" Margin="16,0,0,8">
-                            <Path Width="16" Height="16" Data="{StaticResource UserIcon}"
-                                  Fill="#FF6B35" Stretch="Uniform" Margin="0,0,10,0"
-                                  VerticalAlignment="Center"/>
-                            <TextBlock Text="开发者：AiScReam (iicemeta)" FontSize="13" 
-                                      Foreground="#2C3E50" VerticalAlignment="Center"/>
+                            <TextBlock Text="3.2 数据传输安全" FontSize="13" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,12,0,6"/>
+                            <TextBlock Text="我们采取以下措施保护数据传输安全：" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" Margin="0,0,0,6" LineHeight="18"/>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="使用DES加密算法对敏感数据进行加密传输" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="所有与学校系统的通信均使用HTTPS协议" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="遵循学校CAS单点登录的安全规范" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
                         </StackPanel>
-                        
-                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
-                            <Path Width="16" Height="16" Data="{StaticResource SchoolIcon}"
-                                  Fill="#FF6B35" Stretch="Uniform" Margin="0,0,10,0"
-                                  VerticalAlignment="Center"/>
-                            <TextBlock Text="项目地址：https://github.com/iicemeta/iiCourse" FontSize="13" 
-                                      Foreground="#2C3E50" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <!-- 信息共享 -->
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="4. 信息共享与披露" FontSize="16" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,12"/>
+                            
+                            <TextBlock FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" LineHeight="18">
+                                <Run Text="我们"/>
+                                <Run Text="不会" FontWeight="Bold" Foreground="#E74C3C"/>
+                                <Run Text="将您的个人信息出售、交易或以其他方式转让给第三方。但在以下情况下，我们可能会披露您的信息："/>
+                            </TextBlock>
+                            
+                            <StackPanel Style="{StaticResource BulletItemStyle}" Margin="0,8,0,0">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="法律要求：根据法律法规或政府机关的合法要求" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="保护权益：为保护我们的合法权益或用户安全所必需" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="学校要求：根据学校相关部门的正式要求" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
                         </StackPanel>
-                    </StackPanel>
-                </Border>
+                    </Border>
 
-                <!-- 同意声明 -->
-                <Border Background="#E8F5E9" CornerRadius="8" Margin="24,24,24,24" Padding="20,16"
-                        BorderBrush="#81C784" BorderThickness="1">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <Path Width="20" Height="20" Data="{StaticResource CheckCircleIcon}"
-                                  Fill="#4CAF50" Stretch="Uniform" Margin="0,0,10,0"
-                                  VerticalAlignment="Center"/>
-                            <TextBlock Text="您的同意" FontSize="16" FontWeight="Bold" 
-                                      Foreground="#2E7D32" VerticalAlignment="Center"/>
+                    <!-- 用户权利 -->
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="5. 您的权利" FontSize="16" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,12"/>
+                            
+                            <TextBlock Text="作为用户，您享有以下权利：" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" Margin="0,0,0,10" LineHeight="18"/>
+                            
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock FontSize="12" Foreground="#555555" TextWrapping="Wrap">
+                                    <Run Text="访问权：" FontWeight="SemiBold"/>
+                                    <Run Text="您可以随时查看应用中展示的所有您的个人信息"/>
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock FontSize="12" Foreground="#555555" TextWrapping="Wrap">
+                                    <Run Text="更正权：" FontWeight="SemiBold"/>
+                                    <Run Text="如发现信息有误，请通过学校官方渠道更正"/>
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock FontSize="12" Foreground="#555555" TextWrapping="Wrap">
+                                    <Run Text="删除权：" FontWeight="SemiBold"/>
+                                    <Run Text="退出登录可清除会话数据；关闭记住密码功能可删除存储的密码；卸载应用可删除所有本地数据"/>
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock FontSize="12" Foreground="#555555" TextWrapping="Wrap">
+                                    <Run Text="退出权：" FontWeight="SemiBold"/>
+                                    <Run Text="您可以随时退出登录，终止应用对教务系统的访问"/>
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock FontSize="12" Foreground="#555555" TextWrapping="Wrap">
+                                    <Run Text="卸载权：" FontWeight="SemiBold"/>
+                                    <Run Text="卸载应用将删除所有本地数据"/>
+                                </TextBlock>
+                            </StackPanel>
                         </StackPanel>
+                    </Border>
 
-                        <TextBlock Text="使用本应用即表示您已阅读、理解并同意本隐私政策的所有条款。如果您不同意本政策的任何部分，请立即停止使用本应用并卸载。" 
-                                  FontSize="13" Foreground="#1B5E20" 
-                                  TextWrapping="Wrap" LineHeight="20"/>
-                    </StackPanel>
-                </Border>
+                    <!-- 第三方服务 -->
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="6. 第三方服务" FontSize="16" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,12"/>
+                            
+                            <TextBlock Text="本应用使用以下第三方服务和库：" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" Margin="0,0,0,10" LineHeight="18"/>
+                            
+                            <Grid Margin="12,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="• HtmlAgilityPack" 
+                                          FontSize="12" Foreground="#555555" Margin="0,0,16,6"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="用于解析HTML页面" 
+                                          FontSize="12" Foreground="#7F8C8D"/>
+                                
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="• Newtonsoft.Json" 
+                                          FontSize="12" Foreground="#555555" Margin="0,0,16,0"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="用于JSON数据处理" 
+                                          FontSize="12" Foreground="#7F8C8D"/>
+                            </Grid>
 
-                        <!-- 底部留白 -->
-                        <Border Height="40" Background="Transparent"/>
-                    </StackPanel>
-                </Grid>
+                            <TextBlock Text="这些第三方库仅在本地运行，不会将您的数据传输给第三方。" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" Margin="0,10,0,0" LineHeight="18"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 免责声明 -->
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="7. 免责声明" FontSize="16" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,12"/>
+                            
+                            <TextBlock Text="7.1 第三方系统风险" FontSize="13" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,6"/>
+                            <TextBlock Text="本应用需要连接到学校官方教务系统获取数据。我们无法控制学校系统的安全性和可用性，因学校系统故障、维护或安全漏洞导致的任何问题，我们不承担责任。" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" Margin="0,0,0,10" LineHeight="18"/>
+
+                            <TextBlock Text="7.2 数据准确性" FontSize="13" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,6"/>
+                            <TextBlock Text="应用中展示的所有数据均来自学校教务系统。我们对数据的准确性、完整性和及时性不做任何保证。如有疑问，请以学校官方系统为准。" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" Margin="0,0,0,10" LineHeight="18"/>
+
+                            <TextBlock Text="7.3 使用风险" FontSize="13" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,6"/>
+                            <TextBlock Text="使用本应用的风险由您自行承担。我们建议：" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" Margin="0,0,0,6" LineHeight="18"/>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="不要在公共电脑上使用本应用" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="使用后及时退出登录" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource BulletItemStyle}">
+                                <TextBlock Text="•" FontSize="12" Foreground="#FF6B35" Margin="0,0,6,0"/>
+                                <TextBlock Text="定期修改学校系统密码" FontSize="12" 
+                                          Foreground="#555555"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 政策更新 -->
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="8. 隐私政策的更新" FontSize="16" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,10"/>
+                            <TextBlock Text="我们可能会不时更新本隐私政策。任何更改将在应用更新时一并发布。继续使用本应用即表示您同意修订后的隐私政策。重大变更时，我们会在应用内提供显著通知。" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" LineHeight="18"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 联系我们 -->
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="9. 联系我们" FontSize="16" FontWeight="SemiBold" 
+                                      Foreground="#2C3E50" Margin="0,0,0,10"/>
+                            <TextBlock Text="如果您对本隐私政策有任何疑问、建议或投诉，请通过以下方式联系我们：" 
+                                      FontSize="12" Foreground="#555555" 
+                                      TextWrapping="Wrap" Margin="0,0,0,10" LineHeight="18"/>
+                            
+                            <StackPanel Orientation="Horizontal" Margin="12,0,0,6">
+                                <Path Width="14" Height="14" Data="{StaticResource UserIcon}"
+                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
+                                      VerticalAlignment="Center"/>
+                                <TextBlock Text="开发者：AiScReam (iicemeta)" FontSize="12" 
+                                          Foreground="#2C3E50" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <StackPanel Orientation="Horizontal" Margin="12,0,0,0">
+                                <Path Width="14" Height="14" Data="{StaticResource SchoolIcon}"
+                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
+                                      VerticalAlignment="Center"/>
+                                <TextBlock Text="项目地址：https://github.com/iicemeta/iiCourse" FontSize="12" 
+                                          Foreground="#2C3E50" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 同意声明 -->
+                    <Border Background="#E8F5E9" CornerRadius="8" Margin="0,16,0,20" Padding="16,14"
+                            BorderBrush="#81C784" BorderThickness="1">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <Path Width="18" Height="18" Data="{StaticResource CheckCircleIcon}"
+                                      Fill="#4CAF50" Stretch="Uniform" Margin="0,0,8,0"
+                                      VerticalAlignment="Center"/>
+                                <TextBlock Text="您的同意" FontSize="14" FontWeight="Bold" 
+                                          Foreground="#2E7D32" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <TextBlock Text="使用本应用即表示您已阅读、理解并同意本隐私政策的所有条款。如果您不同意本政策的任何部分，请立即停止使用本应用并卸载。" 
+                                      FontSize="12" Foreground="#1B5E20" 
+                                      TextWrapping="Wrap" LineHeight="18"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
     </Grid>

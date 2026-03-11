@@ -67,7 +67,7 @@ iiCourseWPF/
 │   └── Resources/           # 资源文件
 │
 ├── 📁 iiCourse.Core/        # 核心 API 库
-│   ├── ZHSSService.cs       # 智慧山商服务
+│   ├── iiCoreService.cs     # iiCourse 核心服务
 │   ├── DesHelper.cs         # 加密工具
 │   └── Models/              # 数据模型
 │

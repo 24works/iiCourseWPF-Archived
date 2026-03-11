@@ -14,7 +14,7 @@ namespace iiCourseWPF.Views
     /// </summary>
     public partial class ScoreView : UserControl
     {
-        private ZHSSService? _service;
+        private iiCoreService? _service;
 
         public ScoreView()
         {
@@ -24,7 +24,7 @@ namespace iiCourseWPF.Views
         /// <summary>
         /// 设置服务实例
         /// </summary>
-        public void SetService(ZHSSService service)
+        public void SetService(iiCoreService service)
         {
             _service = service;
         }

@@ -31,7 +31,7 @@ iiCourseWPF/
 │       └── Animations.xaml      # 动画资源
 │
 └── iiCourse.Core/               # 核心 API 库
-    ├── ZHSSService.cs           # 智慧山商服务
+    ├── iiCoreService.cs         # iiCourse 核心服务
     ├── DesHelper.cs             # DES 加密
     └── Models/                  # 数据模型
         ├── Models.cs            # 主要模型
@@ -42,9 +42,9 @@ iiCourseWPF/
 
 ## 🔌 核心 API
 
-### ZHSSService
+### iiCoreService
 
-智慧山商服务的主类，封装了所有业务功能。
+iiCourse 核心服务的主类，封装了所有业务功能。
 
 #### 属性
 

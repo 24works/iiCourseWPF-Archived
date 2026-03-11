@@ -11,11 +11,11 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="#2C3E50"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Height" Value="48"/>
+            <Setter Property="Height" Value="44"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Padding" Value="20,0"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
             <Setter Property="RenderTransform">
@@ -83,7 +83,7 @@
                                 <Border Width="4" Background="#FF6B35" 
                                         HorizontalAlignment="Left" CornerRadius="0,2,2,0"/>
                                 <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                                VerticalAlignment="Center" Margin="24,0,0,0"/>
+                                                VerticalAlignment="Center" Margin="20,0,0,0"/>
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -98,11 +98,11 @@
 
         <!-- 图标样式 -->
         <Style x:Key="MenuIconStyle" TargetType="Path">
-            <Setter Property="Width" Value="18"/>
-            <Setter Property="Height" Value="18"/>
+            <Setter Property="Width" Value="16"/>
+            <Setter Property="Height" Value="16"/>
             <Setter Property="Stretch" Value="Uniform"/>
             <Setter Property="Fill" Value="#7F8C8D"/>
-            <Setter Property="Margin" Value="0,0,14,0"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
@@ -120,7 +120,7 @@
             </Grid.RowDefinitions>
 
             <!-- Logo区域 -->
-            <Border Grid.Row="0" Padding="20,24">
+            <Border Grid.Row="0" Padding="16,20">
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                         <GradientStop Color="#FF6B35" Offset="0"/>
@@ -128,17 +128,17 @@
                     </LinearGradientBrush>
                 </Border.Background>
                 <StackPanel>
-                    <TextBlock Text="iiCourse" FontSize="22" FontWeight="Bold"
+                    <TextBlock Text="iiCourse" FontSize="20" FontWeight="Bold"
                               Foreground="White" TextAlignment="Center"/>
                 </StackPanel>
             </Border>
 
             <!-- 菜单按钮区域 -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,8">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,6">
                 <StackPanel>
                     <Button x:Name="BtnUserInfo" Style="{StaticResource MenuButtonStyle}" 
                             Click="OnMenuClick" Tag="UserInfo">
-                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="12,0,0,0">
                             <Path Style="{StaticResource MenuIconStyle}" Data="{StaticResource UserIcon}"/>
                             <TextBlock Text="用户信息" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -146,7 +146,7 @@
 
                     <Button x:Name="BtnClassSchedule" Style="{StaticResource MenuButtonStyle}" 
                             Click="OnMenuClick" Tag="ClassSchedule">
-                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="12,0,0,0">
                             <Path Style="{StaticResource MenuIconStyle}" Data="{StaticResource CalendarIcon}"/>
                             <TextBlock Text="课程表" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -154,7 +154,7 @@
 
                     <Button x:Name="BtnScore" Style="{StaticResource MenuButtonStyle}" 
                             Click="OnMenuClick" Tag="Score">
-                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="12,0,0,0">
                             <Path Style="{StaticResource MenuIconStyle}" Data="{StaticResource ChartIcon}"/>
                             <TextBlock Text="成绩查询" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -162,7 +162,7 @@
 
                     <Button x:Name="BtnSpareClassroom" Style="{StaticResource MenuButtonStyle}" 
                             Click="OnMenuClick" Tag="SpareClassroom">
-                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="12,0,0,0">
                             <Path Style="{StaticResource MenuIconStyle}" Data="{StaticResource SchoolIcon}"/>
                             <TextBlock Text="空教室查询" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -170,7 +170,7 @@
 
                     <Button x:Name="BtnCardInfo" Style="{StaticResource MenuButtonStyle}" 
                             Click="OnMenuClick" Tag="CardInfo">
-                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="12,0,0,0">
                             <Path Style="{StaticResource MenuIconStyle}" Data="{StaticResource CardIcon}"/>
                             <TextBlock Text="一卡通信息" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -178,17 +178,17 @@
 
                     <Button x:Name="BtnEvaluation" Style="{StaticResource MenuButtonStyle}" 
                             Click="OnMenuClick" Tag="Evaluation">
-                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="12,0,0,0">
                             <Path Style="{StaticResource MenuIconStyle}" Data="{StaticResource StarIcon}"/>
                             <TextBlock Text="学生评教" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
-                    <Separator Margin="16,12" Background="#E0E0E0" Height="1"/>
+                    <Separator Margin="12,10" Background="#E0E0E0" Height="1"/>
 
                     <Button x:Name="BtnSettings" Style="{StaticResource MenuButtonStyle}" 
                             Click="OnMenuClick" Tag="Settings">
-                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="12,0,0,0">
                             <Path Style="{StaticResource MenuIconStyle}" Data="{StaticResource SettingsIcon}"/>
                             <TextBlock Text="设置" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -196,7 +196,7 @@
 
                     <Button x:Name="BtnPrivacy" Style="{StaticResource MenuButtonStyle}" 
                             Click="OnMenuClick" Tag="Privacy">
-                        <StackPanel Orientation="Horizontal" Margin="16,0,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="12,0,0,0">
                             <Path Style="{StaticResource MenuIconStyle}" Data="{StaticResource PrivacyIcon}"/>
                             <TextBlock Text="隐私政策" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -205,20 +205,20 @@
             </ScrollViewer>
 
             <!-- 底部状态 -->
-            <Border Grid.Row="2" Background="#F5F5F5" Padding="20,16" 
+            <Border Grid.Row="2" Background="#F5F5F5" Padding="16,14" 
                     BorderBrush="#EEEEEE" BorderThickness="0,1,0,0">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Path Width="14" Height="14" Data="{StaticResource UserIcon}" 
-                              Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,8,0"
+                        <Path Width="12" Height="12" Data="{StaticResource UserIcon}" 
+                              Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,6,0"
                               VerticalAlignment="Center"/>
                         <TextBlock x:Name="StatusText" Text="未登录" 
-                                  FontSize="12" Foreground="#7F8C8D" 
+                                  FontSize="11" Foreground="#7F8C8D" 
                                   TextWrapping="Wrap" VerticalAlignment="Center"/>
                     </StackPanel>
                     <TextBlock x:Name="UserNameText" Text="" 
-                              FontSize="11" Foreground="#95A5A6" 
-                              Margin="22,6,0,0"/>
+                              FontSize="10" Foreground="#95A5A6" 
+                              Margin="18,4,0,0"/>
                 </StackPanel>
             </Border>
         </Grid>

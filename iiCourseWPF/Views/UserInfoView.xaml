@@ -6,12 +6,12 @@
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="600">
     <Grid Background="#FFF8F0">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <!-- 头部标题 -->
                 <Border Style="{StaticResource PageHeaderStyle}">
                     <StackPanel>
-                        <TextBlock Text="用户信息" FontSize="26" FontWeight="Bold" 
+                        <TextBlock Text="用户信息" FontSize="24" FontWeight="Bold" 
                                   Foreground="White" Margin="0,0,0,6"/>
                         <TextBlock Text="查看您的个人信息" FontSize="13" 
                                   Foreground="#D9FFFFFF"/>
@@ -19,7 +19,7 @@
                 </Border>
 
                 <!-- 用户基本信息卡片 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24">
+                <Border Style="{StaticResource CardBorderStyle}" Margin="20,20,20,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -27,10 +27,10 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- 头像区域 -->
-                        <Border Grid.Column="0" Width="80" Height="80" 
-                                Background="#FFF5EB" CornerRadius="40" 
-                                Margin="0,0,24,0" VerticalAlignment="Top">
-                            <Path Width="40" Height="40" Data="{StaticResource UserIcon}"
+                        <Border Grid.Column="0" Width="72" Height="72" 
+                                Background="#FFF5EB" CornerRadius="36" 
+                                Margin="0,0,20,0" VerticalAlignment="Top">
+                            <Path Width="36" Height="36" Data="{StaticResource UserIcon}"
                                   Fill="#FF6B35" Stretch="Uniform"
                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
@@ -39,20 +39,20 @@
                         <StackPanel Grid.Column="1">
                             <TextBlock x:Name="NameText" Text="--" 
                                       Style="{StaticResource InfoValueStyle}" 
-                                      FontSize="24" Margin="0,0,0,8"/>
+                                      FontSize="22" Margin="0,0,0,6"/>
                             <TextBlock x:Name="CollegeText" Text="--" 
                                       Style="{StaticResource InfoValueStyle}" 
-                                      FontSize="15" Foreground="#7F8C8D"/>
+                                      FontSize="14" Foreground="#7F8C8D"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
                 <!-- 详细信息 -->
-                <Border Style="{StaticResource CardBorderStyle}" Margin="24,0,24,0">
+                <Border Style="{StaticResource CardBorderStyle}" Margin="20,16,20,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*" MinWidth="140"/>
+                            <ColumnDefinition Width="*" MinWidth="140"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -61,28 +61,28 @@
                         </Grid.RowDefinitions>
 
                         <!-- 学号 -->
-                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,20">
+                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,16">
                             <TextBlock Text="学号" Style="{StaticResource InfoLabelStyle}"/>
                             <TextBlock x:Name="StudentIdText" Text="--" 
                                       Style="{StaticResource InfoValueStyle}"/>
                         </StackPanel>
 
                         <!-- 姓名 -->
-                        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,20">
+                        <StackPanel Grid.Row="0" Grid.Column="1" Margin="12,0,0,16">
                             <TextBlock Text="姓名" Style="{StaticResource InfoLabelStyle}"/>
                             <TextBlock x:Name="NameDetailText" Text="--" 
                                       Style="{StaticResource InfoValueStyle}"/>
                         </StackPanel>
 
                         <!-- 性别 -->
-                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,20">
+                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,16">
                             <TextBlock Text="性别" Style="{StaticResource InfoLabelStyle}"/>
                             <TextBlock x:Name="GenderText" Text="--" 
                                       Style="{StaticResource InfoValueStyle}"/>
                         </StackPanel>
 
                         <!-- 学院 -->
-                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,20">
+                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="12,0,0,16">
                             <TextBlock Text="学院" Style="{StaticResource InfoLabelStyle}"/>
                             <TextBlock x:Name="CollegeDetailText" Text="--" 
                                       Style="{StaticResource InfoValueStyle}"/>
@@ -91,37 +91,40 @@
                         <!-- 登录状态 -->
                         <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                             <TextBlock Text="登录状态" Style="{StaticResource InfoLabelStyle}"/>
-                            <Border Background="#E8F5E9" CornerRadius="6" Padding="12,8" 
+                            <Border Background="#E8F5E9" CornerRadius="6" Padding="10,6" 
                                     HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal">
-                                    <Path Width="14" Height="14" Data="{StaticResource CheckIcon}"
-                                          Fill="#27AE60" Stretch="Uniform" Margin="0,0,8,0"
+                                    <Path Width="12" Height="12" Data="{StaticResource CheckIcon}"
+                                          Fill="#27AE60" Stretch="Uniform" Margin="0,0,6,0"
                                           VerticalAlignment="Center"/>
                                     <TextBlock x:Name="LoginStatusText" Text="已登录" 
-                                              FontSize="13" FontWeight="SemiBold" 
-                                              Foreground="#27AE60" VerticalAlignment="Center"/>
+                                              FontSize="13" Foreground="#27AE60" 
+                                              FontWeight="SemiBold" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- 操作按钮 -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,24">
+                <!-- 刷新按钮 -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
                     <Button x:Name="RefreshButton" 
                             Style="{StaticResource PrimaryButtonStyle}"
-                            Padding="24,12" FontSize="14"
+                            Padding="20,10" FontSize="13"
                             Click="OnRefreshClick">
                         <Button.Content>
                             <StackPanel Orientation="Horizontal">
-                                <Path Width="16" Height="16" Data="{StaticResource RefreshIcon}"
-                                      Fill="White" Stretch="Uniform" Margin="0,0,10,0"
+                                <Path Width="14" Height="14" Data="{StaticResource RefreshIcon}"
+                                      Fill="White" Stretch="Uniform" Margin="0,0,8,0"
                                       VerticalAlignment="Center"/>
                                 <TextBlock Text="刷新信息" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button.Content>
                     </Button>
                 </StackPanel>
+
+                <!-- 底部间距 -->
+                <Border Height="20"/>
             </StackPanel>
         </ScrollViewer>
     </Grid>

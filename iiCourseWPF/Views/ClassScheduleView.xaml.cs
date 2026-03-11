@@ -1,495 +1,306 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
-using iiCourse.Core;
-using iiCourse.Core.Models;
+using iiCourse.Core.ViewModels;
 
 namespace iiCourseWPF.Views
 {
     /// <summary>
-    /// 课程表视图
+    /// 课程表视图 - 纯UI层
     /// </summary>
     public partial class ClassScheduleView : UserControl
     {
-        private iiCoreService? _service;
-        private List<ClassInfo> _classes = new();
-        private List<SelectedTimeClassInfo> _customClasses = new();
-        private List<SchoolYearInfo> _schoolYears = new();
-        private WeekDateInfo? _currentWeekDates;
-        private int _selectedWeek = 1;
-        private bool _isCustomQueryMode = false;
+        public static readonly DependencyProperty ViewModelProperty =
+            DependencyProperty.Register(
+                nameof(ViewModel),
+                typeof(ClassScheduleViewModel),
+                typeof(ClassScheduleView),
+                new PropertyMetadata(null, OnViewModelChanged));
 
-        // 周次按钮列表
-        private readonly List<Button> _weekButtons = new();
+        public ClassScheduleViewModel? ViewModel
+        {
+            get => (ClassScheduleViewModel?)GetValue(ViewModelProperty);
+            set => SetValue(ViewModelProperty, value);
+        }
 
         public ClassScheduleView()
         {
             InitializeComponent();
-            InitializeWeekButtons();
+            Loaded += OnLoaded;
         }
 
-        /// <summary>
-        /// 设置服务实例
-        /// </summary>
-        public void SetService(iiCoreService service)
+        private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            _service = service;
+            // 页面加载完成后渲染课程
+            RenderClasses();
+            // 生成周次选择按钮
+            GenerateWeekButtons();
         }
 
-        /// <summary>
-        /// 初始化周次按钮
-        /// </summary>
-        private void InitializeWeekButtons()
+        private static void OnViewModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            WeekButtonsPanel.Children.Clear();
-            _weekButtons.Clear();
+            var view = (ClassScheduleView)d;
 
-            for (int i = 1; i <= 20; i++)
+            // 清理旧ViewModel的事件订阅
+            if (e.OldValue is ClassScheduleViewModel oldVm)
             {
-                var button = new Button
-                {
-                    Content = $"第{i}周",
-                    Style = Resources["WeekButtonStyle"] as Style,
-                    Margin = new Thickness(0, 0, 8, 8),
-                    Tag = i
-                };
-                button.Click += OnWeekButtonClick;
-                WeekButtonsPanel.Children.Add(button);
-                _weekButtons.Add(button);
+                oldVm.Classes.CollectionChanged -= view.OnClassesCollectionChanged;
+                oldVm.PropertyChanged -= view.OnViewModelPropertyChanged;
+            }
+
+            // 设置DataContext并订阅新ViewModel的事件
+            if (e.NewValue is ClassScheduleViewModel newVm)
+            {
+                view.DataContext = newVm;
+                newVm.Classes.CollectionChanged += view.OnClassesCollectionChanged;
+                newVm.PropertyChanged += view.OnViewModelPropertyChanged;
+                // 初始渲染
+                view.RenderClasses();
             }
         }
 
-        /// <summary>
-        /// 加载学年列表
-        /// </summary>
-        public async Task LoadSchoolYearsAsync()
+        private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (_service == null) return;
-
-            try
+            // 当Classes属性被重新赋值时，重新订阅集合并渲染
+            if (e.PropertyName == nameof(ClassScheduleViewModel.Classes))
             {
-                _schoolYears = await _service.GetSchoolYearsAsync();
-
-                // 清空并重新填充学年下拉框
-                YearComboBox.Items.Clear();
-                YearComboBox.Items.Add(new ComboBoxItem { Content = "请选择", Tag = "" });
-
-                foreach (var year in _schoolYears)
+                if (ViewModel != null)
                 {
-                    YearComboBox.Items.Add(new ComboBoxItem
-                    {
-                        Content = year.SCHOOL_YEAR,
-                        Tag = year.SCHOOL_YEAR
-                    });
+                    // 重新订阅新集合的事件
+                    ViewModel.Classes.CollectionChanged -= OnClassesCollectionChanged;
+                    ViewModel.Classes.CollectionChanged += OnClassesCollectionChanged;
+                    // 立即渲染
+                    Dispatcher.Invoke(RenderClasses);
                 }
-
-                YearComboBox.SelectedIndex = 0;
-            }
-            catch (Exception ex)
-            {
-                ShowStatus($"加载学年列表失败: {ex.Message}");
             }
         }
 
-        /// <summary>
-        /// 加载课程表（默认当前周）
-        /// </summary>
-        public async Task LoadClassScheduleAsync()
+        private void OnClassesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            if (_service == null)
+            // 在UI线程上执行渲染
+            Dispatcher.Invoke(RenderClasses);
+        }
+
+        /// <summary>
+        /// 渲染课程到表格
+        /// </summary>
+        private void RenderClasses()
+        {
+            var vm = ViewModel;
+            if (vm == null)
             {
-                ShowStatus("服务未初始化");
+                Debug.WriteLine("[ClassScheduleView] ViewModel is null");
                 return;
             }
 
-            try
-            {
-                SetLoadingState(true);
-                ShowStatus("正在加载课程表...");
+            Debug.WriteLine($"[ClassScheduleView] Rendering {vm.Classes.Count} classes");
 
-                _classes = await _service.GetClassInfoAsync();
-                _isCustomQueryMode = false;
+            // 清除旧的课程单元格（保留表头和节次标签）
+            ClearClassCells();
 
-                if (_classes.Any())
-                {
-                    // 确保 UI 布局完成后再显示课程
-                    await EnsureLayoutUpdatedAsync();
-                    DisplaySchedule();
-                    ShowStatus($"共加载 {_classes.Count} 门课程");
-                    DateRangeText.Text = "";
-                }
-                else
-                {
-                    ShowStatus("暂无课程信息");
-                    ClearSchedule();
-                }
-            }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("假期"))
+            // 渲染新课程
+            foreach (var classItem in vm.Classes)
             {
-                ShowStatus(ex.Message);
-                ClearSchedule();
-            }
-            catch (Exception ex)
-            {
-                ShowStatus($"加载课程表失败: {ex.Message}");
-                ClearSchedule();
-            }
-            finally
-            {
-                SetLoadingState(false);
+                Debug.WriteLine($"[ClassScheduleView] Adding class: {classItem.CourseName}, Weekday={classItem.Weekday}, StartPeriod={classItem.StartPeriod}, Duration={classItem.Duration}");
+                AddClassCell(classItem);
             }
         }
 
         /// <summary>
-        /// 自定义查询课程表
+        /// 清除课程单元格
         /// </summary>
-        private async Task QueryCustomScheduleAsync()
+        private void ClearClassCells()
         {
-            if (_service == null)
+            // 保留前12行（表头+11个节次标签）
+            // 课程单元格是动态添加的，我们需要识别并移除它们
+            var cellsToRemove = new List<UIElement>();
+
+            foreach (UIElement child in ScheduleGrid.Children)
             {
-                ShowStatus("服务未初始化");
+                if (child is Border border && border.Tag?.ToString() == "ClassCell")
+                {
+                    cellsToRemove.Add(child);
+                }
+            }
+
+            foreach (var cell in cellsToRemove)
+            {
+                ScheduleGrid.Children.Remove(cell);
+            }
+
+            Debug.WriteLine($"[ClassScheduleView] Cleared {cellsToRemove.Count} old cells");
+        }
+
+        /// <summary>
+        /// 添加单个课程单元格
+        /// </summary>
+        private void AddClassCell(ScheduleClassItem classItem)
+        {
+            // 计算行列位置
+            // 行：StartPeriod (1-11) -> Row = StartPeriod
+            // 列：Weekday (1-7) -> Column = Weekday
+            int row = classItem.StartPeriod;
+            int column = classItem.Weekday;
+            int rowSpan = classItem.Duration;
+
+            // 验证范围
+            if (row < 1 || row > 11 || column < 1 || column > 7)
+            {
+                Debug.WriteLine($"[ClassScheduleView] Invalid position: row={row}, column={column}");
                 return;
             }
 
-            // 获取选择的参数
-            var yearItem = YearComboBox.SelectedItem as ComboBoxItem;
-            var semesterItem = SemesterComboBox.SelectedItem as ComboBoxItem;
-
-            var schoolYear = yearItem?.Tag?.ToString();
-            var semester = semesterItem?.Tag?.ToString();
-
-            if (string.IsNullOrEmpty(schoolYear) || string.IsNullOrEmpty(semester))
+            // 创建课程卡片
+            var classBorder = new Border
             {
-                ShowStatus("请选择学年和学期");
-                return;
-            }
-
-            var parameters = new CustomQueryParams
-            {
-                SchoolYear = schoolYear,
-                Semester = semester,
-                LearnWeek = _selectedWeek.ToString()
+                Tag = "ClassCell",
+                Style = (Style)FindResource("ClassCellStyle"),
+                CornerRadius = new CornerRadius(6),
+                Margin = new Thickness(2),
+                Padding = new Thickness(4),
+                Background = GetClassColor(classItem.CourseName),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(255, 200, 150)),
+                BorderThickness = new Thickness(1)
             };
 
-            try
-            {
-                SetLoadingState(true);
-                ShowStatus($"正在查询第{_selectedWeek}周课程表...");
-
-                var result = await _service.QueryCustomScheduleAsync(parameters);
-                _customClasses = result.classes;
-                _currentWeekDates = result.dates;
-                _isCustomQueryMode = true;
-
-                if (_customClasses.Any())
-                {
-                    await EnsureLayoutUpdatedAsync();
-                    DisplayCustomSchedule();
-                    ShowStatus(result.message);
-
-                    // 显示日期范围
-                    if (_currentWeekDates != null)
-                    {
-                        DateRangeText.Text = $"({_currentWeekDates.Date1} - {_currentWeekDates.Date7})";
-                        UpdateDayHeadersWithDates();
-                    }
-                }
-                else
-                {
-                    ShowStatus("该时间段暂无课程");
-                    ClearSchedule();
-                    DateRangeText.Text = "";
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowStatus($"查询失败: {ex.Message}");
-                ClearSchedule();
-            }
-            finally
-            {
-                SetLoadingState(false);
-            }
-        }
-
-        /// <summary>
-        /// 更新表头显示日期
-        /// </summary>
-        private void UpdateDayHeadersWithDates()
-        {
-            if (_currentWeekDates == null) return;
-
-            MondayHeader.Text = $"周一\n{_currentWeekDates.Date1}";
-            TuesdayHeader.Text = $"周二\n{_currentWeekDates.Date2}";
-            WednesdayHeader.Text = $"周三\n{_currentWeekDates.Date3}";
-            ThursdayHeader.Text = $"周四\n{_currentWeekDates.Date4}";
-            FridayHeader.Text = $"周五\n{_currentWeekDates.Date5}";
-            SaturdayHeader.Text = $"周六\n{_currentWeekDates.Date6}";
-            SundayHeader.Text = $"周日\n{_currentWeekDates.Date7}";
-        }
-
-        /// <summary>
-        /// 重置表头
-        /// </summary>
-        private void ResetDayHeaders()
-        {
-            MondayHeader.Text = "周一";
-            TuesdayHeader.Text = "周二";
-            WednesdayHeader.Text = "周三";
-            ThursdayHeader.Text = "周四";
-            FridayHeader.Text = "周五";
-            SaturdayHeader.Text = "周六";
-            SundayHeader.Text = "周日";
-        }
-
-        /// <summary>
-        /// 确保 UI 布局更新完成
-        /// </summary>
-        private async Task EnsureLayoutUpdatedAsync()
-        {
-            // 强制立即更新布局
-            UpdateLayout();
-
-            // 使用 Task.Yield 让出当前线程，等待 UI 线程完成布局
-            await Task.Yield();
-
-            // 再次确保布局更新
-            await Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Loaded);
-        }
-
-        /// <summary>
-        /// 显示课程表（默认模式）
-        /// </summary>
-        private void DisplaySchedule()
-        {
-            ClearSchedule();
-            ResetDayHeaders();
-
-            foreach (var classInfo in _classes)
-            {
-                if (int.TryParse(classInfo.SKXQ, out int weekday) &&
-                    int.TryParse(classInfo.SKJC, out int startPeriod))
-                {
-                    // 获取持续节次
-                    int duration = 1;
-                    if (int.TryParse(classInfo.CXJC, out int parsedDuration))
-                    {
-                        duration = parsedDuration;
-                    }
-
-                    // 计算结束节次
-                    int endPeriod = startPeriod + duration - 1;
-
-                    // 确保在有效范围内
-                    if (weekday >= 1 && weekday <= 7 &&
-                        startPeriod >= 1 && startPeriod <= 11 &&
-                        endPeriod <= 11)
-                    {
-                        AddClassToGrid(classInfo.KCMC, classInfo.JXDD, classInfo.JSXM, weekday, startPeriod, endPeriod);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// 显示自定义查询课程表
-        /// </summary>
-        private void DisplayCustomSchedule()
-        {
-            ClearSchedule();
-
-            foreach (var classInfo in _customClasses)
-            {
-                int weekday = classInfo.SKXQ;
-                int startPeriod = classInfo.SKJC;
-                int duration = classInfo.CXJC;
-                int endPeriod = startPeriod + duration - 1;
-
-                // 确保在有效范围内
-                if (weekday >= 1 && weekday <= 7 &&
-                    startPeriod >= 1 && startPeriod <= 11 &&
-                    endPeriod <= 11)
-                {
-                    AddClassToGrid(classInfo.KCMC, classInfo.JXDD, classInfo.JSXM, weekday, startPeriod, endPeriod);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 添加课程到网格
-        /// </summary>
-        private void AddClassToGrid(string courseName, string classroom, string teacher, int weekday, int startPeriod, int endPeriod)
-        {
-            var border = new Border
-            {
-                Style = Resources["ClassCellStyle"] as Style,
-                Margin = new Thickness(1),
-                CornerRadius = new CornerRadius(4)
-            };
-
+            // 课程信息面板
             var stackPanel = new StackPanel
             {
-                Margin = new Thickness(4)
+                VerticalAlignment = VerticalAlignment.Center
             };
 
             // 课程名称
-            var courseNameBlock = new TextBlock
+            var nameText = new TextBlock
             {
-                Text = courseName,
+                Text = classItem.CourseName,
                 FontSize = 11,
                 FontWeight = FontWeights.SemiBold,
+                Foreground = new SolidColorBrush(Color.FromRgb(180, 60, 20)),
                 TextWrapping = TextWrapping.Wrap,
-                Foreground = new SolidColorBrush(Color.FromRgb(45, 90, 61)),
+                TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(0, 0, 0, 2)
             };
 
             // 教室
-            var classroomBlock = new TextBlock
+            var roomText = new TextBlock
             {
-                Text = classroom,
-                FontSize = 10,
-                Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 0, 0, 2)
+                Text = classItem.Classroom,
+                FontSize = 9,
+                Foreground = new SolidColorBrush(Color.FromRgb(150, 80, 40)),
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 1)
             };
 
             // 教师
-            var teacherBlock = new TextBlock
+            var teacherText = new TextBlock
             {
-                Text = teacher,
-                FontSize = 10,
-                Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
-                TextWrapping = TextWrapping.Wrap
+                Text = classItem.Teacher,
+                FontSize = 9,
+                Foreground = new SolidColorBrush(Color.FromRgb(150, 80, 40)),
+                TextAlignment = TextAlignment.Center
             };
 
-            stackPanel.Children.Add(courseNameBlock);
-            stackPanel.Children.Add(classroomBlock);
-            stackPanel.Children.Add(teacherBlock);
-            border.Child = stackPanel;
+            stackPanel.Children.Add(nameText);
+            stackPanel.Children.Add(roomText);
+            stackPanel.Children.Add(teacherText);
 
-            // 设置网格位置
-            Grid.SetRow(border, startPeriod);
-            Grid.SetRowSpan(border, endPeriod - startPeriod + 1);
-            Grid.SetColumn(border, weekday);
+            classBorder.Child = stackPanel;
 
-            ScheduleGrid.Children.Add(border);
+            // 设置行列位置
+            Grid.SetRow(classBorder, row);
+            Grid.SetColumn(classBorder, column);
+            Grid.SetRowSpan(classBorder, rowSpan);
+
+            ScheduleGrid.Children.Add(classBorder);
+            Debug.WriteLine($"[ClassScheduleView] Added cell at row={row}, column={column}, rowspan={rowSpan}");
         }
 
         /// <summary>
-        /// 清空课程表
+        /// 根据课程名获取颜色（保持一致性）
         /// </summary>
-        private void ClearSchedule()
+        private Brush GetClassColor(string courseName)
         {
-            // 移除所有课程单元格（保留表头和节次标签）
-            var toRemove = ScheduleGrid.Children
-                .Cast<UIElement>()
-                .Where(child => Grid.GetRow(child) > 0 && Grid.GetColumn(child) > 0)
-                .ToList();
-
-            foreach (var child in toRemove)
+            // 基于课程名生成一致的颜色
+            var colors = new[]
             {
-                ScheduleGrid.Children.Remove(child);
+                Color.FromRgb(255, 235, 210), // 浅橙
+                Color.FromRgb(255, 240, 220), // 浅黄
+                Color.FromRgb(255, 230, 225), // 浅粉
+                Color.FromRgb(235, 245, 255), // 浅蓝
+                Color.FromRgb(230, 255, 235), // 浅绿
+                Color.FromRgb(245, 235, 255), // 浅紫
+                Color.FromRgb(255, 245, 230), // 浅杏
+                Color.FromRgb(240, 255, 250), // 浅青
+            };
+
+            int hash = 0;
+            foreach (char c in courseName)
+            {
+                hash = ((hash << 5) - hash) + c;
+                hash = hash & hash;
             }
+
+            var color = colors[Math.Abs(hash) % colors.Length];
+            return new SolidColorBrush(color);
         }
 
         /// <summary>
-        /// 显示状态信息
+        /// 生成周次选择按钮（1-20周）
         /// </summary>
-        private void ShowStatus(string message)
+        private void GenerateWeekButtons()
         {
-            StatusText.Text = message;
-        }
+            if (WeekButtonsPanel == null) return;
 
-        /// <summary>
-        /// 设置加载状态
-        /// </summary>
-        private void SetLoadingState(bool isLoading)
-        {
-            RefreshButton.IsEnabled = !isLoading;
-            QueryButton.IsEnabled = !isLoading;
-            YearComboBox.IsEnabled = !isLoading;
-            SemesterComboBox.IsEnabled = !isLoading;
+            WeekButtonsPanel.Children.Clear();
 
-            foreach (var button in _weekButtons)
+            for (int week = 1; week <= 20; week++)
             {
-                button.IsEnabled = !isLoading;
-            }
-        }
-
-        /// <summary>
-        /// 更新周次按钮选中状态
-        /// </summary>
-        private void UpdateWeekButtonSelection()
-        {
-            for (int i = 0; i < _weekButtons.Count; i++)
-            {
-                if (i + 1 == _selectedWeek)
+                var button = new Button
                 {
-                    _weekButtons[i].Style = Resources["WeekButtonSelectedStyle"] as Style;
-                }
-                else
-                {
-                    _weekButtons[i].Style = Resources["WeekButtonStyle"] as Style;
-                }
-            }
-        }
+                    Content = $"第{week}周",
+                    Tag = week,
+                    Style = (Style)FindResource("WeekButtonStyle"),
+                    Margin = new Thickness(0, 0, 6, 6)
+                };
 
-        /// <summary>
-        /// 刷新按钮点击事件
-        /// </summary>
-        private async void OnRefreshClick(object sender, RoutedEventArgs e)
-        {
-            if (_isCustomQueryMode)
-            {
-                // 如果在自定义查询模式，重新查询当前选择的周
-                await QueryCustomScheduleAsync();
+                button.Click += OnWeekButtonClick;
+                WeekButtonsPanel.Children.Add(button);
             }
-            else
-            {
-                // 否则加载默认课程表
-                await LoadClassScheduleAsync();
-            }
-        }
 
-        /// <summary>
-        /// 查询按钮点击事件
-        /// </summary>
-        private async void OnQueryClick(object sender, RoutedEventArgs e)
-        {
-            await QueryCustomScheduleAsync();
+            Debug.WriteLine("[ClassScheduleView] Generated 20 week buttons");
         }
 
         /// <summary>
         /// 周次按钮点击事件
         /// </summary>
-        private async void OnWeekButtonClick(object sender, RoutedEventArgs e)
+        private void OnWeekButtonClick(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is int week)
             {
-                _selectedWeek = week;
-                UpdateWeekButtonSelection();
-
-                // 如果已经选择了学年和学期，自动查询
-                var yearItem = YearComboBox.SelectedItem as ComboBoxItem;
-                var semesterItem = SemesterComboBox.SelectedItem as ComboBoxItem;
-
-                if (yearItem?.Tag?.ToString() != "" && semesterItem?.Tag?.ToString() != "")
+                // 更新按钮样式
+                foreach (UIElement child in WeekButtonsPanel.Children)
                 {
-                    await QueryCustomScheduleAsync();
+                    if (child is Button btn)
+                    {
+                        btn.Style = (Style)FindResource("WeekButtonStyle");
+                    }
                 }
-            }
-        }
 
-        /// <summary>
-        /// 查询参数改变事件
-        /// </summary>
-        private void OnQueryParamChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // 可以在这里添加参数改变时的逻辑
+                // 设置选中样式
+                button.Style = (Style)FindResource("WeekButtonSelectedStyle");
+
+                // 执行选择周次命令
+                if (ViewModel?.SelectWeekCommand is ICommand command && command.CanExecute(week))
+                {
+                    command.Execute(week);
+                }
+
+                Debug.WriteLine($"[ClassScheduleView] Selected week: {week}");
+            }
         }
     }
 }

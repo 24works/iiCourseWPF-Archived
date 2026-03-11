@@ -5,6 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="600">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
     <Grid Background="#FFF8F0">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
@@ -37,10 +41,10 @@
 
                         <!-- 信息区域 -->
                         <StackPanel Grid.Column="1">
-                            <TextBlock x:Name="NameText" Text="--" 
+                            <TextBlock Text="{Binding Name, FallbackValue=--}" 
                                       Style="{StaticResource InfoValueStyle}" 
                                       FontSize="22" Margin="0,0,0,6"/>
-                            <TextBlock x:Name="CollegeText" Text="--" 
+                            <TextBlock Text="{Binding College, FallbackValue=--}" 
                                       Style="{StaticResource InfoValueStyle}" 
                                       FontSize="14" Foreground="#7F8C8D"/>
                         </StackPanel>
@@ -63,28 +67,28 @@
                         <!-- 学号 -->
                         <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,16">
                             <TextBlock Text="学号" Style="{StaticResource InfoLabelStyle}"/>
-                            <TextBlock x:Name="StudentIdText" Text="--" 
+                            <TextBlock Text="{Binding StudentId, FallbackValue=--}" 
                                       Style="{StaticResource InfoValueStyle}"/>
                         </StackPanel>
 
                         <!-- 姓名 -->
                         <StackPanel Grid.Row="0" Grid.Column="1" Margin="12,0,0,16">
                             <TextBlock Text="姓名" Style="{StaticResource InfoLabelStyle}"/>
-                            <TextBlock x:Name="NameDetailText" Text="--" 
+                            <TextBlock Text="{Binding Name, FallbackValue=--}" 
                                       Style="{StaticResource InfoValueStyle}"/>
                         </StackPanel>
 
                         <!-- 性别 -->
                         <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,16">
                             <TextBlock Text="性别" Style="{StaticResource InfoLabelStyle}"/>
-                            <TextBlock x:Name="GenderText" Text="--" 
+                            <TextBlock Text="{Binding Gender, FallbackValue=--}" 
                                       Style="{StaticResource InfoValueStyle}"/>
                         </StackPanel>
 
                         <!-- 学院 -->
                         <StackPanel Grid.Row="1" Grid.Column="1" Margin="12,0,0,16">
                             <TextBlock Text="学院" Style="{StaticResource InfoLabelStyle}"/>
-                            <TextBlock x:Name="CollegeDetailText" Text="--" 
+                            <TextBlock Text="{Binding College, FallbackValue=--}" 
                                       Style="{StaticResource InfoValueStyle}"/>
                         </StackPanel>
 
@@ -92,13 +96,26 @@
                         <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                             <TextBlock Text="登录状态" Style="{StaticResource InfoLabelStyle}"/>
                             <Border Background="#E8F5E9" CornerRadius="6" Padding="10,6" 
-                                    HorizontalAlignment="Left">
+                                    HorizontalAlignment="Left"
+                                    Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <StackPanel Orientation="Horizontal">
                                     <Path Width="12" Height="12" Data="{StaticResource CheckIcon}"
                                           Fill="#27AE60" Stretch="Uniform" Margin="0,0,6,0"
                                           VerticalAlignment="Center"/>
-                                    <TextBlock x:Name="LoginStatusText" Text="已登录" 
+                                    <TextBlock Text="已登录" 
                                               FontSize="13" Foreground="#27AE60" 
+                                              FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#FFEBEE" CornerRadius="6" Padding="10,6" 
+                                    HorizontalAlignment="Left"
+                                    Visibility="{Binding IsError, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="12" Height="12" Data="{StaticResource CloseIcon}"
+                                          Fill="#E74C3C" Stretch="Uniform" Margin="0,0,6,0"
+                                          VerticalAlignment="Center"/>
+                                    <TextBlock Text="加载失败" 
+                                              FontSize="13" Foreground="#E74C3C" 
                                               FontWeight="SemiBold" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
@@ -108,10 +125,10 @@
 
                 <!-- 刷新按钮 -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-                    <Button x:Name="RefreshButton" 
+                    <Button Command="{Binding RefreshCommand}"
+                            IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
                             Style="{StaticResource PrimaryButtonStyle}"
-                            Padding="20,10" FontSize="13"
-                            Click="OnRefreshClick">
+                            Padding="20,10" FontSize="13">
                         <Button.Content>
                             <StackPanel Orientation="Horizontal">
                                 <Path Width="14" Height="14" Data="{StaticResource RefreshIcon}"
@@ -122,6 +139,14 @@
                         </Button.Content>
                     </Button>
                 </StackPanel>
+
+                <!-- 状态信息 -->
+                <TextBlock Text="{Binding StatusMessage}" 
+                          FontSize="12" 
+                          Foreground="#7F8C8D"
+                          TextAlignment="Center"
+                          Margin="0,12,0,0"
+                          Visibility="{Binding StatusMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
 
                 <!-- 底部间距 -->
                 <Border Height="20"/>

@@ -50,10 +50,10 @@
 
                         <!-- 操作栏 -->
                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
-                            <Button x:Name="RefreshButton" 
-                                    Style="{StaticResource PrimaryButtonStyle}"
-                                    Padding="16,10" FontSize="13"
-                                    Click="OnRefreshClick">
+                            <Button Command="{Binding RefreshCommand}"
+                                IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Padding="16,10" FontSize="13">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
                                         <Path Width="14" Height="14" Data="{StaticResource RefreshIcon}"
@@ -64,7 +64,7 @@
                                 </Button.Content>
                             </Button>
 
-                            <TextBlock x:Name="StatusText" Text="" 
+                            <TextBlock Text="{Binding StatusMessage}" 
                                       FontSize="13" Foreground="#7F8C8D" 
                                       VerticalAlignment="Center" Margin="12,0,0,0"/>
                         </StackPanel>

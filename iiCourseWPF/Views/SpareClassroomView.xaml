@@ -73,10 +73,11 @@
                                   Foreground="#2C3E50" Margin="0,0,0,10"/>
                         
                         <WrapPanel Orientation="Horizontal" Margin="0,0,0,14">
-                            <Button x:Name="EastCampusButton" 
+                            <Button Command="{Binding SelectCampusCommand}"
+                                    CommandParameter="1"
+                                    IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
                                     Style="{StaticResource SecondaryButtonStyle}"
                                     Padding="14,8" FontSize="12"
-                                    Click="OnCampusClick" Tag="1"
                                     Margin="0,0,8,8">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
@@ -88,10 +89,11 @@
                                 </Button.Content>
                             </Button>
 
-                            <Button x:Name="WestCampusButton" 
+                            <Button Command="{Binding SelectCampusCommand}"
+                                    CommandParameter="2"
+                                    IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
                                     Style="{StaticResource SecondaryButtonStyle}"
                                     Padding="14,8" FontSize="12"
-                                    Click="OnCampusClick" Tag="2"
                                     Margin="0,0,8,8">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">

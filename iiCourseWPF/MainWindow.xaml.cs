@@ -1,49 +1,45 @@
-using System;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
-using iiCourse.Core;
+using iiCourse.Core.ViewModels;
 using iiCourseWPF.Views;
 
 namespace iiCourseWPF
 {
     /// <summary>
-    /// 主窗口
+    /// 主窗口 - 纯UI层，负责视图切换和动画
     /// </summary>
     public partial class MainWindow : Window
     {
-        private iiCoreService? _service;
-        private string? _username;
-        private bool _isLoggedIn;
+        private MainViewModel? _viewModel;
         private UserControl? _currentView;
 
         public MainWindow()
         {
             InitializeComponent();
-            InitializeService();
+            InitializeViewModel();
             InitializeEventHandlers();
-            _ = ShowLoginView();
         }
 
         /// <summary>
-        /// 初始化服务
+        /// 初始化ViewModel
         /// </summary>
-        private void InitializeService()
+        private void InitializeViewModel()
         {
-            _service = new iiCoreService
-            {
-                LogCallback = message => Console.WriteLine(message)
-            };
+            _viewModel = new MainViewModel();
+            DataContext = _viewModel;
 
-            // 为所有视图设置服务实例
-            LoginView.SetService(_service);
-            UserInfoView.SetService(_service);
-            ClassScheduleView.SetService(_service);
-            ScoreView.SetService(_service);
-            SpareClassroomView.SetService(_service);
-            CardInfoView.SetService(_service);
-            EvaluationView.SetService(_service);
+            // 绑定ViewModel到各个视图
+            LoginView.ViewModel = _viewModel.LoginViewModel;
+            UserInfoView.ViewModel = _viewModel.UserInfoViewModel;
+            ClassScheduleView.ViewModel = _viewModel.ClassScheduleViewModel;
+            ScoreView.ViewModel = _viewModel.ScoreViewModel;
+            CardInfoView.ViewModel = _viewModel.CardInfoViewModel;
+            SpareClassroomView.ViewModel = _viewModel.SpareClassroomViewModel;
+            EvaluationView.ViewModel = _viewModel.EvaluationViewModel;
+
+            // 初始显示登录视图
+            _ = ShowLoginView();
         }
 
         /// <summary>
@@ -51,87 +47,68 @@ namespace iiCourseWPF
         /// </summary>
         private void InitializeEventHandlers()
         {
-            // 登录完成事件
-            LoginView.LoginCompleted += async (success, username) =>
+            // 监听ViewModel的CurrentView属性变化
+            if (_viewModel != null)
             {
-                if (success)
+                _viewModel.PropertyChanged += (s, e) =>
                 {
-                    _username = username;
-                    _isLoggedIn = true;
-
-                    // 更新侧边栏状态
-                    Sidebar.UpdateLoginStatus(true, username);
-
-                    // 显示用户信息视图
-                    await ShowView("UserInfo");
-
-                    // 加载用户信息
-                    UserInfoView.SetUsername(username);
-                    await UserInfoView.LoadUserInfoAsync();
-                }
-                else
-                {
-                    MessageBox.Show(
-                        "登录失败，请检查用户名和密码。",
-                        "登录错误",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                }
-            };
+                    if (e.PropertyName == nameof(MainViewModel.CurrentView))
+                    {
+                        _ = OnCurrentViewChanged(_viewModel.CurrentView);
+                    }
+                    if (e.PropertyName == nameof(MainViewModel.IsLoggedIn))
+                    {
+                        Sidebar.UpdateLoginStatus(_viewModel.IsLoggedIn, _viewModel.CurrentUsername ?? "");
+                    }
+                };
+            }
 
             // 侧边栏菜单点击事件
-            Sidebar.MenuClicked += async (menuTag) =>
+            Sidebar.MenuClicked += (menuTag) =>
             {
-                await HandleMenuClick(menuTag);
+                _viewModel?.NavigateCommand.Execute(menuTag);
             };
+
+            // 登录完成事件
+            if (_viewModel?.LoginViewModel != null)
+            {
+                _viewModel.LoginViewModel.LoginCompleted += (success, username) =>
+                {
+                    if (!success)
+                    {
+                        MessageBox.Show(
+                            "登录失败，请检查用户名和密码。",
+                            "登录错误",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                    }
+                };
+            }
         }
 
         /// <summary>
-        /// 处理菜单点击
+        /// 当前视图变更处理
         /// </summary>
-        private async Task HandleMenuClick(string menuTag)
+        private async Task OnCurrentViewChanged(string viewName)
         {
-            // 隐私政策页面不需要登录即可访问
-            if (!_isLoggedIn && menuTag != "Settings" && menuTag != "Privacy")
+            UserControl? targetView = viewName switch
             {
-                MessageBox.Show(
-                    "请先登录后再使用此功能。",
-                    "未登录",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                await ShowLoginView();
-                return;
-            }
+                "Login" => LoginView,
+                "UserInfo" => UserInfoView,
+                "ClassSchedule" => ClassScheduleView,
+                "Score" => ScoreView,
+                "SpareClassroom" => SpareClassroomView,
+                "CardInfo" => CardInfoView,
+                "Evaluation" => EvaluationView,
+                "Settings" => SettingsView,
+                "Privacy" => PrivacyView,
+                _ => null
+            };
 
-            await ShowView(menuTag);
-
-            // 根据视图类型加载数据
-            switch (menuTag)
+            if (targetView != null)
             {
-                case "UserInfo":
-                    if (!string.IsNullOrEmpty(_username))
-                    {
-                        UserInfoView.SetUsername(_username);
-                        await UserInfoView.LoadUserInfoAsync();
-                    }
-                    break;
-
-                case "ClassSchedule":
-                    await ClassScheduleView.LoadSchoolYearsAsync();
-                    await ClassScheduleView.LoadClassScheduleAsync();
-                    break;
-
-                case "Score":
-                    await ScoreView.LoadScoresAsync();
-                    break;
-
-                case "CardInfo":
-                    await CardInfoView.LoadCardInfoAsync();
-                    break;
-
-                case "Evaluation":
-                    // 评教视图不需要自动加载，用户手动点击按钮
-                    break;
+                await ShowViewAsync(targetView);
+                Sidebar.SetActiveMenu(viewName);
             }
         }
 
@@ -151,16 +128,13 @@ namespace iiCourseWPF
         {
             if (_currentView != null && _currentView != viewToShow)
             {
-                // 播放当前页面退出动画
                 await AnimateViewExitAsync(_currentView);
                 _currentView.Visibility = Visibility.Collapsed;
             }
-            
-            // 显示新页面
+
             viewToShow.Visibility = Visibility.Visible;
             _currentView = viewToShow;
-            
-            // 播放进入动画
+
             await AnimateViewEnterAsync(viewToShow);
         }
 
@@ -170,12 +144,12 @@ namespace iiCourseWPF
         private Task AnimateViewEnterAsync(UserControl view)
         {
             var tcs = new TaskCompletionSource<object>();
-            
+
             var storyboard = (Storyboard)FindResource("PageEnterAnimation");
             storyboard = storyboard.Clone();
             storyboard.Completed += (s, e) => tcs.SetResult(null!);
             storyboard.Begin(view);
-            
+
             return tcs.Task;
         }
 
@@ -185,53 +159,13 @@ namespace iiCourseWPF
         private Task AnimateViewExitAsync(UserControl view)
         {
             var tcs = new TaskCompletionSource<object>();
-            
+
             var storyboard = (Storyboard)FindResource("PageExitAnimation");
             storyboard = storyboard.Clone();
             storyboard.Completed += (s, e) => tcs.SetResult(null!);
             storyboard.Begin(view);
-            
+
             return tcs.Task;
-        }
-
-        /// <summary>
-        /// 显示指定视图
-        /// </summary>
-        private async Task ShowView(string viewTag)
-        {
-            UserControl? targetView = viewTag switch
-            {
-                "UserInfo" => UserInfoView,
-                "ClassSchedule" => ClassScheduleView,
-                "Score" => ScoreView,
-                "SpareClassroom" => SpareClassroomView,
-                "CardInfo" => CardInfoView,
-                "Evaluation" => EvaluationView,
-                "Settings" => SettingsView,
-                "Privacy" => PrivacyView,
-                _ => null
-            };
-
-            if (targetView != null)
-            {
-                await ShowViewAsync(targetView);
-            }
-        }
-
-        /// <summary>
-        /// 隐藏所有视图
-        /// </summary>
-        private void HideAllViews()
-        {
-            LoginView.Visibility = Visibility.Collapsed;
-            UserInfoView.Visibility = Visibility.Collapsed;
-            ClassScheduleView.Visibility = Visibility.Collapsed;
-            ScoreView.Visibility = Visibility.Collapsed;
-            SpareClassroomView.Visibility = Visibility.Collapsed;
-            CardInfoView.Visibility = Visibility.Collapsed;
-            EvaluationView.Visibility = Visibility.Collapsed;
-            SettingsView.Visibility = Visibility.Collapsed;
-            PrivacyView.Visibility = Visibility.Collapsed;
         }
 
         /// <summary>
@@ -239,7 +173,7 @@ namespace iiCourseWPF
         /// </summary>
         protected override void OnClosed(EventArgs e)
         {
-            _service?.Dispose();
+            _viewModel?.Dispose();
             base.OnClosed(e);
         }
     }

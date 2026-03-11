@@ -1,587 +1,381 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using iiCourse.Core;
-using iiCourse.Core.Models;
+using iiCourse.Core.ViewModels;
 
 namespace iiCourseWPF.Views
 {
     /// <summary>
-    /// Spare classroom query view - Display by period dimension
+    /// 空教室查询视图 - 纯UI层
     /// </summary>
     public partial class SpareClassroomView : UserControl
     {
-        private iiCoreService? _service;
-        private List<SpareClassroom> _classrooms = new();
-        private List<BuildingInfo> _buildings = new();
-        private Button? _currentCampusButton;
-        private Button? _currentBuildingButton;
-        private string? _selectedPeriod;
-        private string? _currentCampusId;
-        private string? _currentBuildingName;
+        public static readonly DependencyProperty ViewModelProperty =
+            DependencyProperty.Register(
+                nameof(ViewModel),
+                typeof(SpareClassroomViewModel),
+                typeof(SpareClassroomView),
+                new PropertyMetadata(null, OnViewModelChanged));
+
+        public SpareClassroomViewModel? ViewModel
+        {
+            get => (SpareClassroomViewModel?)GetValue(ViewModelProperty);
+            set => SetValue(ViewModelProperty, value);
+        }
 
         public SpareClassroomView()
         {
             InitializeComponent();
         }
 
-        /// <summary>
-        /// Set service instance
-        /// </summary>
-        public void SetService(iiCoreService service)
+        private static void OnViewModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            _service = service;
-        }
+            var view = (SpareClassroomView)d;
+            view.DataContext = e.NewValue;
 
-        /// <summary>
-        /// Campus button click event
-        /// </summary>
-        private async void OnCampusClick(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button && button.Tag is string tag)
+            if (e.OldValue is SpareClassroomViewModel oldVm)
             {
-                UpdateCampusButtonStates(button);
-                _currentCampusButton = button;
-                _currentCampusId = tag;
+                oldVm.PropertyChanged -= view.ViewModel_PropertyChanged;
+                oldVm.Buildings.CollectionChanged -= view.Buildings_CollectionChanged;
+                oldVm.PeriodGroups.CollectionChanged -= view.PeriodGroups_CollectionChanged;
+            }
 
-                await LoadBuildingsAsync(tag);
+            if (e.NewValue is SpareClassroomViewModel newVm)
+            {
+                newVm.PropertyChanged += view.ViewModel_PropertyChanged;
+                newVm.Buildings.CollectionChanged += view.Buildings_CollectionChanged;
+                newVm.PeriodGroups.CollectionChanged += view.PeriodGroups_CollectionChanged;
+                view.UpdateUI();
             }
         }
 
-        /// <summary>
-        /// Load building list
-        /// </summary>
-        private async Task LoadBuildingsAsync(string campusId)
+        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (_service == null)
+            Dispatcher.Invoke(() =>
             {
-                ShowStatus("Service not initialized");
-                return;
-            }
-
-            try
-            {
-                SetLoadingState(true);
-                ShowStatus("Loading building list...");
-
-                BuildingButtonsPanel.Children.Clear();
-                _currentBuildingButton = null;
-
-                _buildings = await _service.GetBuildingsAsync(campusId);
-
-                if (_buildings.Count > 0)
+                switch (e.PropertyName)
                 {
-                    foreach (var building in _buildings)
+                    case nameof(SpareClassroomViewModel.StatusMessage):
+                        StatusText.Text = ViewModel?.StatusMessage ?? "";
+                        break;
+                    case nameof(SpareClassroomViewModel.ResultCountText):
+                        ResultCountText.Text = ViewModel?.ResultCountText ?? "";
+                        break;
+                    case nameof(SpareClassroomViewModel.AvailablePeriods):
+                        UpdatePeriodFilterButtons();
+                        break;
+                    case nameof(SpareClassroomViewModel.Buildings):
+                        // 重新订阅新集合的 CollectionChanged 事件
+                        if (ViewModel?.Buildings != null)
+                        {
+                            ViewModel.Buildings.CollectionChanged -= Buildings_CollectionChanged;
+                            ViewModel.Buildings.CollectionChanged += Buildings_CollectionChanged;
+                        }
+                        UpdateBuildingButtons();
+                        break;
+                    case nameof(SpareClassroomViewModel.PeriodGroups):
+                        // 重新订阅新集合的 CollectionChanged 事件
+                        if (ViewModel?.PeriodGroups != null)
+                        {
+                            ViewModel.PeriodGroups.CollectionChanged -= PeriodGroups_CollectionChanged;
+                            ViewModel.PeriodGroups.CollectionChanged += PeriodGroups_CollectionChanged;
+                        }
+                        UpdateClassroomList();
+                        break;
+                    case nameof(SpareClassroomViewModel.SelectedPeriod):
+                        // 节次筛选改变时刷新列表
+                        UpdateClassroomList();
+                        break;
+                }
+            });
+        }
+
+        private void Buildings_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            Dispatcher.Invoke(UpdateBuildingButtons);
+        }
+
+        private void PeriodGroups_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            Dispatcher.Invoke(UpdateClassroomList);
+        }
+
+        private void UpdateUI()
+        {
+            UpdateBuildingButtons();
+            UpdatePeriodFilterButtons();
+            UpdateClassroomList();
+            StatusText.Text = ViewModel?.StatusMessage ?? "";
+            ResultCountText.Text = ViewModel?.ResultCountText ?? "";
+        }
+
+        private void UpdateBuildingButtons()
+        {
+            BuildingButtonsPanel.Children.Clear();
+
+            if (ViewModel?.Buildings == null) return;
+
+            foreach (var building in ViewModel.Buildings)
+            {
+                var buildingId = building.Id; // 捕获变量
+                var button = new Button
+                {
+                    Content = building.Name,
+                    Tag = buildingId,
+                    Padding = new Thickness(14, 8, 14, 8),
+                    Margin = new Thickness(0, 0, 8, 8),
+                    FontSize = 12,
+                    Background = Brushes.White,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF6B35")!),
+                    BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0")!),
+                    BorderThickness = new Thickness(1),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    MinWidth = 80
+                };
+
+                // 强制启用按钮
+                button.IsEnabled = true;
+
+                // 使用 Click 事件替代 Command
+                button.Click += (s, e) =>
+                {
+                    System.Diagnostics.Debug.WriteLine($"教学楼按钮被点击: {buildingId}");
+                    if (ViewModel?.SelectBuildingCommand != null)
                     {
-                        var btn = CreateBuildingButton(building);
-                        BuildingButtonsPanel.Children.Add(btn);
+                        System.Diagnostics.Debug.WriteLine($"执行命令，CanExecute: {ViewModel.SelectBuildingCommand.CanExecute(buildingId)}");
+                        ViewModel.SelectBuildingCommand.Execute(buildingId);
                     }
-                    ShowStatus($"Loaded {_buildings.Count} buildings");
-                }
-                else
-                {
-                    ShowStatus("No building data for this campus");
-                }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("SelectBuildingCommand 为 null");
+                    }
+                };
+
+                BuildingButtonsPanel.Children.Add(button);
             }
-            catch (Exception ex)
+
+            if (ViewModel?.Buildings.Count > 0)
             {
-                ShowStatus($"Failed to load buildings: {ex.Message}");
-            }
-            finally
-            {
-                SetLoadingState(false);
+                StatusText.Text = ViewModel.StatusMessage;
             }
         }
 
-        /// <summary>
-        /// Create building button
-        /// </summary>
-        private Button CreateBuildingButton(BuildingInfo building)
-        {
-            var button = new Button
-            {
-                Style = FindResource("SecondaryButtonStyle") as Style,
-                Padding = new Thickness(20, 10, 20, 10),
-                FontSize = 13,
-                Tag = building.ID,
-                Margin = new Thickness(0, 0, 10, 10)
-            };
-
-            var content = new StackPanel { Orientation = Orientation.Horizontal };
-
-            var icon = new Path
-            {
-                Width = 16,
-                Height = 16,
-                Data = FindResource("SchoolIcon") as Geometry,
-                Fill = new SolidColorBrush(Color.FromRgb(255, 107, 53)),
-                Stretch = Stretch.Uniform,
-                Margin = new Thickness(0, 0, 8, 0),
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            var text = new TextBlock
-            {
-                Text = building.Name,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            content.Children.Add(icon);
-            content.Children.Add(text);
-            button.Content = content;
-
-            button.Click += OnBuildingClick;
-
-            return button;
-        }
-
-        /// <summary>
-        /// Building button click event
-        /// </summary>
-        private async void OnBuildingClick(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button && button.Tag is string tag)
-            {
-                if (int.TryParse(tag, out int buildingId))
-                {
-                    _currentBuildingButton = button;
-                    _selectedPeriod = null;
-                    _currentBuildingName = ((button.Content as StackPanel)?.Children[1] as TextBlock)?.Text;
-                    await LoadSpareClassroomsAsync(buildingId);
-                    UpdateBuildingButtonStates(button);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Load spare classroom data
-        /// </summary>
-        private async Task LoadSpareClassroomsAsync(int buildingId)
-        {
-            if (_service == null)
-            {
-                ShowStatus("Service not initialized");
-                return;
-            }
-
-            try
-            {
-                SetLoadingState(true);
-                ShowStatus("Querying spare classrooms...");
-
-                _classrooms = await _service.GetSpareClassroomAsync(buildingId);
-
-                if (_classrooms.Count > 0)
-                {
-                    GeneratePeriodFilterButtons();
-                    DisplayClassroomsByPeriod();
-                    ShowStatus($"Found {_classrooms.Count} spare time slots");
-                }
-                else
-                {
-                    ShowEmptyState();
-                    PeriodFilterPanel.Visibility = Visibility.Collapsed;
-                    ShowStatus("No spare classrooms");
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowStatus($"Query failed: {ex.Message}");
-                ShowEmptyState();
-                PeriodFilterPanel.Visibility = Visibility.Collapsed;
-            }
-            finally
-            {
-                SetLoadingState(false);
-            }
-        }
-
-        /// <summary>
-        /// Generate period filter buttons
-        /// </summary>
-        private void GeneratePeriodFilterButtons()
+        private void UpdatePeriodFilterButtons()
         {
             PeriodFilterButtons.Children.Clear();
+
+            if (ViewModel?.AvailablePeriods == null || ViewModel.AvailablePeriods.Count == 0)
+            {
+                PeriodFilterPanel.Visibility = Visibility.Collapsed;
+                return;
+            }
+
             PeriodFilterPanel.Visibility = Visibility.Visible;
 
-            var availablePeriods = _classrooms
-                .Select(c => c.Period)
-                .Distinct()
-                .OrderBy(p => int.TryParse(p, out var n) ? n : 999)
-                .ToList();
+            var allButton = new Button
+            {
+                Content = "全部",
+                Padding = new Thickness(6, 4, 6, 4),
+                Margin = new Thickness(2),
+                FontSize = 11,
+                MinWidth = 52,
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF6B35")!),
+                Foreground = Brushes.White,
+                BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF6B35")!),
+                BorderThickness = new Thickness(1),
+                Cursor = System.Windows.Input.Cursors.Hand
+            };
+            allButton.IsEnabled = true;
 
-            var allButton = CreatePeriodFilterButton("All", null, true);
+            // 使用 Click 事件替代 Command
+            allButton.Click += (s, e) =>
+            {
+                System.Diagnostics.Debug.WriteLine("全部按钮被点击");
+                if (ViewModel?.SelectPeriodCommand != null)
+                {
+                    ViewModel.SelectPeriodCommand.Execute(null);
+                }
+            };
+
             PeriodFilterButtons.Children.Add(allButton);
 
-            foreach (var period in availablePeriods)
+            foreach (var period in ViewModel?.AvailablePeriods ?? new System.Collections.ObjectModel.ObservableCollection<string>())
             {
-                var btn = CreatePeriodFilterButton(period, period, false);
-                PeriodFilterButtons.Children.Add(btn);
-            }
-        }
-
-        /// <summary>
-        /// Create period filter button
-        /// </summary>
-        private Button CreatePeriodFilterButton(string displayText, string? periodValue, bool isActive)
-        {
-            var button = new Button
-            {
-                Style = FindResource("PeriodFilterButtonStyle") as Style,
-                Tag = periodValue,
-                Margin = new Thickness(3)
-            };
-
-            string buttonText = displayText;
-            if (periodValue != null)
-            {
-                buttonText = $"Period {periodValue}";
-            }
-
-            button.Content = new TextBlock
-            {
-                Text = buttonText,
-                FontSize = 12,
-                TextTrimming = TextTrimming.CharacterEllipsis
-            };
-
-            if (isActive)
-            {
-                SetPeriodButtonActive(button);
-            }
-
-            button.Click += OnPeriodFilterClick;
-            return button;
-        }
-
-        /// <summary>
-        /// Period filter button click event
-        /// </summary>
-        private void OnPeriodFilterClick(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button)
-            {
-                _selectedPeriod = button.Tag as string;
-
-                foreach (var child in PeriodFilterButtons.Children)
+                var periodValue = period; // 捕获变量
+                var button = new Button
                 {
-                    if (child is Button btn)
+                    Content = $"第{period}节",
+                    Padding = new Thickness(6, 4, 6, 4),
+                    Margin = new Thickness(2),
+                    FontSize = 11,
+                    MinWidth = 52,
+                    Background = Brushes.White,
+                    BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0")!),
+                    BorderThickness = new Thickness(1),
+                    Cursor = System.Windows.Input.Cursors.Hand
+                };
+                button.IsEnabled = true;
+
+                // 使用 Click 事件替代 Command
+                button.Click += (s, e) =>
+                {
+                    System.Diagnostics.Debug.WriteLine($"课时按钮被点击: {periodValue}");
+                    if (ViewModel?.SelectPeriodCommand != null)
                     {
-                        if (btn == button)
-                        {
-                            SetPeriodButtonActive(btn);
-                        }
-                        else
-                        {
-                            SetPeriodButtonInactive(btn);
-                        }
+                        ViewModel.SelectPeriodCommand.Execute(periodValue);
                     }
-                }
+                };
 
-                DisplayClassroomsByPeriod();
+                PeriodFilterButtons.Children.Add(button);
             }
         }
 
-        /// <summary>
-        /// Set period button active state
-        /// </summary>
-        private static void SetPeriodButtonActive(Button button)
-        {
-            button.Background = new SolidColorBrush(Color.FromRgb(255, 107, 53));
-            button.BorderBrush = new SolidColorBrush(Color.FromRgb(255, 107, 53));
-            (button.Content as TextBlock)!.Foreground = Brushes.White;
-        }
-
-        /// <summary>
-        /// Set period button inactive state
-        /// </summary>
-        private void SetPeriodButtonInactive(Button button)
-        {
-            button.Background = Brushes.White;
-            button.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 224, 224));
-            (button.Content as TextBlock)!.Foreground = new SolidColorBrush(Color.FromRgb(51, 51, 51));
-        }
-
-        /// <summary>
-        /// Display classrooms by period
-        /// </summary>
-        private void DisplayClassroomsByPeriod()
+        private void UpdateClassroomList()
         {
             ClassroomByPeriodPanel.Children.Clear();
 
-            var filteredClassrooms = _selectedPeriod == null
-                ? _classrooms
-                : _classrooms.Where(c => c.Period == _selectedPeriod).ToList();
-
-            var groupedByPeriod = filteredClassrooms
-                .GroupBy(c => c.Period)
-                .OrderBy(g => int.TryParse(g.Key, out var n) ? n : 999);
-
-            int totalCount = 0;
-
-            foreach (var periodGroup in groupedByPeriod)
+            if (ViewModel?.PeriodGroups == null || ViewModel.PeriodGroups.Count == 0)
             {
-                var periodRow = CreatePeriodRow(periodGroup.Key, periodGroup.ToList());
-                ClassroomByPeriodPanel.Children.Add(periodRow);
-                totalCount += periodGroup.Count();
-            }
-
-            ResultCountText.Text = _selectedPeriod == null
-                ? $"Total {totalCount} spare time slots"
-                : $"Period {_selectedPeriod}: {totalCount} classrooms";
-        }
-
-        /// <summary>
-        /// Create period row
-        /// </summary>
-        private Border CreatePeriodRow(string period, List<SpareClassroom> classrooms)
-        {
-            var border = new Border
-            {
-                Style = Resources["PeriodRowStyle"] as Style,
-                Background = Brushes.White
-            };
-
-            var mainStack = new StackPanel();
-
-            var headerGrid = new Grid();
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-            var periodBadge = new Border
-            {
-                Background = new SolidColorBrush(Color.FromRgb(255, 107, 53)),
-                CornerRadius = new CornerRadius(6),
-                Padding = new Thickness(12, 6, 12, 6),
-                Margin = new Thickness(0, 0, 12, 0)
-            };
-
-            string periodDisplay = GetPeriodDisplayText(period);
-            var periodText = new TextBlock
-            {
-                Text = periodDisplay,
-                FontSize = 14,
-                FontWeight = FontWeights.SemiBold,
-                Foreground = Brushes.White
-            };
-            periodBadge.Child = periodText;
-            Grid.SetColumn(periodBadge, 0);
-
-            var separator = new Border
-            {
-                Background = new SolidColorBrush(Color.FromRgb(240, 240, 240)),
-                Height = 1,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            Grid.SetColumn(separator, 1);
-
-            var countText = new TextBlock
-            {
-                Text = $"{classrooms.Count} spare classrooms",
-                FontSize = 13,
-                Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141)),
-                Margin = new Thickness(12, 0, 0, 0),
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            Grid.SetColumn(countText, 2);
-
-            headerGrid.Children.Add(periodBadge);
-            headerGrid.Children.Add(separator);
-            headerGrid.Children.Add(countText);
-
-            mainStack.Children.Add(headerGrid);
-
-            var classroomGrid = new UniformGrid
-            {
-                Columns = 4,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                Margin = new Thickness(0, 12, 0, 0)
-            };
-
-            var byBuilding = classrooms
-                .GroupBy(c => c.BuildingName)
-                .OrderBy(g => g.Key);
-
-            foreach (var buildingGroup in byBuilding)
-            {
-                foreach (var classroom in buildingGroup.OrderBy(c => c.ClassroomName))
+                var emptyBorder = new Border
                 {
-                    var classroomTag = CreateClassroomTag(classroom);
-                    classroomGrid.Children.Add(classroomTag);
-                }
-            }
+                    Style = (Style)FindResource("PeriodRowStyle"),
+                    Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF8F0")!)
+                };
 
-            mainStack.Children.Add(classroomGrid);
-            border.Child = mainStack;
-
-            return border;
-        }
-
-        /// <summary>
-        /// Create classroom tag
-        /// </summary>
-        private static Border CreateClassroomTag(SpareClassroom classroom)
-        {
-            var border = new Border
-            {
-                Background = new SolidColorBrush(Color.FromRgb(232, 245, 233)),
-                CornerRadius = new CornerRadius(6),
-                Padding = new Thickness(8, 6, 8, 6),
-                Margin = new Thickness(4),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(200, 230, 201)),
-                BorderThickness = new Thickness(1),
-                HorizontalAlignment = HorizontalAlignment.Stretch
-            };
-
-            var tooltip = new ToolTip
-            {
-                Content = $"{classroom.BuildingName}\n{classroom.ClassroomName}"
-            };
-            border.ToolTip = tooltip;
-
-            var text = new TextBlock
-            {
-                Text = classroom.ClassroomName,
-                FontSize = 12,
-                FontWeight = FontWeights.Medium,
-                Foreground = new SolidColorBrush(Color.FromRgb(45, 90, 61)),
-                TextAlignment = TextAlignment.Center,
-                TextTrimming = TextTrimming.CharacterEllipsis,
-                TextWrapping = TextWrapping.NoWrap
-            };
-
-            border.Child = text;
-            return border;
-        }
-
-        /// <summary>
-        /// Get period display text
-        /// </summary>
-        private string GetPeriodDisplayText(string period)
-        {
-            if (!int.TryParse(period, out int periodNumber))
-                return $"Period {period}";
-
-            if (!string.IsNullOrEmpty(_currentBuildingName))
-            {
-                return ClassTime.GetPeriodDisplayText(_currentBuildingName, periodNumber);
-            }
-
-            return ClassTime.GetPeriodDisplayText(periodNumber);
-        }
-
-        /// <summary>
-        /// Show empty state
-        /// </summary>
-        private void ShowEmptyState()
-        {
-            ClassroomByPeriodPanel.Children.Clear();
-            ResultCountText.Text = "";
-
-            var emptyBorder = new Border
-            {
-                Style = Resources["PeriodRowStyle"] as Style,
-                Background = new SolidColorBrush(Color.FromRgb(249, 249, 249))
-            };
-
-            var stackPanel = new StackPanel();
-
-            var icon = new TextBlock
-            {
-                Text = "🔍",
-                FontSize = 32,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, 0, 0, 10)
-            };
-
-            var text = new TextBlock
-            {
-                Text = "No spare classrooms",
-                FontSize = 14,
-                Foreground = new SolidColorBrush(Color.FromRgb(136, 136, 136)),
-                TextAlignment = TextAlignment.Center
-            };
-
-            stackPanel.Children.Add(icon);
-            stackPanel.Children.Add(text);
-
-            emptyBorder.Child = stackPanel;
-            ClassroomByPeriodPanel.Children.Add(emptyBorder);
-        }
-
-        /// <summary>
-        /// Update campus button states
-        /// </summary>
-        private void UpdateCampusButtonStates(Button activeButton)
-        {
-            ResetButtonStyle(EastCampusButton);
-            ResetButtonStyle(WestCampusButton);
-            SetActiveButtonStyle(activeButton);
-        }
-
-        /// <summary>
-        /// Update building button states
-        /// </summary>
-        private void UpdateBuildingButtonStates(Button activeButton)
-        {
-            foreach (var child in BuildingButtonsPanel.Children)
-            {
-                if (child is Button button)
+                var stackPanel = new StackPanel
                 {
-                    ResetButtonStyle(button);
-                }
-            }
-            SetActiveButtonStyle(activeButton);
-        }
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
 
-        /// <summary>
-        /// Reset button style
-        /// </summary>
-        private static void ResetButtonStyle(Button button)
-        {
-            button.Background = new SolidColorBrush(Color.FromRgb(232, 245, 233));
-            button.Foreground = new SolidColorBrush(Color.FromRgb(45, 90, 61));
-        }
-
-        /// <summary>
-        /// Set active button style
-        /// </summary>
-        private static void SetActiveButtonStyle(Button button)
-        {
-            button.Background = new SolidColorBrush(Color.FromRgb(45, 90, 61));
-            button.Foreground = Brushes.White;
-        }
-
-        /// <summary>
-        /// Show status message
-        /// </summary>
-        private void ShowStatus(string message)
-        {
-            StatusText.Text = message;
-        }
-
-        /// <summary>
-        /// Set loading state
-        /// </summary>
-        private void SetLoadingState(bool isLoading)
-        {
-            EastCampusButton.IsEnabled = !isLoading;
-            WestCampusButton.IsEnabled = !isLoading;
-
-            foreach (var child in BuildingButtonsPanel.Children)
-            {
-                if (child is Button button)
+                var path = new Path
                 {
-                    button.IsEnabled = !isLoading;
-                }
+                    Width = 32,
+                    Height = 32,
+                    Data = (Geometry)FindResource("RoomIcon"),
+                    Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7F8C8D")!),
+                    Stretch = Stretch.Uniform,
+                    Margin = new Thickness(0, 0, 0, 10),
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+
+                var text = new TextBlock
+                {
+                    Text = "请选择教学楼查询",
+                    FontSize = 12,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7F8C8D")!),
+                    TextAlignment = TextAlignment.Center,
+                    TextWrapping = TextWrapping.Wrap
+                };
+
+                stackPanel.Children.Add(path);
+                stackPanel.Children.Add(text);
+                emptyBorder.Child = stackPanel;
+                ClassroomByPeriodPanel.Children.Add(emptyBorder);
+                return;
             }
+
+            var filteredGroups = ViewModel.PeriodGroups;
+
+            if (!string.IsNullOrEmpty(ViewModel.SelectedPeriod))
+            {
+                filteredGroups = new System.Collections.ObjectModel.ObservableCollection<PeriodGroup>(
+                    ViewModel.PeriodGroups.Where(g => g.Period == ViewModel.SelectedPeriod));
+            }
+
+            foreach (var group in filteredGroups)
+            {
+                var groupBorder = new Border
+                {
+                    Style = (Style)FindResource("PeriodRowStyle")
+                };
+
+                var groupStack = new StackPanel();
+
+                var headerBorder = new Border
+                {
+                    Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E8F5E9")!),
+                    CornerRadius = new CornerRadius(4),
+                    Padding = new Thickness(6, 3, 6, 3),
+                    Margin = new Thickness(0, 0, 0, 10),
+                    HorizontalAlignment = HorizontalAlignment.Left
+                };
+
+                headerBorder.Child = new TextBlock
+                {
+                    Text = group.DisplayText,
+                    FontSize = 12,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2E7D32")!)
+                };
+
+                groupStack.Children.Add(headerBorder);
+
+                if (group.Classrooms.Count == 0)
+                {
+                    groupStack.Children.Add(new TextBlock
+                    {
+                        Text = "该时段无空教室",
+                        FontSize = 11,
+                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7F8C8D")!),
+                        Margin = new Thickness(0, 5, 0, 0)
+                    });
+                }
+                else
+                {
+                    var wrapPanel = new WrapPanel();
+
+                    foreach (var classroom in group.Classrooms)
+                    {
+                        var classroomBorder = new Border
+                        {
+                            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FAFAFA")!),
+                            CornerRadius = new CornerRadius(4),
+                            Padding = new Thickness(8, 6, 8, 6),
+                            Margin = new Thickness(0, 0, 8, 8),
+                            BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0")!),
+                            BorderThickness = new Thickness(1)
+                        };
+
+                        var classroomStack = new StackPanel
+                        {
+                            Orientation = Orientation.Horizontal
+                        };
+
+                        var icon = new Path
+                        {
+                            Width = 12,
+                            Height = 12,
+                            Data = (Geometry)FindResource("RoomIcon"),
+                            Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF6B35")!),
+                            Stretch = Stretch.Uniform,
+                            Margin = new Thickness(0, 0, 6, 0),
+                            VerticalAlignment = VerticalAlignment.Center
+                        };
+
+                        var nameText = new TextBlock
+                        {
+                            Text = classroom.ClassroomName,
+                            FontSize = 11,
+                            Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2C3E50")!),
+                            VerticalAlignment = VerticalAlignment.Center
+                        };
+
+                        classroomStack.Children.Add(icon);
+                        classroomStack.Children.Add(nameText);
+                        classroomBorder.Child = classroomStack;
+                        wrapPanel.Children.Add(classroomBorder);
+                    }
+
+                    groupStack.Children.Add(wrapPanel);
+                }
+
+                groupBorder.Child = groupStack;
+                ClassroomByPeriodPanel.Children.Add(groupBorder);
+            }
+
+            ResultCountText.Text = ViewModel?.ResultCountText ?? "";
         }
     }
 }

@@ -49,7 +49,7 @@
                             <!-- 余额 -->
                             <StackPanel Margin="0,0,0,18">
                                 <TextBlock Text="当前余额" Style="{StaticResource InfoLabelStyle}"/>
-                                <TextBlock x:Name="BalanceText" Text="--" 
+                                <TextBlock Text="{Binding Balance, FallbackValue=--}" 
                                           Style="{StaticResource InfoValueStyle}" 
                                           FontSize="28" Foreground="#27AE60"/>
                             </StackPanel>
@@ -57,7 +57,7 @@
                             <!-- 上次消费时间 -->
                             <StackPanel>
                                 <TextBlock Text="上次消费时间" Style="{StaticResource InfoLabelStyle}"/>
-                                <TextBlock x:Name="LastConsumeText" Text="--" 
+                                <TextBlock Text="{Binding LastConsumeTime, FallbackValue=--}" 
                                           Style="{StaticResource InfoValueStyle}" 
                                           FontSize="14" Foreground="#7F8C8D"/>
                             </StackPanel>
@@ -67,10 +67,10 @@
 
                 <!-- 操作按钮 -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-                    <Button x:Name="RefreshButton" 
+                    <Button Command="{Binding RefreshCommand}"
+                            IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
                             Style="{StaticResource PrimaryButtonStyle}"
-                            Padding="20,10" FontSize="13"
-                            Click="OnRefreshClick">
+                            Padding="20,10" FontSize="13">
                         <Button.Content>
                             <StackPanel Orientation="Horizontal">
                                 <Path Width="14" Height="14" Data="{StaticResource RefreshIcon}"
@@ -81,7 +81,7 @@
                         </Button.Content>
                     </Button>
 
-                    <TextBlock x:Name="StatusText" Text="" 
+                    <TextBlock Text="{Binding StatusMessage}" 
                               FontSize="12" Foreground="#7F8C8D" 
                               VerticalAlignment="Center" Margin="12,0,0,0"/>
                 </StackPanel>

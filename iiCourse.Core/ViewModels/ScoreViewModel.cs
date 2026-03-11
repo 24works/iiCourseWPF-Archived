@@ -27,6 +27,10 @@ namespace iiCourse.Core.ViewModels
         private readonly iiCoreService _coreService;
 
         private ObservableCollection<ScoreItem> _scores = new();
+        private ObservableCollection<SchoolYearOption> _schoolYears = new();
+        private string _selectedSchoolYear = string.Empty;
+        private string _selectedSemester = string.Empty;
+        private bool _isCustomQueryMode;
         private bool _isLoading;
         private string _statusMessage = string.Empty;
         private bool _hasData;
@@ -34,7 +38,8 @@ namespace iiCourse.Core.ViewModels
         public ScoreViewModel(iiCoreService coreService)
         {
             _coreService = coreService;
-            RefreshCommand = new RelayCommand(async _ => await LoadScoresAsync(), _ => !IsLoading);
+            RefreshCommand = new RelayCommand(async _ => await RefreshScoresAsync(), _ => !IsLoading);
+            QueryCommand = new RelayCommand(async _ => await QueryCustomScoresAsync(), _ => CanQuery);
         }
 
         #region 属性
@@ -45,6 +50,42 @@ namespace iiCourse.Core.ViewModels
             set => SetProperty(ref _scores, value);
         }
 
+        public ObservableCollection<SchoolYearOption> SchoolYears
+        {
+            get => _schoolYears;
+            set => SetProperty(ref _schoolYears, value);
+        }
+
+        public string SelectedSchoolYear
+        {
+            get => _selectedSchoolYear;
+            set
+            {
+                if (SetProperty(ref _selectedSchoolYear, value))
+                {
+                    (QueryCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        public string SelectedSemester
+        {
+            get => _selectedSemester;
+            set
+            {
+                if (SetProperty(ref _selectedSemester, value))
+                {
+                    (QueryCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        public bool IsCustomQueryMode
+        {
+            get => _isCustomQueryMode;
+            set => SetProperty(ref _isCustomQueryMode, value);
+        }
+
         public bool IsLoading
         {
             get => _isLoading;
@@ -53,6 +94,7 @@ namespace iiCourse.Core.ViewModels
                 if (SetProperty(ref _isLoading, value))
                 {
                     (RefreshCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                    (QueryCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -69,18 +111,88 @@ namespace iiCourse.Core.ViewModels
             set => SetProperty(ref _hasData, value);
         }
 
+        public bool CanQuery => !IsLoading &&
+                                !string.IsNullOrEmpty(SelectedSchoolYear) &&
+                                !string.IsNullOrEmpty(SelectedSemester);
+
         #endregion
 
         #region 命令
 
         public ICommand RefreshCommand { get; }
+        public ICommand QueryCommand { get; }
 
         #endregion
 
         #region 方法
 
         /// <summary>
-        /// 加载成绩数据
+        /// 加载学年列表（从服务层缓存或API获取）
+        /// </summary>
+        public async Task LoadSchoolYearsAsync()
+        {
+            try
+            {
+                // 先尝试从缓存获取
+                var cachedYears = _coreService.GetCachedSchoolYears();
+                if (cachedYears.Count > 0)
+                {
+                    // 有缓存，直接使用
+                    var options = new ObservableCollection<SchoolYearOption>
+                    {
+                        new() { DisplayName = "请选择", Value = "" }
+                    };
+                    foreach (var year in cachedYears)
+                    {
+                        options.Add(new SchoolYearOption
+                        {
+                            DisplayName = year.SCHOOL_YEAR,
+                            Value = year.SCHOOL_YEAR
+                        });
+                    }
+                    SchoolYears = options;
+                    return;
+                }
+
+                // 没有缓存，从API加载
+                var years = await _coreService.GetSchoolYearsAsync();
+                var newOptions = new ObservableCollection<SchoolYearOption>
+                {
+                    new() { DisplayName = "请选择", Value = "" }
+                };
+                foreach (var year in years)
+                {
+                    newOptions.Add(new SchoolYearOption
+                    {
+                        DisplayName = year.SCHOOL_YEAR,
+                        Value = year.SCHOOL_YEAR
+                    });
+                }
+                SchoolYears = newOptions;
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"加载学年列表失败: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// 刷新成绩（根据当前模式决定是加载默认还是自定义查询）
+        /// </summary>
+        private async Task RefreshScoresAsync()
+        {
+            if (IsCustomQueryMode)
+            {
+                await QueryCustomScoresAsync();
+            }
+            else
+            {
+                await LoadScoresAsync();
+            }
+        }
+
+        /// <summary>
+        /// 加载成绩数据（默认当前学期）
         /// </summary>
         public async Task LoadScoresAsync()
         {
@@ -89,6 +201,7 @@ namespace iiCourse.Core.ViewModels
             try
             {
                 IsLoading = true;
+                IsCustomQueryMode = false;
                 StatusMessage = "正在加载成绩...";
                 HasData = false;
 
@@ -110,6 +223,45 @@ namespace iiCourse.Core.ViewModels
             {
                 Scores.Clear();
                 StatusMessage = $"加载成绩失败: {ex.Message}";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        /// <summary>
+        /// 自定义查询成绩
+        /// </summary>
+        private async Task QueryCustomScoresAsync()
+        {
+            if (IsLoading || !CanQuery) return;
+
+            try
+            {
+                IsLoading = true;
+                IsCustomQueryMode = true;
+                StatusMessage = $"正在查询 {SelectedSchoolYear} 学年第 {SelectedSemester} 学期成绩...";
+                HasData = false;
+
+                var scoreData = await _coreService.GetExamScoreByParamsAsync(SelectedSchoolYear, SelectedSemester);
+
+                if (!string.IsNullOrEmpty(scoreData))
+                {
+                    ParseAndDisplayScores(scoreData);
+                    StatusMessage = $"{SelectedSchoolYear} 学年第 {SelectedSemester} 学期：共 {Scores.Count} 门课程成绩";
+                    HasData = Scores.Count > 0;
+                }
+                else
+                {
+                    Scores.Clear();
+                    StatusMessage = "暂无成绩数据";
+                }
+            }
+            catch (Exception ex)
+            {
+                Scores.Clear();
+                StatusMessage = $"查询成绩失败: {ex.Message}";
             }
             finally
             {

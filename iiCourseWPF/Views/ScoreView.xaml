@@ -25,6 +25,145 @@
         <Style x:Key="AlternateRowStyle" TargetType="Border" BasedOn="{StaticResource RowStyle}">
             <Setter Property="Background" Value="#FAFAFA"/>
         </Style>
+
+        <!-- 下拉框样式 - 与课程表统一 -->
+        <Style x:Key="ScoreComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FFE8D6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <!-- 主边框 -->
+                            <Border x:Name="Border" 
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="30"/>
+                                    </Grid.ColumnDefinitions>
+                                    <!-- 内容显示 -->
+                                    <ContentPresenter x:Name="ContentSite"
+                                                      Grid.Column="0"
+                                                      Content="{TemplateBinding SelectionBoxItem}"
+                                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                      ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                                      Margin="{TemplateBinding Padding}"
+                                                      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Left"
+                                                      IsHitTestVisible="False"/>
+                                    <!-- 箭头图标 -->
+                                    <Path x:Name="Arrow"
+                                          Grid.Column="1"
+                                          Data="M0,0 L4,4 L8,0"
+                                          Stroke="#FF6B35"
+                                          StrokeThickness="2"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            
+                            <!-- 透明ToggleButton覆盖整个区域，点击任意位置触发下拉 -->
+                            <ToggleButton x:Name="ToggleButton"
+                                          Focusable="False"
+                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          ClickMode="Press"
+                                          Background="Transparent"
+                                          BorderThickness="0">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="Border" Background="Transparent"/>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            
+                            <!-- 下拉框Popup -->
+                            <Popup x:Name="Popup"
+                                   Placement="Bottom"
+                                   IsOpen="{Binding Path=IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Slide">
+                                <Grid x:Name="DropDown"
+                                      SnapsToDevicePixels="True"
+                                      MinWidth="{Binding ActualWidth, ElementName=Border}">
+                                    <Border x:Name="DropDownBorder"
+                                            Background="White"
+                                            BorderBrush="#FFE8D6"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Margin="0,4,0,0">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="#FF6B35" Opacity="0.15" BlurRadius="12" ShadowDepth="2"/>
+                                        </Border.Effect>
+                                        <ScrollViewer x:Name="DropDownScrollViewer"
+                                                      MaxHeight="200"
+                                                      VerticalScrollBarVisibility="Auto"
+                                                      HorizontalScrollBarVisibility="Disabled">
+                                            <ItemsPresenter x:Name="ItemsPresenter"
+                                                            KeyboardNavigation.DirectionalNavigation="Contained"
+                                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#FF6B35"/>
+                                <Setter TargetName="Border" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="#FF6B35" Opacity="0.1" BlurRadius="8" ShadowDepth="0"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsDropDownOpen" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#FF6B35"/>
+                                <Setter TargetName="Arrow" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="180" CenterX="4" CenterY="2"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ComboBoxItem样式 - 与课程表统一 -->
+        <Style x:Key="ScoreComboBoxItemStyle" TargetType="ComboBoxItem">
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Border" 
+                                Background="Transparent"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#FFF5EB"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#FFE8D6"/>
+                                <Setter Property="Foreground" Value="#FF6B35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <Grid Background="{StaticResource BackgroundColor}">
@@ -40,8 +179,61 @@
                     </StackPanel>
                 </Border>
 
-                <!-- 成绩列表 -->
+                <!-- 自定义查询区域 -->
                 <Border Style="{StaticResource CardBorderStyle}" Margin="20,20,20,0">
+                    <StackPanel>
+                        <TextBlock Text="自定义查询" FontSize="14" FontWeight="SemiBold" 
+                                  Foreground="#2C3E50" Margin="0,0,0,12"/>
+                        
+                        <StackPanel Orientation="Horizontal">
+                            <!-- 学年选择 -->
+                            <StackPanel Margin="0,0,16,0">
+                                <TextBlock Text="学年" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="SchoolYearComboBox"
+                                          Style="{StaticResource ScoreComboBoxStyle}"
+                                          ItemContainerStyle="{StaticResource ScoreComboBoxItemStyle}"
+                                          Width="140"
+                                          ItemsSource="{Binding SchoolYears}"
+                                          DisplayMemberPath="DisplayName"
+                                          SelectedValuePath="Value"
+                                          SelectedValue="{Binding SelectedSchoolYear}"/>
+                            </StackPanel>
+
+                            <!-- 学期选择 -->
+                            <StackPanel Margin="0,0,16,0">
+                                <TextBlock Text="学期" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="SemesterComboBox"
+                                          Style="{StaticResource ScoreComboBoxStyle}"
+                                          ItemContainerStyle="{StaticResource ScoreComboBoxItemStyle}"
+                                          Width="100"
+                                          SelectedValuePath="Tag"
+                                          SelectedValue="{Binding SelectedSemester}">
+                                    <ComboBoxItem Content="请选择" Tag="" Style="{StaticResource ScoreComboBoxItemStyle}"/>
+                                    <ComboBoxItem Content="第一学期" Tag="1" Style="{StaticResource ScoreComboBoxItemStyle}"/>
+                                    <ComboBoxItem Content="第二学期" Tag="2" Style="{StaticResource ScoreComboBoxItemStyle}"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- 查询按钮 -->
+                            <Button Command="{Binding QueryCommand}"
+                                    IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Padding="20,0" Height="36" Margin="0,18,0,0">
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Width="14" Height="14" Data="{StaticResource SearchIcon}"
+                                              Fill="White" Stretch="Uniform" Margin="0,0,6,0"
+                                              VerticalAlignment="Center"/>
+                                        <TextBlock Text="查询" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 成绩列表 -->
+                <Border Style="{StaticResource CardBorderStyle}" Margin="20,16,20,0">
                     <Grid Margin="0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -101,16 +293,6 @@
                                     </Border>
 
                                     <!-- 成绩数据将在这里动态生成 -->
-                                    <Border Style="{StaticResource RowStyle}">
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Path Width="18" Height="18" Data="{StaticResource InfoIcon}"
-                                                  Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,8,0"
-                                                  VerticalAlignment="Center"/>
-                                            <TextBlock Text="点击刷新按钮加载成绩数据" 
-                                                      FontSize="12" Foreground="#7F8C8D" 
-                                                      TextAlignment="Center" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Border>
                                 </StackPanel>
                             </ScrollViewer>
                         </Border>

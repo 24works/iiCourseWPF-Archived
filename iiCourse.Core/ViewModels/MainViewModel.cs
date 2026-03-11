@@ -142,6 +142,7 @@ namespace iiCourse.Core.ViewModels
                         break;
 
                     case "Score":
+                        await ScoreViewModel.LoadSchoolYearsAsync();
                         await ScoreViewModel.LoadScoresAsync();
                         break;
 

@@ -15,6 +15,8 @@ namespace iiCourse.Core.ViewModels
 
         private bool _isLoggedIn;
         private string? _currentUsername;
+        private string? _currentName;
+        private string? _currentStudentId;
         private string _currentView = "Login";
         private string _statusMessage = string.Empty;
         private bool _isLoading;
@@ -62,6 +64,18 @@ namespace iiCourse.Core.ViewModels
         {
             get => _currentUsername;
             private set => SetProperty(ref _currentUsername, value);
+        }
+
+        public string? CurrentName
+        {
+            get => _currentName;
+            private set => SetProperty(ref _currentName, value);
+        }
+
+        public string? CurrentStudentId
+        {
+            get => _currentStudentId;
+            private set => SetProperty(ref _currentStudentId, value);
         }
 
         public string CurrentView
@@ -168,8 +182,18 @@ namespace iiCourse.Core.ViewModels
 
                 // 加载用户信息
                 UserInfoViewModel.Username = username;
-                _ = UserInfoViewModel.LoadUserInfoAsync();
+                _ = LoadUserInfoAfterLoginAsync();
             }
+        }
+
+        /// <summary>
+        /// 登录后加载用户信息并更新姓名和学号
+        /// </summary>
+        private async Task LoadUserInfoAfterLoginAsync()
+        {
+            await UserInfoViewModel.LoadUserInfoAsync();
+            CurrentName = UserInfoViewModel.Name;
+            CurrentStudentId = UserInfoViewModel.StudentId;
         }
 
         /// <summary>

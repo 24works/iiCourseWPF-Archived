@@ -52,19 +52,21 @@ namespace iiCourseWPF.Controls
         /// <summary>
         /// 更新登录状态显示
         /// </summary>
-        public void UpdateLoginStatus(bool isLoggedIn, string userName = "")
+        public void UpdateLoginStatus(bool isLoggedIn, string name = "", string studentId = "")
         {
             if (isLoggedIn)
             {
                 StatusText.Text = "已登录";
                 StatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
-                UserNameText.Text = userName;
+                UserNameText.Text = name;
+                StudentIdText.Text = studentId;
             }
             else
             {
                 StatusText.Text = "未登录";
                 StatusText.Foreground = System.Windows.Media.Brushes.Gray;
                 UserNameText.Text = "";
+                StudentIdText.Text = "";
             }
         }
 

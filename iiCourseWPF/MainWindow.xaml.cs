@@ -55,9 +55,14 @@ namespace iiCourseWPF
                     {
                         _ = OnCurrentViewChanged(_viewModel.CurrentView);
                     }
-                    if (e.PropertyName == nameof(MainViewModel.IsLoggedIn))
+                    if (e.PropertyName == nameof(MainViewModel.IsLoggedIn) ||
+                        e.PropertyName == nameof(MainViewModel.CurrentName) ||
+                        e.PropertyName == nameof(MainViewModel.CurrentStudentId))
                     {
-                        Sidebar.UpdateLoginStatus(_viewModel.IsLoggedIn, _viewModel.CurrentUsername ?? "");
+                        Sidebar.UpdateLoginStatus(
+                            _viewModel.IsLoggedIn,
+                            _viewModel.CurrentName ?? "",
+                            _viewModel.CurrentStudentId ?? "");
                     }
                 };
             }

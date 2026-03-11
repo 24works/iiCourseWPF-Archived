@@ -199,19 +199,28 @@
             <!-- 底部状态 -->
             <Border Grid.Row="2" Background="#F5F5F5" Padding="16,14" 
                     BorderBrush="#EEEEEE" BorderThickness="0,1,0,0">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Path Width="12" Height="12" Data="{StaticResource UserIcon}" 
-                              Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,6,0"
-                              VerticalAlignment="Center"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- 用户图标 -->
+                    <Path Grid.Column="0" Width="14" Height="14" Data="{StaticResource UserIcon}" 
+                          Fill="#7F8C8D" Stretch="Uniform" Margin="0,0,8,0"
+                          VerticalAlignment="Center"/>
+                    <!-- 用户信息文本 -->
+                    <StackPanel Grid.Column="1">
                         <TextBlock x:Name="StatusText" Text="未登录" 
                                   FontSize="11" Foreground="#7F8C8D" 
                                   TextWrapping="Wrap" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="UserNameText" Text="" 
+                                  FontSize="10" Foreground="#95A5A6" 
+                                  Margin="0,3,0,0"/>
+                        <TextBlock x:Name="StudentIdText" Text="" 
+                                  FontSize="10" Foreground="#95A5A6" 
+                                  Margin="0,1,0,0"/>
                     </StackPanel>
-                    <TextBlock x:Name="UserNameText" Text="" 
-                              FontSize="10" Foreground="#95A5A6" 
-                              Margin="18,4,0,0"/>
-                </StackPanel>
+                </Grid>
             </Border>
         </Grid>
     </Border>

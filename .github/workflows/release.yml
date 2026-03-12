@@ -179,6 +179,7 @@ jobs:
       # 上传未签名文件供 SignPath 使用
       - name: 上传未签名文件
         if: env.ENABLE_SIGNPATH == 'true' && env.ENABLE_LOCAL_SIGNING != 'true'
+        id: upload-unsigned-artifact
         uses: actions/upload-artifact@v4
         with:
           name: unsigned-artifact
@@ -195,7 +196,7 @@ jobs:
           project-slug: 'iiCourseWPF'
           signing-policy-slug: 'ReleaseSigning'
           artifact-configuration-slug: '${{ secrets.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG }}'
-          github-artifact-name: 'unsigned-artifact'
+          github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
           wait-for-completion: true
           output-artifact-directory: './publish/signed'
 

@@ -1,6 +1,6 @@
 # GitHub Actions Release Workflow for iiCourseWPF
 # 触发方式: 推送标签 v* 或手动触发
-# 任务拆分: build → sign → release → checksum
+# 任务拆分: build → release → checksum
 
 name: Release iiCourseWPF
 
@@ -124,6 +124,48 @@ jobs:
             --output ./publish/x64-framework `
             -p:PublishSingleFile=true
 
+      # 发布自包含应用 (x86)
+      - name: 发布应用 (x86 自包含)
+        run: |
+          dotnet publish ${{ env.MAIN_PROJECT }} `
+            --configuration Release `
+            --runtime win-x86 `
+            --self-contained true `
+            --output ./publish/x86 `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true
+
+      # 发布框架依赖应用 (x86)
+      - name: 发布应用 (x86 框架依赖)
+        run: |
+          dotnet publish ${{ env.MAIN_PROJECT }} `
+            --configuration Release `
+            --runtime win-x86 `
+            --self-contained false `
+            --output ./publish/x86-framework `
+            -p:PublishSingleFile=true
+
+      # 发布自包含应用 (ARM64)
+      - name: 发布应用 (ARM64 自包含)
+        run: |
+          dotnet publish ${{ env.MAIN_PROJECT }} `
+            --configuration Release `
+            --runtime win-arm64 `
+            --self-contained true `
+            --output ./publish/arm64 `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true
+
+      # 发布框架依赖应用 (ARM64)
+      - name: 发布应用 (ARM64 框架依赖)
+        run: |
+          dotnet publish ${{ env.MAIN_PROJECT }} `
+            --configuration Release `
+            --runtime win-arm64 `
+            --self-contained false `
+            --output ./publish/arm64-framework `
+            -p:PublishSingleFile=true
+
       # 发布纯框架依赖应用
       - name: 发布应用 (纯框架依赖)
         run: |
@@ -132,125 +174,25 @@ jobs:
             --self-contained false `
             --output ./publish/dotnet9-required
 
-      # 上传未签名构建产物
-      - name: 上传构建产物 (未签名)
+      # 上传构建产物
+      - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: unsigned-build
+          name: build-artifacts
           path: ./publish/
           retention-days: 1
 
-  # ========== Job 2: 签名 ==========
-  sign:
+  # ========== Job 2: 打包和发布 ==========
+  release:
     needs: build
     runs-on: windows-latest
-    # 只有在有签名配置时才运行
-    if: ${{ secrets.CERTIFICATE_BASE64 != '' || secrets.SIGNPATH_API_TOKEN != '' }}
 
     steps:
-      # 下载未签名构建产物
+      # 下载构建产物
       - name: 下载构建产物
         uses: actions/download-artifact@v4
         with:
-          name: unsigned-build
-          path: ./publish/
-
-      # 代码签名 - 方式1: 使用本地证书
-      - name: 代码签名 (本地证书)
-        if: ${{ secrets.CERTIFICATE_BASE64 != '' }}
-        shell: pwsh
-        run: |
-          $certBytes = [Convert]::FromBase64String('${{ secrets.CERTIFICATE_BASE64 }}')
-          $certPath = "$env:TEMP\signing-cert.pfx"
-          [IO.File]::WriteAllBytes($certPath, $certBytes)
-          
-          $executables = Get-ChildItem -Path ./publish -Recurse -Include "*.exe" -ErrorAction SilentlyContinue
-          foreach ($exe in $executables) {
-            Write-Host "正在签名: $($exe.FullName)"
-            & signtool.exe sign `
-              /f "$certPath" `
-              /p '${{ secrets.CERTIFICATE_PASSWORD }}' `
-              /tr "http://timestamp.digicert.com" `
-              /td sha256 `
-              /fd sha256 `
-              "$($exe.FullName)"
-            if ($LASTEXITCODE -ne 0) {
-              Write-Warning "签名失败: $($exe.FullName)"
-            }
-          }
-          
-          Remove-Item $certPath -Force -ErrorAction SilentlyContinue
-          Write-Host "本地证书签名完成"
-
-      # 代码签名 - 方式2: 使用 SignPath
-      - name: 代码签名 (SignPath)
-        if: ${{ secrets.SIGNPATH_API_TOKEN != '' && secrets.CERTIFICATE_BASE64 == '' }}
-        shell: pwsh
-        run: |
-          # 打包待签名文件
-          Compress-Archive -Path ./publish/x64/iiCourseWPF.exe -DestinationPath "./unsigned-artifact.zip" -Force
-
-      - name: 上传未签名文件到 SignPath
-        if: ${{ secrets.SIGNPATH_API_TOKEN != '' && secrets.CERTIFICATE_BASE64 == '' }}
-        id: upload-unsigned-artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: unsigned-artifact
-          path: ./unsigned-artifact.zip
-          retention-days: 1
-
-      - name: 提交 SignPath 签名请求
-        if: ${{ secrets.SIGNPATH_API_TOKEN != '' && secrets.CERTIFICATE_BASE64 == '' }}
-        uses: signpath/github-action-submit-signing-request@v1
-        with:
-          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
-          organization-id: '401c3aae-8e92-4497-a6fe-2572dd3c7f1f'
-          project-slug: 'iiCourseWPF'
-          signing-policy-slug: 'ReleaseSigning'
-          artifact-configuration-slug: '${{ secrets.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG }}'
-          github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
-          wait-for-completion: true
-          output-artifact-directory: './publish/signed'
-
-      - name: 替换为 SignPath 签名文件
-        if: ${{ secrets.SIGNPATH_API_TOKEN != '' && secrets.CERTIFICATE_BASE64 == '' }}
-        shell: pwsh
-        run: |
-          if (Test-Path './publish/signed/unsigned-artifact.zip') {
-            Expand-Archive -Path './publish/signed/unsigned-artifact.zip' -DestinationPath './publish/signed-extracted' -Force
-            Copy-Item -Path './publish/signed-extracted/iiCourseWPF.exe' -Destination './publish/x64/iiCourseWPF.exe' -Force
-            Write-Host "已替换为 SignPath 签名文件"
-          }
-
-      # 上传签名后的构建产物
-      - name: 上传签名构建产物
-        uses: actions/upload-artifact@v4
-        with:
-          name: signed-build
-          path: ./publish/
-          retention-days: 1
-
-  # ========== Job 3: 打包和发布 ==========
-  release:
-    needs: sign
-    runs-on: windows-latest
-    if: always() && (needs.sign.result == 'success' || needs.sign.result == 'skipped')
-
-    steps:
-      # 下载签名后的构建产物 (如果签名成功)
-      - name: 下载签名构建产物
-        if: needs.sign.result == 'success'
-        uses: actions/download-artifact@v4
-        with:
-          name: signed-build
-          path: ./publish/
-
-      # 下载未签名构建产物 (如果签名被跳过)
-      - name: 下载未签名构建产物
-        if: needs.sign.result == 'skipped'
-        uses: actions/download-artifact@v4
-        with:
-          name: unsigned-build
+          name: build-artifacts
           path: ./publish/
 
       # 获取版本号
@@ -274,6 +216,10 @@ jobs:
           $version = '${{ steps.version.outputs.version }}'
           Compress-Archive -Path ./publish/x64/* -DestinationPath "./iiCourseWPF-v$version-win-x64-self-contained.zip" -Force
           Compress-Archive -Path ./publish/x64-framework/* -DestinationPath "./iiCourseWPF-v$version-win-x64-framework.zip" -Force
+          Compress-Archive -Path ./publish/x86/* -DestinationPath "./iiCourseWPF-v$version-win-x86-self-contained.zip" -Force
+          Compress-Archive -Path ./publish/x86-framework/* -DestinationPath "./iiCourseWPF-v$version-win-x86-framework.zip" -Force
+          Compress-Archive -Path ./publish/arm64/* -DestinationPath "./iiCourseWPF-v$version-win-arm64-self-contained.zip" -Force
+          Compress-Archive -Path ./publish/arm64-framework/* -DestinationPath "./iiCourseWPF-v$version-win-arm64-framework.zip" -Force
           Compress-Archive -Path ./publish/dotnet9-required/* -DestinationPath "./iiCourseWPF-v$version-dotnet9-required.zip" -Force
           Write-Host "打包完成"
 
@@ -285,7 +231,7 @@ jobs:
           path: ./iiCourseWPF-v*.zip
           retention-days: 30
 
-  # ========== Job 4: 创建 GitHub Release ==========
+  # ========== Job 3: 创建 GitHub Release ==========
   create-release:
     needs: release
     runs-on: ubuntu-latest
@@ -322,22 +268,48 @@ jobs:
 
             ### 下载
 
-            | 版本 | 说明 | 文件大小 |
-            |------|------|----------|
-            | 自包含版本 | 无需安装 .NET 9 运行时 | ~50MB |
-            | 框架依赖版本 | 需要安装 .NET 9 运行时 | ~5MB |
-            | 纯框架依赖版本 | 必须安装 .NET 9 运行时，体积最小 | ~200KB |
+            | 版本 | 架构 | 说明 | 文件大小 |
+            |------|------|------|----------|
+            | 自包含版本 (x64) | x64 | 无需安装 .NET 9 运行时 | ~50MB |
+            | 框架依赖版本 (x64) | x64 | 需要安装 .NET 9 运行时 | ~5MB |
+            | 自包含版本 (x86) | x86 | 无需安装 .NET 9 运行时 | ~45MB |
+            | 框架依赖版本 (x86) | x86 | 需要安装 .NET 9 运行时 | ~4MB |
+            | 自包含版本 (ARM64) | ARM64 | 无需安装 .NET 9 运行时 | ~45MB |
+            | 框架依赖版本 (ARM64) | ARM64 | 需要安装 .NET 9 运行时 | ~4MB |
+            | 纯框架依赖版本 | 任意 | 必须安装 .NET 9 运行时，体积最小 | ~200KB |
 
             ### 安装说明
 
-            **自包含版本 (推荐)**
+            **自包含版本 x64 (推荐)**
             1. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-x64-self-contained.zip`
             2. 解压到任意文件夹
             3. 运行 `iiCourseWPF.exe`
 
-            **框架依赖版本**
+            **框架依赖版本 x64**
             1. 先安装 [.NET 9.0 运行时](https://dotnet.microsoft.com/download/dotnet/9.0)
             2. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-x64-framework.zip`
+            3. 解压到任意文件夹
+            4. 运行 `iiCourseWPF.exe`
+
+            **自包含版本 x86**
+            1. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-x86-self-contained.zip`
+            2. 解压到任意文件夹
+            3. 运行 `iiCourseWPF.exe`
+
+            **框架依赖版本 x86**
+            1. 先安装 [.NET 9.0 运行时](https://dotnet.microsoft.com/download/dotnet/9.0)
+            2. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-x86-framework.zip`
+            3. 解压到任意文件夹
+            4. 运行 `iiCourseWPF.exe`
+
+            **自包含版本 ARM64 (Surface Pro X / Copilot+ PC)**
+            1. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-arm64-self-contained.zip`
+            2. 解压到任意文件夹
+            3. 运行 `iiCourseWPF.exe`
+
+            **框架依赖版本 ARM64**
+            1. 先安装 [.NET 9.0 ARM64 运行时](https://dotnet.microsoft.com/download/dotnet/9.0)
+            2. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-arm64-framework.zip`
             3. 解压到任意文件夹
             4. 运行 `iiCourseWPF.exe`
 
@@ -360,7 +332,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ========== Job 5: 生成校验和 ==========
+  # ========== Job 4: 生成校验和 ==========
   checksum:
     needs: create-release
     runs-on: ubuntu-latest

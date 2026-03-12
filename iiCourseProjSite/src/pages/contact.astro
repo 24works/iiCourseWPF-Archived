@@ -1,0 +1,190 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navigation from '../components/Navigation.astro';
+import Footer from '../components/Footer.astro';
+
+const contactMethods = [
+  {
+    id: 'telegram-group',
+    icon: 'mingcute:telegram-line',
+    title: 'Telegram 群组',
+    description: '有问题？群里喊一声',
+    link: 'https://t.me/iicoursecom',
+    linkText: '加入群组',
+    color: 'from-blue-400 to-cyan-400'
+  },
+  {
+    id: 'telegram-channel',
+    icon: 'mingcute:news-line',
+    title: 'Telegram 频道',
+    description: '第一时间获取更新',
+    link: 'https://t.me/iicourse',
+    linkText: '订阅频道',
+    color: 'from-sky-400 to-blue-500'
+  },
+  {
+    id: 'github',
+    icon: 'mingcute:github-line',
+    title: 'GitHub',
+    description: '提 Issue 或贡献代码',
+    link: 'https://github.com/iicemeta/iiCourseWPF',
+    linkText: '访问仓库',
+    color: 'from-gray-600 to-gray-800'
+  },
+  {
+    id: 'qq-group',
+    icon: 'mingcute:qq-line',
+    title: 'QQ 群',
+    description: '加入 iiCourse-草莓果酱',
+    link: 'https://qm.qq.com/q/6zguPCyMcE',
+    linkText: '加入群聊',
+    color: 'from-blue-500 to-indigo-500'
+  }
+];
+
+const faqs = [
+  {
+    question: '应用闪退怎么办？',
+    answer: '先去 Telegram 群组问问，可能是已知问题。记得带上你的系统版本。'
+  },
+  {
+    question: '密码安全吗？',
+    answer: '密码存在你本地，我们服务器都没有，想泄露都没门。'
+  },
+  {
+    question: '支持哪些学校？',
+    answer: '目前只支持山东工商学院。其他学校？等有缘人贡献代码。'
+  },
+  {
+    question: '会收费吗？',
+    answer: '永久免费。但你要是想打赏，我们也不拒绝。'
+  }
+];
+---
+
+<Layout title="联络我们" description="联系 iiCourse 团队 - 问题反馈、功能建议、合作洽谈">
+  <Navigation />
+  
+  <main class="relative z-10 flex-1">
+    <!-- Hero Section -->
+    <section class="pt-32 pb-16 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-orange-400/10 via-pink-400/5 to-purple-400/10"></div>
+      
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div class="text-center">
+          <span class="badge badge-glass mb-4">Get in Touch</span>
+          <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            联络我们
+          </h1>
+          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            有问题？有建议？想聊天？<br>选一个你喜欢的方式
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 联系方式卡片 -->
+    <section class="py-12 pb-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-2 gap-6">
+          {contactMethods.map((method) => (
+            <div class="glass-panel p-8 group hover:scale-[1.02] transition-all duration-300">
+              <div class="flex items-start gap-6">
+                <!-- 图标 -->
+                <div class={`flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br ${method.color} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow`}>
+                  <iconify-icon icon={method.icon} class="text-3xl text-white"></iconify-icon>
+                </div>
+                
+                <!-- 内容 -->
+                <div class="flex-1">
+                  <h3 class="text-xl font-bold text-gray-900 mb-2">
+                    {method.title}
+                  </h3>
+                  <p class="text-gray-600 mb-4">
+                    {method.description}
+                  </p>
+                  <a 
+                    href={method.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 text-orange-500 font-semibold hover:text-orange-600 transition-colors group/link"
+                  >
+                    {method.linkText}
+                    <iconify-icon icon="mingcute:arrow-right-line" class="group-hover/link:translate-x-1 transition-transform"></iconify-icon>
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ 区域 -->
+    <section class="py-16 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-orange-400/5 via-pink-400/5 to-purple-400/5"></div>
+      
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div class="text-center mb-12">
+          <span class="badge badge-glass mb-4">FAQ</span>
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            常见问题
+          </h2>
+          <p class="text-lg text-gray-600">
+            先看看这里，可能已经有答案了
+          </p>
+        </div>
+        
+        <div class="space-y-4">
+          {faqs.map((faq, index) => (
+            <div class="glass-panel p-6">
+              <div class="flex items-start gap-4">
+                <span class="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center text-white font-bold text-sm">
+                  Q
+                </span>
+                <div class="flex-1">
+                  <h3 class="text-lg font-bold text-gray-900 mb-2">
+                    {faq.question}
+                  </h3>
+                  <p class="text-gray-600">
+                    {faq.answer}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- 底部 CTA -->
+    <section class="py-24 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-orange-400/20 via-pink-400/15 to-purple-400/20"></div>
+      
+      <div class="relative max-w-4xl mx-auto px-4 text-center">
+        <div class="glass-panel p-8 md:p-12">
+          <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center shadow-lg">
+            <iconify-icon icon="mingcute:emoji-line" class="text-4xl text-white"></iconify-icon>
+          </div>
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            还在犹豫？
+          </h2>
+          <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            我们回复很快，真的。<br>除非正在赶 ddl。
+          </p>
+          <a 
+            href="https://t.me/iicoursecom" 
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-primary btn-lg gap-2"
+          >
+            <iconify-icon icon="mingcute:telegram-line" class="text-xl"></iconify-icon>
+            加入 Telegram 群组
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <Footer />
+</Layout>

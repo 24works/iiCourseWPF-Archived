@@ -25,6 +25,12 @@ env:
   DOTNET_VERSION: '9.0.x'
   SOLUTION_PATH: 'iiCourseWPF.sln'
   MAIN_PROJECT: 'iiCourseWPF/iiCourseWPF.csproj'
+  # 代码签名配置
+  # 支持两种方式：
+  # 1. 本地证书: 设置 CERTIFICATE_BASE64 和 CERTIFICATE_PASSWORD
+  # 2. SignPath: 设置 SIGNPATH_API_TOKEN (推荐开源项目)
+  ENABLE_LOCAL_SIGNING: ${{ secrets.CERTIFICATE_BASE64 != '' }}
+  ENABLE_SIGNPATH: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
 
 jobs:
   # 构建和测试
@@ -130,6 +136,81 @@ jobs:
             --configuration Release `
             --self-contained false `
             --output ./publish/dotnet9-required
+
+      # 代码签名 - 方式1: 使用本地证书
+      - name: 代码签名 (本地证书)
+        if: env.ENABLE_LOCAL_SIGNING == 'true'
+        shell: pwsh
+        run: |
+          # 解码证书
+          $certBytes = [Convert]::FromBase64String('${{ secrets.CERTIFICATE_BASE64 }}')
+          $certPath = "$env:TEMP\signing-cert.pfx"
+          [IO.File]::WriteAllBytes($certPath, $certBytes)
+          
+          # 签名所有可执行文件
+          $executables = Get-ChildItem -Path ./publish -Recurse -Include "*.exe" -ErrorAction SilentlyContinue
+          foreach ($exe in $executables) {
+            Write-Host "正在签名: $($exe.FullName)"
+            & signtool.exe sign `
+              /f "$certPath" `
+              /p '${{ secrets.CERTIFICATE_PASSWORD }}' `
+              /tr "http://timestamp.digicert.com" `
+              /td sha256 `
+              /fd sha256 `
+              "$($exe.FullName)"
+            if ($LASTEXITCODE -ne 0) {
+              Write-Warning "签名失败: $($exe.FullName)"
+            }
+          }
+          
+          # 清理证书文件
+          Remove-Item $certPath -Force -ErrorAction SilentlyContinue
+          Write-Host "本地证书签名完成"
+
+      # 为 SignPath 打包未签名文件
+      - name: 打包未签名文件 (SignPath)
+        if: env.ENABLE_SIGNPATH == 'true' && env.ENABLE_LOCAL_SIGNING != 'true'
+        shell: pwsh
+        run: |
+          # 打包所有待签名文件
+          Compress-Archive -Path ./publish/x64/iiCourseWPF.exe -DestinationPath "./unsigned-artifact.zip" -Force
+          Write-Host "未签名文件已打包"
+
+      # 上传未签名文件供 SignPath 使用
+      - name: 上传未签名文件
+        if: env.ENABLE_SIGNPATH == 'true' && env.ENABLE_LOCAL_SIGNING != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-artifact
+          path: ./unsigned-artifact.zip
+          retention-days: 1
+
+      # 代码签名 - 方式2: 使用 SignPath (推荐开源项目)
+      - name: 代码签名 (SignPath)
+        if: env.ENABLE_SIGNPATH == 'true' && env.ENABLE_LOCAL_SIGNING != 'true'
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '401c3aae-8e92-4497-a6fe-2572dd3c7f1f'
+          project-slug: 'iiCourseWPF'
+          signing-policy-slug: 'ReleaseSigning'
+          artifact-configuration-slug: '${{ secrets.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG }}'
+          github-artifact-name: 'unsigned-artifact'
+          wait-for-completion: true
+          output-artifact-directory: './publish/signed'
+
+      # 如果使用了 SignPath，替换为签名后的文件
+      - name: 替换为签名文件 (SignPath)
+        if: env.ENABLE_SIGNPATH == 'true' && env.ENABLE_LOCAL_SIGNING != 'true'
+        shell: pwsh
+        run: |
+          # 解压签名后的文件
+          if (Test-Path './publish/signed/unsigned-artifact.zip') {
+            Expand-Archive -Path './publish/signed/unsigned-artifact.zip' -DestinationPath './publish/signed-extracted' -Force
+            # 复制签名后的 exe 到原位置
+            Copy-Item -Path './publish/signed-extracted/iiCourseWPF.exe' -Destination './publish/x64/iiCourseWPF.exe' -Force
+            Write-Host "已替换为 SignPath 签名文件"
+          }
 
       # 打包自包含版本
       - name: 打包自包含版本

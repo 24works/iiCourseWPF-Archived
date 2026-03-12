@@ -567,7 +567,8 @@ namespace iiCourse.Core.ViewModels
                 PeriodGroups = groups;
                 OnPropertyChanged(nameof(FilteredPeriodGroups));
                 UpdateResultCount();
-                StatusMessage = $"共 {classrooms.Count} 个空闲时段";
+                var uniqueClassrooms = classrooms.Select(c => c.ClassroomName).Distinct().Count();
+                StatusMessage = $"找到 {uniqueClassrooms} 间教室的 {classrooms.Count} 个空闲时段";
             }
             catch (Exception ex)
             {
@@ -596,12 +597,13 @@ namespace iiCourse.Core.ViewModels
             if (string.IsNullOrEmpty(SelectedPeriod))
             {
                 var total = PeriodGroups.Sum(g => g.Count);
-                ResultCountText = $"共 {total} 个空闲时段";
+                var classroomCount = PeriodGroups.SelectMany(g => g.Classrooms).Select(c => c.ClassroomName).Distinct().Count();
+                ResultCountText = $"{classroomCount} 间教室 · {total} 个空闲时段";
             }
             else
             {
                 var group = PeriodGroups.FirstOrDefault(g => g.Period == SelectedPeriod);
-                ResultCountText = $"第{SelectedPeriod}节: {group?.Count ?? 0} 个教室";
+                ResultCountText = $"第{SelectedPeriod}节: {group?.Count ?? 0} 间教室";
             }
         }
 

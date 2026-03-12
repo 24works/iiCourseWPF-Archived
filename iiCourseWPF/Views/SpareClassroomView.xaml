@@ -199,6 +199,17 @@
                 <!-- 查询控制区 -->
                 <Border Style="{StaticResource CardBorderStyle}" Margin="20,20,20,10">
                     <StackPanel>
+                        <!-- 提示信息 -->
+                        <Border Background="#FFF3E0" CornerRadius="6" Padding="12,10" Margin="0,0,0,15">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="16" Height="16" Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,17A1,1 0 0,1 11,16A1,1 0 0,1 12,15A1,1 0 0,1 13,16A1,1 0 0,1 12,17M13,12.5V13H11V11H12.5A1.5,1.5 0 0,0 11,9.5A1.5,1.5 0 0,0 9.5,11H8A3.5,3.5 0 0,1 12,7.5A3.5,3.5 0 0,1 15.5,11A3.5,3.5 0 0,1 13,12.5Z"
+                                      Fill="#FF6B35" Stretch="Uniform" Margin="0,0,8,0"
+                                      VerticalAlignment="Center"/>
+                                <TextBlock Text="当前仅支持查询当日空教室" FontSize="12" 
+                                          Foreground="#E65100" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        
                         <!-- 校区选择 -->
                         <TextBlock Text="选择校区" FontSize="13" FontWeight="SemiBold" 
                                   Foreground="#2C3E50" Margin="0,0,0,10"/>

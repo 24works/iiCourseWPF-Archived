@@ -11,6 +11,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Resources\iiCourse.ico</ApplicationIcon>
+    <Version>1.7.200</Version>
+    <AssemblyVersion>1.7.200</AssemblyVersion>
+    <FileVersion>1.7.200</FileVersion>
+    <Product>iiCourseWPF</Product>
+    <AssemblyTitle>iiCourseWPF 26MGUI</AssemblyTitle>
   </PropertyGroup>
 
   <ItemGroup>

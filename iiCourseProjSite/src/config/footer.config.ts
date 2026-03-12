@@ -16,7 +16,6 @@ export interface FooterConfig {
   brand: {
     name: string;
     tagline: string;
-    logoText: string;
   };
   // 链接列
   columns: FooterColumn[];
@@ -27,8 +26,7 @@ export interface FooterConfig {
 export const footerConfig: FooterConfig = {
   brand: {
     name: "iiCourse",
-    tagline: "智慧校园桌面应用，让教务管理更简单。",
-    logoText: "ii"
+    tagline: "智慧校园桌面应用，让教务管理更简单。"
   },
   columns: [
     {

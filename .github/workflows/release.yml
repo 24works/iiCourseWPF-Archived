@@ -1,5 +1,6 @@
 # GitHub Actions Release Workflow for iiCourseWPF
 # 触发方式: 推送标签 v* 或手动触发
+# 任务拆分: build → sign → release → checksum
 
 name: Release iiCourseWPF
 
@@ -25,15 +26,9 @@ env:
   DOTNET_VERSION: '9.0.x'
   SOLUTION_PATH: 'iiCourseWPF.sln'
   MAIN_PROJECT: 'iiCourseWPF/iiCourseWPF.csproj'
-  # 代码签名配置
-  # 支持两种方式：
-  # 1. 本地证书: 设置 CERTIFICATE_BASE64 和 CERTIFICATE_PASSWORD
-  # 2. SignPath: 设置 SIGNPATH_API_TOKEN (推荐开源项目)
-  ENABLE_LOCAL_SIGNING: ${{ secrets.CERTIFICATE_BASE64 != '' }}
-  ENABLE_SIGNPATH: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
 
 jobs:
-  # 构建和测试
+  # ========== Job 1: 构建 ==========
   build:
     runs-on: windows-latest
     outputs:
@@ -119,7 +114,7 @@ jobs:
             -p:PublishSingleFile=true `
             -p:IncludeNativeLibrariesForSelfExtract=true
 
-      # 发布框架依赖应用 (x64) - 单文件，包含运行时文件
+      # 发布框架依赖应用 (x64)
       - name: 发布应用 (x64 框架依赖)
         run: |
           dotnet publish ${{ env.MAIN_PROJECT }} `
@@ -129,25 +124,46 @@ jobs:
             --output ./publish/x64-framework `
             -p:PublishSingleFile=true
 
-      # 发布纯框架依赖应用 - 需要本地安装 .NET 9
-      - name: 发布应用 (纯框架依赖 - 需安装.NET 9)
+      # 发布纯框架依赖应用
+      - name: 发布应用 (纯框架依赖)
         run: |
           dotnet publish ${{ env.MAIN_PROJECT }} `
             --configuration Release `
             --self-contained false `
             --output ./publish/dotnet9-required
 
+      # 上传未签名构建产物
+      - name: 上传构建产物 (未签名)
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-build
+          path: ./publish/
+          retention-days: 1
+
+  # ========== Job 2: 签名 ==========
+  sign:
+    needs: build
+    runs-on: windows-latest
+    # 只有在有签名配置时才运行
+    if: ${{ secrets.CERTIFICATE_BASE64 != '' || secrets.SIGNPATH_API_TOKEN != '' }}
+
+    steps:
+      # 下载未签名构建产物
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: unsigned-build
+          path: ./publish/
+
       # 代码签名 - 方式1: 使用本地证书
       - name: 代码签名 (本地证书)
-        if: env.ENABLE_LOCAL_SIGNING == 'true'
+        if: ${{ secrets.CERTIFICATE_BASE64 != '' }}
         shell: pwsh
         run: |
-          # 解码证书
           $certBytes = [Convert]::FromBase64String('${{ secrets.CERTIFICATE_BASE64 }}')
           $certPath = "$env:TEMP\signing-cert.pfx"
           [IO.File]::WriteAllBytes($certPath, $certBytes)
           
-          # 签名所有可执行文件
           $executables = Get-ChildItem -Path ./publish -Recurse -Include "*.exe" -ErrorAction SilentlyContinue
           foreach ($exe in $executables) {
             Write-Host "正在签名: $($exe.FullName)"
@@ -163,22 +179,19 @@ jobs:
             }
           }
           
-          # 清理证书文件
           Remove-Item $certPath -Force -ErrorAction SilentlyContinue
           Write-Host "本地证书签名完成"
 
-      # 为 SignPath 打包未签名文件
-      - name: 打包未签名文件 (SignPath)
-        if: env.ENABLE_SIGNPATH == 'true' && env.ENABLE_LOCAL_SIGNING != 'true'
+      # 代码签名 - 方式2: 使用 SignPath
+      - name: 代码签名 (SignPath)
+        if: ${{ secrets.SIGNPATH_API_TOKEN != '' && secrets.CERTIFICATE_BASE64 == '' }}
         shell: pwsh
         run: |
-          # 打包所有待签名文件
+          # 打包待签名文件
           Compress-Archive -Path ./publish/x64/iiCourseWPF.exe -DestinationPath "./unsigned-artifact.zip" -Force
-          Write-Host "未签名文件已打包"
 
-      # 上传未签名文件供 SignPath 使用
-      - name: 上传未签名文件
-        if: env.ENABLE_SIGNPATH == 'true' && env.ENABLE_LOCAL_SIGNING != 'true'
+      - name: 上传未签名文件到 SignPath
+        if: ${{ secrets.SIGNPATH_API_TOKEN != '' && secrets.CERTIFICATE_BASE64 == '' }}
         id: upload-unsigned-artifact
         uses: actions/upload-artifact@v4
         with:
@@ -186,9 +199,8 @@ jobs:
           path: ./unsigned-artifact.zip
           retention-days: 1
 
-      # 代码签名 - 方式2: 使用 SignPath (推荐开源项目)
-      - name: 代码签名 (SignPath)
-        if: env.ENABLE_SIGNPATH == 'true' && env.ENABLE_LOCAL_SIGNING != 'true'
+      - name: 提交 SignPath 签名请求
+        if: ${{ secrets.SIGNPATH_API_TOKEN != '' && secrets.CERTIFICATE_BASE64 == '' }}
         uses: signpath/github-action-submit-signing-request@v1
         with:
           api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
@@ -200,76 +212,113 @@ jobs:
           wait-for-completion: true
           output-artifact-directory: './publish/signed'
 
-      # 如果使用了 SignPath，替换为签名后的文件
-      - name: 替换为签名文件 (SignPath)
-        if: env.ENABLE_SIGNPATH == 'true' && env.ENABLE_LOCAL_SIGNING != 'true'
+      - name: 替换为 SignPath 签名文件
+        if: ${{ secrets.SIGNPATH_API_TOKEN != '' && secrets.CERTIFICATE_BASE64 == '' }}
         shell: pwsh
         run: |
-          # 解压签名后的文件
           if (Test-Path './publish/signed/unsigned-artifact.zip') {
             Expand-Archive -Path './publish/signed/unsigned-artifact.zip' -DestinationPath './publish/signed-extracted' -Force
-            # 复制签名后的 exe 到原位置
             Copy-Item -Path './publish/signed-extracted/iiCourseWPF.exe' -Destination './publish/x64/iiCourseWPF.exe' -Force
             Write-Host "已替换为 SignPath 签名文件"
           }
 
-      # 打包自包含版本
-      - name: 打包自包含版本
+      # 上传签名后的构建产物
+      - name: 上传签名构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-build
+          path: ./publish/
+          retention-days: 1
+
+  # ========== Job 3: 打包和发布 ==========
+  release:
+    needs: sign
+    runs-on: windows-latest
+    if: always() && (needs.sign.result == 'success' || needs.sign.result == 'skipped')
+
+    steps:
+      # 下载签名后的构建产物 (如果签名成功)
+      - name: 下载签名构建产物
+        if: needs.sign.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: signed-build
+          path: ./publish/
+
+      # 下载未签名构建产物 (如果签名被跳过)
+      - name: 下载未签名构建产物
+        if: needs.sign.result == 'skipped'
+        uses: actions/download-artifact@v4
+        with:
+          name: unsigned-build
+          path: ./publish/
+
+      # 获取版本号
+      - name: 获取版本号
+        id: version
+        shell: pwsh
+        run: |
+          if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
+            $version = '${{ github.event.inputs.version }}'
+          } else {
+            $tag = '${{ github.ref_name }}'
+            $version = $tag -replace '^v', ''
+          }
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "版本: $version"
+
+      # 打包所有版本
+      - name: 打包所有版本
         shell: pwsh
         run: |
           $version = '${{ steps.version.outputs.version }}'
           Compress-Archive -Path ./publish/x64/* -DestinationPath "./iiCourseWPF-v$version-win-x64-self-contained.zip" -Force
-
-      # 打包框架依赖版本
-      - name: 打包框架依赖版本
-        shell: pwsh
-        run: |
-          $version = '${{ steps.version.outputs.version }}'
           Compress-Archive -Path ./publish/x64-framework/* -DestinationPath "./iiCourseWPF-v$version-win-x64-framework.zip" -Force
-
-      # 打包纯框架依赖版本 (需安装 .NET 9)
-      - name: 打包纯框架依赖版本
-        shell: pwsh
-        run: |
-          $version = '${{ steps.version.outputs.version }}'
           Compress-Archive -Path ./publish/dotnet9-required/* -DestinationPath "./iiCourseWPF-v$version-dotnet9-required.zip" -Force
+          Write-Host "打包完成"
 
-      # 上传构建产物
-      - name: 上传构建产物
+      # 上传发布产物
+      - name: 上传发布产物
         uses: actions/upload-artifact@v4
         with:
           name: release-artifacts
-          path: |
-            ./iiCourseWPF-v*.zip
+          path: ./iiCourseWPF-v*.zip
           retention-days: 30
 
-  # 创建 GitHub Release
-  release:
-    needs: build
+  # ========== Job 4: 创建 GitHub Release ==========
+  create-release:
+    needs: release
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
-      # 下载构建产物
-      - name: 下载构建产物
+      # 下载发布产物
+      - name: 下载发布产物
         uses: actions/download-artifact@v4
         with:
           name: release-artifacts
           path: ./artifacts
 
-      # 列出构建产物
-      - name: 列出构建产物
-        run: ls -la ./artifacts
+      # 获取版本号
+      - name: 获取版本号
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            version=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+            echo "version=$version" >> $GITHUB_OUTPUT
+          fi
 
-      # 创建 Release
+      # 创建 GitHub Release
       - name: 创建 GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', github.event.inputs.version) || github.ref_name }}
           name: ${{ github.event_name == 'workflow_dispatch' && format('iiCourseWPF v{0}', github.event.inputs.version) || format('iiCourseWPF {0}', github.ref_name) }}
           body: |
-            ## iiCourseWPF ${{ needs.build.outputs.version }}
+            ## iiCourseWPF ${{ steps.version.outputs.version }}
 
             ### 下载
 
@@ -282,19 +331,19 @@ jobs:
             ### 安装说明
 
             **自包含版本 (推荐)**
-            1. 下载 `iiCourseWPF-v${{ needs.build.outputs.version }}-win-x64-self-contained.zip`
+            1. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-x64-self-contained.zip`
             2. 解压到任意文件夹
             3. 运行 `iiCourseWPF.exe`
 
             **框架依赖版本**
             1. 先安装 [.NET 9.0 运行时](https://dotnet.microsoft.com/download/dotnet/9.0)
-            2. 下载 `iiCourseWPF-v${{ needs.build.outputs.version }}-win-x64-framework.zip`
+            2. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-x64-framework.zip`
             3. 解压到任意文件夹
             4. 运行 `iiCourseWPF.exe`
 
             **纯框架依赖版本 (体积最小)**
             1. 先安装 [.NET 9.0 运行时](https://dotnet.microsoft.com/download/dotnet/9.0)
-            2. 下载 `iiCourseWPF-v${{ needs.build.outputs.version }}-dotnet9-required.zip`
+            2. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-dotnet9-required.zip`
             3. 解压到任意文件夹
             4. 运行 `iiCourseWPF.exe`
             > ⚠️ 此版本不包含任何运行时文件，必须确保系统已安装 .NET 9
@@ -311,9 +360,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # 生成校验和
+  # ========== Job 5: 生成校验和 ==========
   checksum:
-    needs: release
+    needs: create-release
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -323,8 +372,8 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      # 下载构建产物
-      - name: 下载构建产物
+      # 下载发布产物
+      - name: 下载发布产物
         uses: actions/download-artifact@v4
         with:
           name: release-artifacts

@@ -266,63 +266,40 @@ jobs:
           body: |
             ## iiCourseWPF ${{ steps.version.outputs.version }}
 
-            ### 下载
+            ### 下载地址
 
-            | 版本 | 架构 | 说明 | 文件大小 |
-            |------|------|------|----------|
-            | 自包含版本 (x64) | x64 | 无需安装 .NET 9 运行时 | ~50MB |
-            | 框架依赖版本 (x64) | x64 | 需要安装 .NET 9 运行时 | ~5MB |
-            | 自包含版本 (x86) | x86 | 无需安装 .NET 9 运行时 | ~45MB |
-            | 框架依赖版本 (x86) | x86 | 需要安装 .NET 9 运行时 | ~4MB |
-            | 自包含版本 (ARM64) | ARM64 | 无需安装 .NET 9 运行时 | ~45MB |
-            | 框架依赖版本 (ARM64) | ARM64 | 需要安装 .NET 9 运行时 | ~4MB |
-            | 纯框架依赖版本 | 任意 | 必须安装 .NET 9 运行时，体积最小 | ~200KB |
+            **Windows (需要 Windows 10 1809+ 或 Windows 11)**
 
-            ### 安装说明
+            自包含版本(推荐，无需安装 .NET 9 运行时)
+            - [64位(常用)](https://github.com/${{ github.repository }}/releases/download/${{ github.event_name == 'workflow_dispatch' && format('v{0}', github.event.inputs.version) || github.ref_name }}/iiCourseWPF-v${{ steps.version.outputs.version }}-win-x64-self-contained.zip) | [32位](https://github.com/${{ github.repository }}/releases/download/${{ github.event_name == 'workflow_dispatch' && format('v{0}', github.event.inputs.version) || github.ref_name }}/iiCourseWPF-v${{ steps.version.outputs.version }}-win-x86-self-contained.zip) | [ARM64](https://github.com/${{ github.repository }}/releases/download/${{ github.event_name == 'workflow_dispatch' && format('v{0}', github.event.inputs.version) || github.ref_name }}/iiCourseWPF-v${{ steps.version.outputs.version }}-win-arm64-self-contained.zip)
 
-            **自包含版本 x64 (推荐)**
-            1. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-x64-self-contained.zip`
-            2. 解压到任意文件夹
-            3. 运行 `iiCourseWPF.exe`
+            框架依赖版本(体积较小，需先安装 [.NET 9 运行时](https://dotnet.microsoft.com/download/dotnet/9.0))
+            - [64位](https://github.com/${{ github.repository }}/releases/download/${{ github.event_name == 'workflow_dispatch' && format('v{0}', github.event.inputs.version) || github.ref_name }}/iiCourseWPF-v${{ steps.version.outputs.version }}-win-x64-framework.zip) | [32位](https://github.com/${{ github.repository }}/releases/download/${{ github.event_name == 'workflow_dispatch' && format('v{0}', github.event.inputs.version) || github.ref_name }}/iiCourseWPF-v${{ steps.version.outputs.version }}-win-x86-framework.zip) | [ARM64](https://github.com/${{ github.repository }}/releases/download/${{ github.event_name == 'workflow_dispatch' && format('v{0}', github.event.inputs.version) || github.ref_name }}/iiCourseWPF-v${{ steps.version.outputs.version }}-win-arm64-framework.zip)
 
-            **框架依赖版本 x64**
-            1. 先安装 [.NET 9.0 运行时](https://dotnet.microsoft.com/download/dotnet/9.0)
-            2. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-x64-framework.zip`
-            3. 解压到任意文件夹
-            4. 运行 `iiCourseWPF.exe`
+            纯框架依赖版本(体积最小 ~200KB，需先安装 [.NET 9 运行时](https://dotnet.microsoft.com/download/dotnet/9.0))
+            - [下载](https://github.com/${{ github.repository }}/releases/download/${{ github.event_name == 'workflow_dispatch' && format('v{0}', github.event.inputs.version) || github.ref_name }}/iiCourseWPF-v${{ steps.version.outputs.version }}-dotnet9-required.zip)
 
-            **自包含版本 x86**
-            1. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-x86-self-contained.zip`
-            2. 解压到任意文件夹
-            3. 运行 `iiCourseWPF.exe`
+            ### 如何选择版本？
 
-            **框架依赖版本 x86**
-            1. 先安装 [.NET 9.0 运行时](https://dotnet.microsoft.com/download/dotnet/9.0)
-            2. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-x86-framework.zip`
-            3. 解压到任意文件夹
-            4. 运行 `iiCourseWPF.exe`
+            | 版本类型 | 文件大小 | 是否需要 .NET 9 | 适用场景 |
+            |---------|---------|----------------|---------|
+            | 自包含 64位 | ~50MB | ❌ 不需要 | **大多数用户推荐**，64位 Windows |
+            | 自包含 32位 | ~45MB | ❌ 不需要 | 32位 Windows 系统 |
+            | 自包含 ARM64 | ~45MB | ❌ 不需要 | Surface Pro X、Copilot+ PC 等 ARM 设备 |
+            | 框架依赖 64位 | ~5MB | ✅ 需要 | 已安装 .NET 9 的 64位系统 |
+            | 框架依赖 32位 | ~4MB | ✅ 需要 | 已安装 .NET 9 的 32位系统 |
+            | 框架依赖 ARM64 | ~4MB | ✅ 需要 | 已安装 .NET 9 的 ARM 设备 |
+            | 纯框架依赖 | ~200KB | ✅ 必须 | 开发者或磁盘空间极紧张 |
 
-            **自包含版本 ARM64 (Surface Pro X / Copilot+ PC)**
-            1. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-arm64-self-contained.zip`
-            2. 解压到任意文件夹
-            3. 运行 `iiCourseWPF.exe`
+            ### 快速开始
 
-            **框架依赖版本 ARM64**
-            1. 先安装 [.NET 9.0 ARM64 运行时](https://dotnet.microsoft.com/download/dotnet/9.0)
-            2. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-win-arm64-framework.zip`
-            3. 解压到任意文件夹
-            4. 运行 `iiCourseWPF.exe`
-
-            **纯框架依赖版本 (体积最小)**
-            1. 先安装 [.NET 9.0 运行时](https://dotnet.microsoft.com/download/dotnet/9.0)
-            2. 下载 `iiCourseWPF-v${{ steps.version.outputs.version }}-dotnet9-required.zip`
-            3. 解压到任意文件夹
-            4. 运行 `iiCourseWPF.exe`
-            > ⚠️ 此版本不包含任何运行时文件，必须确保系统已安装 .NET 9
+            1. **下载对应版本**（不确定就选「自包含 64位」）
+            2. **解压**到任意文件夹
+            3. **运行** `iiCourseWPF.exe`
 
             ### 校验
 
-            文件 SHA256 校验和可在发布页面查看。
+            文件 SHA256 校验和可在发布页面查看，或下载 [checksums.txt](https://github.com/${{ github.repository }}/releases/download/${{ github.event_name == 'workflow_dispatch' && format('v{0}', github.event.inputs.version) || github.ref_name }}/checksums.txt)。
 
             ---
             **完整更新日志**: 参见 [CHANGELOG.md](./docs/changelog.md)

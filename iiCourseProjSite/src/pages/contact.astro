@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Navigation from '../components/Navigation.astro';
 import Footer from '../components/Footer.astro';
+import ArchiveBanner from '../components/ArchiveBanner.astro';
 
 const contactMethods = [
   {
@@ -27,7 +28,7 @@ const contactMethods = [
     icon: 'mingcute:github-line',
     title: 'GitHub',
     description: '提 Issue 或贡献代码',
-    link: 'https://github.com/iicemeta/iiCourseWPF',
+    link: 'https://github.com/24works/iiCourseWPF-Archived',
     linkText: '访问仓库',
     color: 'from-gray-600 to-gray-800'
   },
@@ -63,11 +64,12 @@ const faqs = [
 ---
 
 <Layout title="联络我们" description="联系 iiCourse 团队 - 问题反馈、功能建议、合作洽谈">
+  <ArchiveBanner />
   <Navigation />
   
   <main class="relative z-10 flex-1">
     <!-- Hero Section -->
-    <section class="pt-32 pb-16 relative overflow-hidden">
+    <section class="pt-44 pb-16 relative overflow-hidden">
       <div class="absolute inset-0 bg-gradient-to-br from-orange-400/10 via-pink-400/5 to-purple-400/10"></div>
       
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">

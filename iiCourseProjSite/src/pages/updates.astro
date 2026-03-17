@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Navigation from '../components/Navigation.astro';
 import Footer from '../components/Footer.astro';
+import ArchiveBanner from '../components/ArchiveBanner.astro';
 
 const changelog = [
   {
@@ -33,9 +34,10 @@ const roadmap = [
 ---
 
 <Layout title="更新日志" description="iiCourse 版本更新记录">
+  <ArchiveBanner />
   <Navigation />
   
-  <main class="pt-32 pb-16 relative z-10">
+  <main class="pt-44 pb-16 relative z-10">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- 页面标题 -->
       <div class="text-center mb-16">

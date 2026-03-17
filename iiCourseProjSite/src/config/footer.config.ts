@@ -40,8 +40,8 @@ export const footerConfig: FooterConfig = {
     {
       title: "开源",
       links: [
-        { label: "GitHub", href: "https://github.com/iicemeta/iiCourseWPF.git" },
-        { label: "问题反馈", href: "https://github.com/iicemeta/iiCourseWPF/issues" }
+        { label: "GitHub", href: "https://github.com/24works/iiCourseWPF-Archived.git" },
+        { label: "问题反馈", href: "https://github.com/24works/iiCourseWPF-Archived/issues" }
       ]
     }
   ],

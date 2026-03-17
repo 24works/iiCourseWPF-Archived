@@ -86,20 +86,21 @@ export interface DownloadConfig {
 // 3. 所有下载链接会自动更新
 // ============================================
 
-// 生成 GitHub Release 下载链接
+// 生成 GitHub Release 下载链接（已禁用下载）
 const getReleaseUrl = (version: string, filename: string) => {
-  return `https://github.com/iicemeta/iiCourseWPF/releases/download/v${version}/${filename}`;
+  // 返回空字符串禁用下载
+  return "#";
 };
 
-// 生成备用下载链接（中国大陆网络异常时使用）
+// 生成备用下载链接（已禁用）
 const getMirrorUrl = (version: string, filename: string) => {
-  const originalUrl = getReleaseUrl(version, filename);
-  return `https://proxy.api.030101.xyz/${originalUrl.replace('https://', '')}`;
+  // 返回空字符串禁用下载
+  return "#";
 };
 
 // 在这里修改版本号
 const VERSION = "1.7.200";
-const REPO = "iicemeta/iiCourseWPF";
+const REPO = "24works/iiCourseWPF-Archived";
 
 export const downloadConfig: DownloadConfig = {
   pageTitle: "下载应用",

@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Navigation from '../components/Navigation.astro';
 import Footer from '../components/Footer.astro';
+import ArchiveBanner from '../components/ArchiveBanner.astro';
 import { downloadConfig } from '../config/download.config';
 
 const {
@@ -24,9 +25,10 @@ const {
 ---
 
 <Layout title="下载" description="下载 iiCourse 最新版本">
+  <ArchiveBanner />
   <Navigation />
 
-  <main class="pt-32 pb-16 relative z-10">
+  <main class="pt-44 pb-16 relative z-10">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- 页面标题 -->
       <div class="text-center mb-16">
@@ -39,16 +41,49 @@ const {
         </p>
       </div>
 
+      <!-- 归档警告 -->
+      <div class="archive-warning mb-8">
+        <div class="flex items-start gap-4">
+          <div class="archive-warning-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-bold text-amber-900 mb-2">项目已停止维护</h3>
+            <p class="text-amber-800 text-sm leading-relaxed mb-3">
+              这个项目已经归档，不再提供更新和 bug 修复。下载前请知悉：
+              如果遇到问题，只能靠自己解决了。
+            </p>
+            <a href="/#archive-details" class="inline-flex items-center gap-1 text-sm text-amber-700 hover:text-amber-900 font-medium">
+              了解详情
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
       <!-- 版本信息卡片 -->
-      <div class="glass-panel overflow-hidden mb-8">
-        <div class="relative bg-gradient-to-br from-orange-400 to-pink-400 p-8 text-white text-center overflow-hidden">
-          <div class="absolute top-0 left-0 w-40 h-40 bg-white/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-          <div class="absolute bottom-0 right-0 w-40 h-40 bg-white/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+      <div class="glass-panel overflow-hidden mb-8 opacity-75">
+        <div class="relative bg-gradient-to-br from-gray-400 to-gray-500 p-8 text-white text-center overflow-hidden">
+          <div class="absolute top-0 left-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+          <div class="absolute bottom-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
           
           <div class="relative">
-            <div class="text-sm opacity-90 mb-2 font-medium">最新版本</div>
+            <div class="text-sm opacity-90 mb-2 font-medium">最终版本</div>
             <div class="text-6xl font-bold mb-2">v{currentVersion}</div>
             <div class="text-sm opacity-90">发布于 {releaseDate}</div>
+            <div class="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-white/20 rounded-full text-xs">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 8v13H3V8"></path>
+                <path d="M1 3h22v5H1z"></path>
+              </svg>
+              已归档
+            </div>
           </div>
         </div>
       </div>

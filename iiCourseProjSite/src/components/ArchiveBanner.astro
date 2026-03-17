@@ -1,0 +1,101 @@
+---
+---
+
+<div class="archive-banner">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-center gap-3 py-3 text-sm">
+      <span class="archive-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 8v13H3V8"></path>
+          <path d="M1 3h22v5H1z"></path>
+          <path d="M10 12h4"></path>
+        </svg>
+      </span>
+      <span class="font-medium">
+        项目已归档
+      </span>
+      <span class="hidden sm:inline text-white/80">
+        代码太乱，无力回天。新项目筹备中，敬请期待。
+      </span>
+      <a href="#archive-details" class="archive-link">
+        了解详情
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .archive-banner {
+    background: linear-gradient(135deg, #8B5A2B 0%, #A0522D 50%, #CD853F 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* 噪点纹理 */
+  .archive-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.08;
+    pointer-events: none;
+  }
+  
+  /* 斜纹装饰 */
+  .archive-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(255,255,255,0.03) 10px,
+      rgba(255,255,255,0.03) 20px
+    );
+    pointer-events: none;
+  }
+  
+  .archive-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    backdrop-filter: blur(4px);
+  }
+  
+  .archive-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  
+  .archive-link:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateX(2px);
+  }
+  
+  /* 闪烁动画 */
+  @keyframes pulse-gentle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  
+  .archive-icon {
+    animation: pulse-gentle 2s ease-in-out infinite;
+  }
+</style>

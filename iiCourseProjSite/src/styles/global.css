@@ -665,4 +665,85 @@
   .text-shadow-lg {
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
+  
+  /* ============================================
+     归档相关样式
+     ============================================ */
+  
+  /* 归档卡片 - 首页使用 */
+  .archive-card {
+    background: linear-gradient(135deg, rgba(251, 243, 230, 0.9) 0%, rgba(255, 248, 240, 0.85) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(217, 179, 130, 0.4);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: 
+      0 8px 32px rgba(139, 90, 43, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* 归档卡片噪点纹理 */
+  .archive-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    pointer-events: none;
+  }
+  
+  /* 归档卡片斜纹装饰 */
+  .archive-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 20px,
+      rgba(139, 90, 43, 0.02) 20px,
+      rgba(139, 90, 43, 0.02) 40px
+    );
+    pointer-events: none;
+  }
+  
+  /* 归档图标大 */
+  .archive-icon-large {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #8B5A2B 0%, #A0522D 100%);
+    color: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(139, 90, 43, 0.3);
+    flex-shrink: 0;
+  }
+  
+  /* 下载页归档警告 */
+  .archive-warning {
+    background: linear-gradient(135deg, rgba(254, 243, 199, 0.9) 0%, rgba(253, 230, 138, 0.85) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    box-shadow: 0 4px 20px rgba(217, 119, 6, 0.1);
+  }
+  
+  .archive-warning-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(217, 119, 6, 0.15);
+    color: #D97706;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
 }

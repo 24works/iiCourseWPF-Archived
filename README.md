@@ -1,6 +1,9 @@
+> 非常遗憾这个项目初期没有进行完整考虑而导致现在成为史山代码，优化极其困难且代码非常不优雅，因此这个项目废弃
+> 后续有机会再另起项目
+
 # 📚 iiCourseWPF
 
-> 山东工商学院智慧山商桌面客户端 —— 让校园生活更轻松！
+> 智慧校园桌面客户端 —— 让校园生活更轻松！
 
 [![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![WPF](https://img.shields.io/badge/WPF-Windows-0078D4?logo=windows)](https://docs.microsoft.com/en-us/dotnet/desktop/wpf/)
